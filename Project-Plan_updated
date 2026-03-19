@@ -1,0 +1,262 @@
+# Pulse App – Updated Project Plan
+
+## Summary
+Pulse is a real-time, asymmetric event web app where:
+- An **Admin** creates and hosts an event.
+- Users join via **automatically generated QR code / room code**.
+- Users appear as **dots in a shared lobby**.
+- A timed **game loop** displays questions.
+- Users vote anonymously.
+- Results are visualized live and summarized.
+
+---
+
+## Core Features (MVP)
+
+### Admin
+- Register / Login 
+- Create Event (name, theme)
+- Auto-generate **unique room code + QR**
+- Choose **question category** from **pre-defined question sets** (pulled from database or external API)
+- Option to **write custom questions**
+- Configure:
+  - Question duration
+  - Result duration
+  - Lobby delay (time between questions)
+- Display live lobby (connected users shown as dots)
+- Start / Pause / Stop game loop
+- View and control game from:
+  - Large screen (event screen)
+  - Mobile (admin control panel)
+---
+
+### User
+- Join via QR / code
+- Enter username
+- Lobby view (participants as floating dots)
+- Receive questions in real-time when game is active
+- Submit one answer per question (anonymous) via buttons
+- Confirmation animation on vote
+- Automatically return to lobby after answering
+
+---
+
+## Real-time Behavior (Clarified)
+
+- Users joining/leaving update instantly in lobby
+- When a user votes:
+  → A dot appears **immediately** in the selected answer section on the main screen
+- Dots:
+  - Are anonymous
+  - Are randomly positioned within their answer section
+  - Represent a single vote each
+- Timer is synchronized across all devices
+- Game loop runs continuously unless paused by admin
+
+---
+
+## Game Loop Logic (Updated)
+
+1. Admin starts game
+2. Question appears on:
+   - User devices
+   - Event screen
+3. Timer starts (e.g. 5 minutes)
+4. Users vote
+   - Votes instantly render as dots in correct section on large screen
+   - Users who has voted return to "lobby" view with 
+5. Timer reaches 0
+6. Results screen shown:
+   - % per answer 
+   - user dots are rendered in the background (with name and avatar (If we implement it))
+7. Short delay (still result screen) (e.g. 5 minutes)
+8. Countdown to next question appears on result screen (30 seconds to next question)
+8. Next question loads automatically
+9. Loop repeats
+
+### Admin Controls During Game
+- Pause loop at any time
+- Resume loop
+- Adjust timers live
+- Change next question
+- Control everything from mobile device
+
+---
+
+## Tech Stack (Decided)
+
+### Frontend
+- React (Vite)
+- React Router
+- Zustand (state management)
+
+### Real-time
+- WebSockets (recommended: Socket.IO)
+
+### Utilities
+- qrcode.react (QR generation)
+- nanoid (unique IDs)
+
+### Database
+- Firebase Firestore
+
+---
+
+## Backend 
+
+### Firebase Only
+Use Firebase services only:
+- Firestore (database)
+- Real-time listeners (acts like WebSocket)
+- Firebase Auth (for admin)
+
+
+
+## Data Model (Updated)
+
+### Event
+- id
+- name
+- theme
+- code (generated with nanoid)
+- status:
+  - lobby
+  - question
+  - results
+  - paused
+- currentQuestionId
+- nextQuestionId
+- timers:
+  - questionDuration
+  - resultDuration
+  - lobbyDelay
+
+---
+
+### User
+- id (nanoid)
+- username
+- eventId
+
+---
+
+### Question
+- id
+- text
+- options[]
+- category (wedding, business, etc.)
+- createdBy (admin/system)
+
+---
+
+### Answer
+- userId (hidden from UI)
+- questionId
+- optionIndex
+
+---
+
+## Question System
+
+### Sources
+1. Predefined categories (stored in Firestore or external API)
+2. Admin-created custom questions
+
+### MVP Behavior
+- Load questions based on selected category
+- System queues next question automatically
+
+---
+
+## Hosting (Free Options)
+
+### Frontend
+- Vercel (recommended)
+- Netlify
+
+### Backend (if needed)
+- Render
+- Railway
+
+### Database
+- Firebase Firestore (recommended)
+- Supabase (alternative)
+
+---
+
+## Data Privacy
+
+- Use anonymous IDs (nanoid)
+- Store minimal data (username only)
+- Use localStorage for session persistence
+- No personal/sensitive data required
+- Display simple privacy notice on join
+
+---
+
+## MVP Scope (Final)
+
+Must include:
+- Event creation
+- Auto-generated QR code
+- Lobby with live users (dots)
+- Game loop (auto-running questions)
+- Real-time voting visualization (dots)
+- Results screen (percentages)
+- Admin controls:
+  - Start
+  - Pause
+  - Adjust timers
+- Next question preview + edit
+
+---
+
+## Nice-to-Have (Post-MVP)
+
+- Avatar builder (customizable characters)
+- Icebreaker suggestions ("Did you know...")
+- Topic prompts ("Ask someone about...")
+- Sound effects / animations
+- Multiple concurrent rooms
+
+- Admin Control: Preview **next question**
+- Admin Control: Ability to **change upcoming question during runtime**
+
+
+---
+
+## Risks / Considerations
+
+- Timer synchronization across devices
+- Preventing duplicate votes
+- Handling disconnect/reconnect
+- Firestore read/write costs at scale
+- Ensuring smooth performance with many users
+
+---
+
+## Suggested Folder Structure
+
+frontend/
+- components/
+- pages/
+- hooks/
+- store/
+- services/ (firebase / socket)
+
+(optional backend/)
+- server/
+- sockets/
+- controllers/
+
+---
+
+## Final Notes
+
+- Start simple: no avatars initially
+- Prioritize **real-time responsiveness**
+- Optimize for **mobile users first**
+- Firebase is ideal for MVP speed
+- Socket.IO or Firebase listeners are critical
+
+---
