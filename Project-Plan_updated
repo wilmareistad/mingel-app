@@ -1,4 +1,4 @@
-# Pulse App – Updated Project Plan
+# Pulse App – Project Plan
 
 ## Summary
 Pulse is a real-time, asymmetric event web app where:
@@ -14,122 +14,119 @@ Pulse is a real-time, asymmetric event web app where:
 ## Core Features (MVP)
 
 ### Admin
-- Register / Login 
+- Register / Login (Firebase Auth)
 - Create Event (name, theme)
 - Auto-generate **unique room code + QR**
-- Choose **question category** from **pre-defined question sets** (pulled from database or external API)
+- Choose **question category** from predefined sets (Firestore)
 - Option to **write custom questions**
 - Configure:
   - Question duration
   - Result duration
-  - Lobby delay (time between questions)
-- Display live lobby (connected users shown as dots)
+  - Lobby delay
+- Display live lobby (users as dots)
 - Start / Pause / Stop game loop
-- View and control game from:
-  - Large screen (event screen)
-  - Mobile (admin control panel)
+- Control game from:
+  - Large screen
+  - Mobile (admin panel)
+
 ---
 
 ### User
 - Join via QR / code
 - Enter username
 - Lobby view (participants as floating dots)
-- Receive questions in real-time when game is active
-- Submit one answer per question (anonymous) via buttons
+- Receive questions in real-time
+- Submit one answer per question (anonymous)
 - Confirmation animation on vote
-- Automatically return to lobby after answering
+- Return to lobby after answering
 
 ---
 
-## Real-time Behavior (Clarified)
+## Real-time Behavior
 
-- Users joining/leaving update instantly in lobby
+- Users join/leave → updates instantly (Firestore listeners)
 - When a user votes:
-  → A dot appears **immediately** in the selected answer section on the main screen
+  → A dot appears immediately in selected section (main screen)
 - Dots:
-  - Are anonymous
-  - Are randomly positioned within their answer section
-  - Represent a single vote each
-- Timer is synchronized across all devices
-- Game loop runs continuously unless paused by admin
+  - Anonymous
+  - Random position within section
+  - One dot = one vote
+- Timer synchronized via shared Firestore state
+- Game loop runs continuously unless paused
 
 ---
 
-## Game Loop Logic (Updated)
+## Game Loop Logic
 
 1. Admin starts game
-2. Question appears on:
-   - User devices
-   - Event screen
+2. Question appears on all devices
 3. Timer starts (e.g. 5 minutes)
 4. Users vote
-   - Votes instantly render as dots in correct section on large screen
-   - Users who has voted return to "lobby" view with 
+   - Votes render live as dots in correct section
 5. Timer reaches 0
-6. Results screen shown:
-   - % per answer 
-   - user dots are rendered in the background (with name and avatar (If we implement it))
-7. Short delay (still result screen) (e.g. 5 minutes)
-8. Countdown to next question appears on result screen (30 seconds to next question)
-8. Next question loads automatically
-9. Loop repeats
+6. Results screen:
+   - % per answer
+   - Optional: background dots (users)
+7. Result delay (e.g. 5 minutes)
+8. Countdown to next question (e.g. 30 seconds)
+9. Next question loads automatically
+10. Loop repeats
 
-### Admin Controls During Game
-- Pause loop at any time
-- Resume loop
+### Admin Controls
+- Start game
+- Pause / resume game
 - Adjust timers live
-- Change next question
-- Control everything from mobile device
 
 ---
 
-## Tech Stack (Decided)
+## Tech Stack (Final – Simplified)
 
 ### Frontend
 - React (Vite)
 - React Router
 - Zustand (state management)
 
-### Real-time
-- WebSockets (recommended: Socket.IO)
+### Backend (Firebase Only)
+- Firebase Firestore (database + real-time)
+- Firebase Auth (admin login)
+- Firebase Hosting (optional)
 
 ### Utilities
 - qrcode.react (QR generation)
-- nanoid (unique IDs)
+- nanoid (IDs)
 
-### Database
-- Firebase Firestore
+### Styling / UI
+- Vanilla CSS
 
 ---
 
-## Backend 
+## Why Firebase (Key Decision)
 
-### Firebase Only
-Use Firebase services only:
-- Firestore (database)
-- Real-time listeners (acts like WebSocket)
-- Firebase Auth (for admin)
+- Built-in real-time updates (no WebSocket server needed)
+- Simple architecture → faster MVP
+- Scales reasonably for early stages
+- No backend maintenance
 
+---
 
-
-## Data Model (Updated)
+## Data Model
 
 ### Event
 - id
 - name
 - theme
-- code (generated with nanoid)
+- code (nanoid)
 - status:
   - lobby
   - question
   - results
   - paused
 - currentQuestionId
-- nextQuestionId
 - timers:
   - questionDuration
   - resultDuration
   - lobbyDelay
+- startedAt (timestamp)
 
 ---
 
@@ -137,6 +134,7 @@ Use Firebase services only:
 - id (nanoid)
 - username
 - eventId
+- joinedAt
 
 ---
 
@@ -144,13 +142,13 @@ Use Firebase services only:
 - id
 - text
 - options[]
-- category (wedding, business, etc.)
+- category
 - createdBy (admin/system)
 
 ---
 
 ### Answer
-- userId (hidden from UI)
+- userId (not exposed)
 - questionId
 - optionIndex
 
@@ -159,79 +157,69 @@ Use Firebase services only:
 ## Question System
 
 ### Sources
-1. Predefined categories (stored in Firestore or external API)
-2. Admin-created custom questions
+1. Predefined categories (Firestore collection)
+2. Admin-created questions
 
 ### MVP Behavior
-- Load questions based on selected category
-- System queues next question automatically
+- Load questions by category
+- Auto-queue questions sequentially
+- No editing during runtime (keeps MVP simple)
 
 ---
 
-## Hosting (Free Options)
+## Hosting (Free & Simple)
 
-### Frontend
-- Vercel (recommended)
-- Netlify
+### Frontend + Backend
+- Firebase Hosting (recommended all-in-one)
 
-### Backend (if needed)
-- Render
-- Railway
-
-### Database
-- Firebase Firestore (recommended)
-- Supabase (alternative)
+Alternative:
+- Vercel (frontend) + Firebase (backend)
 
 ---
 
 ## Data Privacy
 
-- Use anonymous IDs (nanoid)
-- Store minimal data (username only)
+- Anonymous user IDs (nanoid)
+- Store only username
 - Use localStorage for session persistence
-- No personal/sensitive data required
-- Display simple privacy notice on join
+- No sensitive data collected
+- Optional privacy notice on join
 
 ---
 
-## MVP Scope (Final)
+## MVP Scope (Strict)
 
-Must include:
 - Event creation
-- Auto-generated QR code
+- QR join
 - Lobby with live users (dots)
-- Game loop (auto-running questions)
-- Real-time voting visualization (dots)
-- Results screen (percentages)
+- Game loop (auto questions)
+- Real-time voting visualization
+- Results screen (%)
 - Admin controls:
   - Start
   - Pause
   - Adjust timers
-- Next question preview + edit
 
 ---
 
 ## Nice-to-Have (Post-MVP)
 
-- Avatar builder (customizable characters)
-- Icebreaker suggestions ("Did you know...")
-- Topic prompts ("Ask someone about...")
+- Avatar builder
+- Icebreaker prompts ("Did you know...")
+- Topic suggestions
 - Sound effects / animations
-- Multiple concurrent rooms
-
-- Admin Control: Preview **next question**
-- Admin Control: Ability to **change upcoming question during runtime**
-
+- Multiple rooms
+- Admin preview next question
+- Admin change upcoming question during runtime
 
 ---
 
 ## Risks / Considerations
 
-- Timer synchronization across devices
-- Preventing duplicate votes
-- Handling disconnect/reconnect
-- Firestore read/write costs at scale
-- Ensuring smooth performance with many users
+- Timer sync (use server timestamps from Firebase)
+- Prevent duplicate votes (one vote per userId/questionId)
+- Handle disconnects (remove inactive users)
+- Firestore costs with many users (optimize listeners)
 
 ---
 
@@ -242,21 +230,21 @@ frontend/
 - pages/
 - hooks/
 - store/
-- services/ (firebase / socket)
-
-(optional backend/)
-- server/
-- sockets/
-- controllers/
+- services/
+  - firebase.js
+  - listeners.js
 
 ---
 
 ## Final Notes
 
-- Start simple: no avatars initially
-- Prioritize **real-time responsiveness**
-- Optimize for **mobile users first**
-- Firebase is ideal for MVP speed
-- Socket.IO or Firebase listeners are critical
+- Keep logic simple → Firebase handles real-time
+- Avoid over-engineering (no custom backend)
+- Focus on:
+  - Smooth real-time updates
+  - Mobile UX
+  - Clear visuals
+
+- Build MVP first → iterate after real usage
 
 ---
