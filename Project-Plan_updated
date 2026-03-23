@@ -1,0 +1,317 @@
+# Pulse App – Project Plan
+
+## Summary
+Pulse is a real-time, asymmetric event web app where:
+- An **Admin** creates and hosts an event.
+- Users join via **automatically generated QR code / room code**.
+- Users appear as **dots in a shared lobby**.
+- A timed **game loop** displays questions.
+- Users vote anonymously.
+- Results are visualized live and summarized.
+
+---
+
+## Core Features (MVP)
+
+  ### Admin
+- Register / Login (Firebase Auth)
+- Create Event (name, theme)
+- Auto-generate **unique room code + QR**
+
+#### Admin – Question Selection (MVP)
+- Browse predefined questions (Firestore)
+- Filter by category (e.g. “wedding”, “tech”)
+- Select questions → add to event question list
+- View selected questions in a queue
+- Add custom questions to the same list
+- Reorder questions (optional MVP+)
+
+- Configure:
+  - Question duration
+  - Result duration
+  - Lobby delay
+- Display live lobby (users as dots)
+- Start / Pause / Stop game loop
+- Control game from:
+  - Large screen
+  - Mobile (admin panel)
+
+---
+
+### User
+- Join via QR / code
+- Enter username
+- Lobby view (participants as floating dots)
+- Receive questions in real-time
+- Submit one answer per question (anonymous)
+- Confirmation animation on vote
+- Return to lobby after answering
+
+---
+
+## Real-time Behavior
+
+- Users join/leave → updates instantly (Firestore listeners)
+- When a user votes:
+  → A dot appears immediately in selected section (main screen)
+- Dots:
+  - Anonymous
+  - Random position within section
+  - One dot = one vote
+- Timer synchronized via shared Firestore state
+- Game loop runs continuously unless paused
+
+---
+
+## Game Loop Logic
+
+1. Admin starts game
+2. Question appears on all devices
+3. Timer starts (e.g. 5 minutes)
+4. Users vote
+   - Votes render live as dots in correct section
+5. Timer reaches 0
+6. Results screen:
+   - % per answer
+   - Optional: background dots (users)
+7. Result delay (e.g. 5 minutes)
+8. Countdown to next question (e.g. 30 seconds)
+9. Next question loads automatically
+10. Loop repeats
+
+### Admin Controls
+- Start game
+- Pause / resume game
+- Adjust timers live
+
+---
+
+## Tech Stack (Final – Simplified)
+
+### Frontend
+- React (Vite)
+- React Router
+- Zustand (state management)
+
+### Backend (Firebase Only)
+- Firebase Firestore (database + real-time)
+- Firebase Auth (admin login)
+- Firebase Hosting (optional)
+
+### Utilities
+- qrcode.react (QR generation)
+- nanoid (IDs)
+
+### Styling / UI
+- Vanilla CSS
+
+---
+
+## Why Firebase (Key Decision)
+
+- Built-in real-time updates (no WebSocket server needed)
+- Simple architecture → faster MVP
+- Scales reasonably for early stages
+- No backend maintenance
+
+---
+
+## Data Model
+
+### Event
+- id
+- name
+- theme
+- code (nanoid)
+- status:
+  - lobby
+  - question
+  - results
+  - paused
+- currentQuestionId
+- timers:
+  - questionDuration
+  - resultDuration
+  - lobbyDelay
+- startedAt (timestamp)
+
+---
+
+### User
+- id (nanoid)
+- username
+- eventId
+- joinedAt
+
+---
+
+### Question
+- id
+- text
+- options[]
+- category
+- createdBy (admin/system)
+
+---
+
+### Answer
+- userId (not exposed)
+- questionId
+- optionIndex
+
+---
+
+## Question System
+
+### Sources
+1. Predefined categories (Firestore collection)
+2. Admin-created questions
+
+### MVP Behavior
+- Load questions by category
+- Auto-queue questions sequentially
+- No editing during runtime (keeps MVP simple)
+
+---
+
+## Hosting (Free & Simple)
+
+### Frontend + Backend
+- Firebase Hosting (recommended all-in-one)
+
+Alternative:
+- Vercel (frontend) + Firebase (backend)
+
+---
+
+## Data Privacy
+
+- Anonymous user IDs (nanoid)
+- Store only username
+- Use localStorage for session persistence
+- No sensitive data collected
+- Optional privacy notice on join
+
+---
+
+## MVP Scope (Strict)
+
+- Event creation
+- QR join
+- Lobby with live users (dots)
+- Game loop (auto questions)
+- Real-time voting visualization
+- Results screen (%)
+- Admin controls:
+  - Start
+  - Pause
+  - Adjust timers
+
+---
+
+## Nice-to-Have (Post-MVP)
+
+- Avatar builder
+- Icebreaker prompts ("Did you know...")
+- Topic suggestions
+- Sound effects / animations
+- Multiple rooms
+- Admin preview next question
+- Admin change upcoming question during runtime
+
+---
+
+## Risks / Considerations
+
+- Timer sync (use server timestamps from Firebase)
+- Prevent duplicate votes (one vote per userId/questionId)
+- Handle disconnects (remove inactive users)
+- Firestore costs with many users (optimize listeners)
+
+---
+
+## Suggested Folder Structure
+
+frontend/
+- components/
+- pages/
+- hooks/
+- store/
+- services/
+  - firebase.js
+  - listeners.js
+
+---
+
+## Final Notes
+
+- Keep logic simple → Firebase handles real-time
+- Avoid over-engineering (no custom backend)
+- Focus on:
+  - Smooth real-time updates
+  - Mobile UX
+  - Clear visuals
+
+- Build MVP first → iterate after real usage
+
+---
+
+src/
+│
+├── main.jsx
+├── App.jsx
+│
+├── pages/                # Sidor (routes)
+│   ├── Home.jsx
+│   ├── CreateEvent.jsx
+│   ├── Join.jsx
+│   ├── Lobby.jsx
+│   ├── Game.jsx
+│   └── AdminPanel.jsx
+│
+├── components/           # Återanvändbara UI-komponenter
+│   ├── Button.jsx
+│   ├── Input.jsx
+│   ├── QRCode.jsx
+│   ├── UserDot.jsx
+│   ├── QuestionCard.jsx
+│   └── Timer.jsx
+│
+├── features/             # 💡 FEATURE-BASERAT (viktigt!)
+│   ├── event/
+│   │   ├── eventStore.js
+│   │   ├── eventService.js
+│   │   └── useEvent.js
+│   │
+│   ├── user/
+│   │   ├── userStore.js
+│   │   ├── userService.js
+│   │   └── useUser.js
+│   │
+│   ├── question/
+│   │   ├── questionStore.js
+│   │   ├── questionService.js
+│   │   └── useQuestions.js
+│   │
+│   ├── game/
+│   │   ├── gameStore.js
+│   │   ├── gameService.js
+│   │   └── useGame.js
+│
+├── services/             # Firebase + listeners
+│   ├── firebase.js
+│   ├── listeners.js
+│
+├── store/                # Global state (Zustand root om du vill)
+│   └── useAppStore.js
+│
+├── hooks/                # Generella hooks
+│   ├── useTimer.js
+│   └── useLocalStorage.js
+│
+├── utils/                # Hjälpfunktioner
+│   ├── generateCode.js
+│   └── helpers.js
+│
+├── styles/
+│   └── global.css
