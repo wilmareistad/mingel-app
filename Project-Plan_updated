@@ -13,12 +13,19 @@ Pulse is a real-time, asymmetric event web app where:
 
 ## Core Features (MVP)
 
-### Admin
+  ### Admin
 - Register / Login (Firebase Auth)
 - Create Event (name, theme)
 - Auto-generate **unique room code + QR**
-- Choose **question category** from predefined sets (Firestore)
-- Option to **write custom questions**
+
+#### Admin – Question Selection (MVP)
+- Browse predefined questions (Firestore)
+- Filter by category (e.g. “wedding”, “tech”)
+- Select questions → add to event question list
+- View selected questions in a queue
+- Add custom questions to the same list
+- Reorder questions (optional MVP+)
+
 - Configure:
   - Question duration
   - Result duration
@@ -248,3 +255,63 @@ frontend/
 - Build MVP first → iterate after real usage
 
 ---
+
+src/
+│
+├── main.jsx
+├── App.jsx
+│
+├── pages/                # Sidor (routes)
+│   ├── Home.jsx
+│   ├── CreateEvent.jsx
+│   ├── Join.jsx
+│   ├── Lobby.jsx
+│   ├── Game.jsx
+│   └── AdminPanel.jsx
+│
+├── components/           # Återanvändbara UI-komponenter
+│   ├── Button.jsx
+│   ├── Input.jsx
+│   ├── QRCode.jsx
+│   ├── UserDot.jsx
+│   ├── QuestionCard.jsx
+│   └── Timer.jsx
+│
+├── features/             # 💡 FEATURE-BASERAT (viktigt!)
+│   ├── event/
+│   │   ├── eventStore.js
+│   │   ├── eventService.js
+│   │   └── useEvent.js
+│   │
+│   ├── user/
+│   │   ├── userStore.js
+│   │   ├── userService.js
+│   │   └── useUser.js
+│   │
+│   ├── question/
+│   │   ├── questionStore.js
+│   │   ├── questionService.js
+│   │   └── useQuestions.js
+│   │
+│   ├── game/
+│   │   ├── gameStore.js
+│   │   ├── gameService.js
+│   │   └── useGame.js
+│
+├── services/             # Firebase + listeners
+│   ├── firebase.js
+│   ├── listeners.js
+│
+├── store/                # Global state (Zustand root om du vill)
+│   └── useAppStore.js
+│
+├── hooks/                # Generella hooks
+│   ├── useTimer.js
+│   └── useLocalStorage.js
+│
+├── utils/                # Hjälpfunktioner
+│   ├── generateCode.js
+│   └── helpers.js
+│
+├── styles/
+│   └── global.css
