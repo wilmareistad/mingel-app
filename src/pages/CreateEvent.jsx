@@ -10,7 +10,7 @@ export default function CreateEvent() {
   const handleCreate = async () => {
     if (!eventName) return setMessage("Enter event name:");
 
-    const code = nanoid(4);
+    const code = nanoid(4).toUpperCase();
 
     await addDoc(collection(db, "events"), {
       name: eventName,
