@@ -1,5 +1,12 @@
-import { useState } from 'react';
-import { collection, query, where, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
+import { useState } from "react";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../services/firebase";
 import { nanoid } from "nanoid";
 import { useNavigate } from "react-router-dom";
@@ -19,10 +26,7 @@ export default function Join() {
     try {
       const cleanCode = code.trim().toUpperCase();
 
-      const q = query(
-        collection(db, "events"),
-        where("code", "==", cleanCode)
-      );
+      const q = query(collection(db, "events"), where("code", "==", cleanCode));
 
       const snapshot = await getDocs(q);
 
@@ -35,18 +39,18 @@ export default function Join() {
 
       const userId = nanoid();
 
-      await addDoc(collection(db, "users"), {
+      const docRef = await addDoc(collection(db, "users"), {
         userId,
         username,
         eventId,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
       });
 
+      localStorage.setItem("userDocId", docRef.id);
       localStorage.setItem("userId", userId);
       localStorage.setItem("eventId", eventId);
 
       navigate(`/lobby/${eventId}`);
-
     } catch (error) {
       console.error(error);
       setMessage("Something went wrong");
