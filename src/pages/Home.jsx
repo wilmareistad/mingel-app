@@ -7,13 +7,9 @@ export default function Home() {
     <div>
       <h1>Pulse</h1>
 
-      <button onClick={() => navigate("/join")}>
-        Join Game
-      </button>
+      <button onClick={() => navigate("/join")}>Join Game</button>
 
-      <button onClick={() => navigate("/create")}>
-        Manage Game
-      </button>
+      <button onClick={() => navigate("/login")}>Manage Game</button>
     </div>
   );
 }
