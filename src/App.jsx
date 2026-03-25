@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Join from "./pages/Join";
 import CreateEvent from "./pages/CreateEvent";
 import Lobby from "./pages/Lobby";
+import Game from "./pages/Game";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/join" element={<Join />} />
         <Route path="/create" element={<CreateEvent />} />
         <Route path="/lobby/:eventId" element={<Lobby />} />
+        <Route path="/game/:eventId" element={<Game />} />
       </Routes>
     </BrowserRouter>
   );

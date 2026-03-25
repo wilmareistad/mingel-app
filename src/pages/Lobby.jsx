@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { collection, doc, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../services/firebase";
 
 export default function Lobby() {
   const { eventId } = useParams();
+  const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
   const [players, setPlayers] = useState([]);
@@ -15,7 +16,13 @@ export default function Lobby() {
 
     const unsubscribeEvent = onSnapshot(eventRef, (docSnap) => {
       if (docSnap.exists()) {
-        setEvent(docSnap.data());
+        const eventData = docSnap.data();
+        setEvent(eventData);
+
+        // GAME LOOP: If event status changes to "question", redirect to game
+        if (eventData.status === "question") {
+          navigate(`/game/${eventId}`);
+        }
       } else {
         setEvent(null);
       }
@@ -42,7 +49,7 @@ export default function Lobby() {
       unsubscribeEvent();
       unsubscribeUsers();
     };
-  }, [eventId]);
+  }, [eventId, navigate]);
 
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
@@ -53,8 +60,9 @@ export default function Lobby() {
 
       <p><strong>Room Name:</strong> {event.name}</p>
       <p><strong>Room Code:</strong> {event.code}</p>
+      <p><strong>Status:</strong> {event.status}</p>
 
-      <h2>Players</h2>
+      <h2>Players ({players.length})</h2>
 
       {players.length > 0 ? (
         <ul>
