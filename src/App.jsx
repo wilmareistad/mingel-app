@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Join from "./pages/Join";
 import CreateEvent from "./pages/CreateEvent";
 import Lobby from "./pages/Lobby";
 import Login from "./pages/Login";
 import AdminPanel from "./pages/AdminPanel";
+import Game from "./pages/Game";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
 
@@ -36,6 +37,7 @@ function App() {
           path="/admin"
           element={user ? <AdminPanel /> : <Navigate to="/login" />}
         />
+        <Route path="/game/:eventId" element={<Game />} />
       </Routes>
     </BrowserRouter>
   );
