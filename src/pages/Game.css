@@ -1,0 +1,115 @@
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  gap: 40px;
+}
+
+.game-container h1 {
+  text-align: center;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.answer-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.answer-button {
+  padding: 20px 30px;
+  font-size: 18px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.answer-button:hover:not(:disabled) {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(170, 59, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.answer-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.answer-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* When answer is selected */
+.answer-button.selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  box-shadow: 0 0 20px rgba(170, 59, 255, 0.4);
+  transform: scale(1.05);
+}
+
+/* When answer is NOT selected (fade and hide) */
+.answer-button.hidden {
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+/* Center the selected answer */
+.answer-buttons:has(.selected) {
+  align-items: center;
+}
+
+.confirmation-message {
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+
+.confirmation-message p {
+  font-size: 18px;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .game-container {
+    padding: 15px;
+    gap: 30px;
+  }
+
+  .answer-button {
+    padding: 15px 20px;
+    font-size: 16px;
+  }
+
+  .game-container h1 {
+    font-size: 24px;
+  }
+}

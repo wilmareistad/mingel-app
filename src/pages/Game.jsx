@@ -4,6 +4,7 @@ import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
+import "./Game.css";
 
 export default function Game() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function Game() {
 
   const [question, setQuestion] = useState(null);
   const [answered, setAnswered] = useState(false);
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,6 +55,10 @@ export default function Game() {
     if (answered || !question || !user || !event) return;
 
     try {
+      // Show the selected option
+      setSelectedOptionIndex(optionIndex);
+      
+      // Submit answer
       await submitAnswer(
         event.id,
         question.id,
@@ -60,10 +66,17 @@ export default function Game() {
         user.id
       );
 
+      // Mark as answered
       setAnswered(true);
-      navigate(`/lobby/${eventId}`);
+
+      // Delay before redirect (2.5 seconds)
+      setTimeout(() => {
+        navigate(`/lobby/${eventId}`);
+      }, 2500);
     } catch (error) {
       console.error("Error submitting answer:", error);
+      // Reset on error
+      setSelectedOptionIndex(null);
     }
   }
 
@@ -71,13 +84,16 @@ export default function Game() {
   if (!question) return <div>No question available</div>;
 
   return (
-    <div>
+    <div className="game-container">
       <h1>{question.text}</h1>
 
-      <div>
+      <div className="answer-buttons">
         {question.options.map((option, index) => (
           <button
             key={index}
+            className={`answer-button ${
+              answered && selectedOptionIndex === index ? "selected" : ""
+            } ${answered && selectedOptionIndex !== index ? "hidden" : ""}`}
             onClick={() => handleAnswer(index)}
             disabled={answered}
           >
@@ -85,6 +101,12 @@ export default function Game() {
           </button>
         ))}
       </div>
+
+      {answered && (
+        <div className="confirmation-message">
+          <p>✓ Your answer has been registered!</p>
+        </div>
+      )}
     </div>
   );
 }

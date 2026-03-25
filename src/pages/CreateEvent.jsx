@@ -17,6 +17,7 @@ export default function CreateEvent() {
       code,
       status: "lobby",
       questions: [],
+      currentQuestionIndex: 0,
       createdAt: serverTimestamp()
     });
 

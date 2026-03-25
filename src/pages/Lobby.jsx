@@ -9,6 +9,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
+import { hasUserAnswered } from "../features/game/gameService";
 
 export default function Lobby() {
   const { eventId } = useParams();
@@ -32,14 +33,24 @@ export default function Lobby() {
     // fetch room data
     const eventRef = doc(db, "events", eventId);
 
-    const unsubscribeEvent = onSnapshot(eventRef, (docSnap) => {
+    const unsubscribeEvent = onSnapshot(eventRef, async (docSnap) => {
       if (docSnap.exists()) {
         const eventData = docSnap.data();
         setEvent(eventData);
 
-        // GAME LOOP: If event status changes to "question", redirect to game
+        // GAME LOOP: If event status changes to "question" AND user hasn't answered yet
+        // redirect to game
         if (eventData.status === "question") {
-          navigate(`/game/${eventId}`);
+          const userId = localStorage.getItem("userId");
+          const currentQuestionId = eventData.questions?.[eventData.currentQuestionIndex];
+          
+          // Only redirect if user hasn't answered this question yet
+          if (userId && currentQuestionId) {
+            const alreadyAnswered = await hasUserAnswered(userId, currentQuestionId);
+            if (!alreadyAnswered) {
+              navigate(`/game/${eventId}`);
+            }
+          }
         }
       } else {
         setEvent(null);
