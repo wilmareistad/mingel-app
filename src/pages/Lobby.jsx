@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
+import UsersLobby from "../components/UsersLobby";
 
 export default function Lobby() {
   const { eventId } = useParams();
@@ -88,17 +89,8 @@ export default function Lobby() {
       <p><strong>Room Code:</strong> {event.code}</p>
       <p><strong>Status:</strong> {event.status}</p>
 
-      <h2>Players ({players.length})</h2>
+      <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username }))} />
 
-      {players.length > 0 ? (
-        <ul>
-          {players.map((player) => (
-            <li key={player.id}>{player.username}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No players yet...</p>
-      )}
       <button onClick={handleLeave}>Leave Game</button>
     </div>
   );
