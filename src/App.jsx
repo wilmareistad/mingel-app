@@ -9,6 +9,7 @@ import AdminPanel from "./pages/AdminPanel";
 import Game from "./pages/Game";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
+import Header from './components/Header';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -27,6 +28,7 @@ function App() {
 
   return (
     <BrowserRouter>
+    <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/join" element={<Join />} />
