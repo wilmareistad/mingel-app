@@ -377,4 +377,23 @@ Output: Both users back in /lobby/xxx ready for next question
 
 ---
 
-**Game loop is complete and ready to use!** 🎮
+# Game Loop Files - TLDR
+
+## **Features Directory**
+
+### `event/`
+- **`eventService.js`** - Listens to Firestore event document in real-time. When status changes, all clients get notified instantly.
+- **`useEvent.js`** - React hook that wraps eventService. Returns `{ event, loading, error }` for use in components.
+
+### `question/`
+- **`questionService.js`** - Fetches questions from Firestore. Gets the current question based on event's question array and currentQuestionIndex.
+
+### `user/`
+- **`userService.js`** - Listens to current user's data from Firestore (username, userId, etc).
+- **`useUser.js`** - React hook that wraps userService. Returns `{ user, loading, error }`.
+
+### `game/`
+- **`gameService.js`** - Submits answers to Firestore answers subcollection and checks if user already answered (prevents duplicates).
+
+## **Game.jsx**
+The main game page. Loads the current question, checks if user already answered, and handles answer submission. When answer is submitted, redirects user back to lobby. Also watches event status - if it changes from "question" to anything else, redirects to lobby. 🎮
