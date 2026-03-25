@@ -27,11 +27,18 @@ function App() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <BrowserRouter>
-    <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/join" element={<Join />} />
+    <div className="animated-bg">
+      {/* Gradient circles */}
+      <div className="gradient gradient1"></div>
+      <div className="gradient gradient2"></div>
+      <div className="gradient gradient3"></div>
+
+      {/* App router */}
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/join" element={<Join />} />
         <Route path="/create" element={<CreateEvent />} />
         <Route path="/lobby/:eventId" element={<Lobby />} />
         <Route path="/login" element={<Login />} />
@@ -42,6 +49,7 @@ function App() {
         <Route path="/game/:eventId" element={<Game />} />
       </Routes>
     </BrowserRouter>
+  </div>
   );
 }
 

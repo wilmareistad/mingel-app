@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import styles from './Header.module.css';
-import GearIcon from '../assets/GearSix.svg?react';
+import GearIcon from '../assets/GearSix.svg';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function Header() {
       <a href="/" onClick={handleLogoClick} className={styles.logo}>
         Pulse
       </a>
-      <GearIcon className={styles.icon} />
+      <img src={GearIcon} alt="Settings" className={styles.icon} />
     </header>
   );
 }
