@@ -1,13 +1,13 @@
 :root {
-  --text: #6b6375;
+  --text: #001A52;
   --text-h: #08060d;
   --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
+  --border: #434343;
+  --code-bg: #9e009e;
+  --accent: #224d5c;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --social-bg: rgba(225, 0, 161, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -17,7 +17,6 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -39,7 +38,7 @@ html, body, #root {
   width: 100vw;
   height: 100vh;
   overflow: hidden; /* hides gradients moving outside */
-  background: black;
+  background: rgb(255, 255, 255);
 }
 
 /* Base gradient style */
@@ -55,7 +54,7 @@ html, body, #root {
 
 /* Gradient 1 – red, starts top-left */
 .gradient1 {
-  background: radial-gradient(circle, rgba(255,0,0,0.35), transparent 70%);
+  background: radial-gradient(circle, #9CA9F4), transparent 70%);
   top: -30%;
   left: -30%;
   animation: float1 6s linear infinite;
@@ -63,7 +62,7 @@ html, body, #root {
 
 /* Gradient 2 – green, starts bottom-left */
 .gradient2 {
-  background: radial-gradient(circle, rgba(0,255,0,0.35), transparent 70%);
+  background: radial-gradient(circle, #9CA9F4, transparent 70%);
   top: 20%;
   left: -40%;
   animation: float2 8s linear infinite;
@@ -71,7 +70,7 @@ html, body, #root {
 
 /* Gradient 3 – blue, starts center-right */
 .gradient3 {
-  background: radial-gradient(circle, rgba(0,0,255,0.35), transparent 70%);
+  background: radial-gradient(circle, #9CA9F4, transparent 70%);
   top: 10%;
   left: 50%;
   animation: float3 10s linear infinite;
@@ -113,25 +112,6 @@ html, body, #root {
 
 
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #d1d5db;
-    --text-h: #f3f4f6;
-    --bg: #1f2937;
-    --border: #374151;
-    --code-bg: #111827;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
 
 body {
   margin: 0;
