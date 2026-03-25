@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { collection, query, where, getDocs, setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { nanoid } from "nanoid";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Join() {
   const [code, setCode] = useState("");
   const [username, setUsername] = useState("");
   const [message, setMessage] = useState("");
+  const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
+
+  // On mount, check if code is in URL params
+  useEffect(() => {
+    const urlCode = searchParams.get("code");
+    if (urlCode) {
+      setCode(urlCode.toUpperCase());
+    }
+  }, [searchParams]);
 
   const handleJoin = async () => {
     if (!code || !username) {

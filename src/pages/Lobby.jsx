@@ -11,6 +11,7 @@ import {
 import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
 import UsersLobby from "../components/UsersLobby";
+import EventQRCode from "../components/QRCode";
 
 export default function Lobby() {
   const { eventId } = useParams();
@@ -88,6 +89,8 @@ export default function Lobby() {
       <p><strong>Room Name:</strong> {event.name}</p>
       <p><strong>Room Code:</strong> {event.code}</p>
       <p><strong>Status:</strong> {event.status}</p>
+
+      <EventQRCode eventCode={event.code} />
 
       <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username }))} />
 
