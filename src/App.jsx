@@ -27,29 +27,33 @@ function App() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="animated-bg">
-      {/* Gradient circles */}
-      <div className="gradient gradient1"></div>
-      <div className="gradient gradient2"></div>
-      <div className="gradient gradient3"></div>
+    <>
+      {/* Animated background (fixed, behind everything) */}
+      <div className="animated-bg">
+        <div className="gradient gradient1"></div>
+        <div className="gradient gradient2"></div>
+        <div className="gradient gradient3"></div>
+      </div>
 
-      {/* App router */}
+      {/* Main app content */}
       <BrowserRouter>
         <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/join" element={<Join />} />
-        <Route path="/create" element={<CreateEvent />} />
-        <Route path="/lobby/:eventId" element={<Lobby />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/admin"
-          element={user ? <AdminPanel /> : <Navigate to="/login" />}
-        />
-        <Route path="/game/:eventId" element={<Game />} />
-      </Routes>
-    </BrowserRouter>
-  </div>
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/join" element={<Join />} />
+            <Route path="/create" element={<CreateEvent />} />
+            <Route path="/lobby/:eventId" element={<Lobby />} />
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/admin"
+              element={user ? <AdminPanel /> : <Navigate to="/login" />}
+            />
+            <Route path="/game/:eventId" element={<Game />} />
+          </Routes>
+        </main>
+      </BrowserRouter>
+    </>
   );
 }
 
