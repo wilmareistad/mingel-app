@@ -4,6 +4,9 @@ import { db } from "../services/firebase";
 import { nanoid } from "nanoid";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { addParticipant } from "../features/event/eventService";
+import caretRight from "../assets/caret-left.svg";
+import caretLeft from "../assets/caret-right.svg";
+import "./Join.css";
 
 export default function Join() {
   const [code, setCode] = useState("");
@@ -66,6 +69,35 @@ export default function Join() {
   return (
     <div>
       <h1>Join Game</h1>
+
+      <div className="avatar_creator">
+        <div className="avatar_view"></div>
+        <div className="avatar_row">
+          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+          <p>Base</p>
+          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+        </div>
+        <div className="avatar_row">
+          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+          <p>Hair</p>
+          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+        </div>
+        <div className="avatar_row">
+          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+          <p>Eyes</p>
+          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+        </div>
+        <div className="avatar_row">
+          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+          <p>Nose</p>
+          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+        </div>
+        <div className="avatar_row">
+          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+          <p>Mouth</p>
+          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+        </div>
+      </div>
 
       <input
         type="text"
