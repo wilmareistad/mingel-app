@@ -26,27 +26,44 @@ export async function getQuestion(questionId) {
 
 /**
  * Get the current question for an event
+ * Fetches questions dynamically from the questions collection
  * @param {string} eventId - Event ID
- * @param {number} questionIndex - Index of the question in the event's question list
- * @returns {Promise<object>} Current question data
+ * @param {number} questionIndex - Index of the question (0-based)
+ * @returns {Promise<object>} Current question data with metadata
  */
 export async function getCurrentQuestion(eventId, questionIndex) {
-  const eventRef = doc(db, "events", eventId);
-  const eventSnap = await getDoc(eventRef);
+  // Get all questions from the questions collection, sorted by ID
+  const questionsRef = collection(db, "questions");
+  const snapshot = await getDocs(questionsRef);
 
-  if (!eventSnap.exists()) {
+  if (snapshot.empty) {
+    console.warn("No questions found in database");
     return null;
   }
 
-  const eventData = eventSnap.data();
-  const questions = eventData.questions || [];
+  const allQuestions = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 
-  if (questionIndex >= questions.length) {
+  // Sort by ID for consistent ordering
+  allQuestions.sort((a, b) => a.id.localeCompare(b.id));
+
+  if (questionIndex >= allQuestions.length) {
+    console.warn(`Question index ${questionIndex} out of range (${allQuestions.length} questions available)`);
     return null;
   }
 
-  const questionId = questions[questionIndex];
-  return getQuestion(questionId);
+  const question = allQuestions[questionIndex];
+  return {
+    id: question.id,
+    text: question.text,
+    options: question.options || ["Agree", "Disagree"],
+    category: question.category,
+    totalQuestions: allQuestions.length,
+    currentIndex: questionIndex,
+    ...question
+  };
 }
 
 /**

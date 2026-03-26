@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";             
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCO9oy7AblSdb5uxvZ7kwEIG-mtvVuyns8",
-  authDomain: "pulse-d724d.firebaseapp.com",
-  projectId: "pulse-d724d",
-  storageBucket: "pulse-d724d.firebasestorage.app",
-  messagingSenderId: "549714159356",
-  appId: "1:549714159356:web:bcd933e5d76e374ed89979"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

@@ -3,6 +3,7 @@ import { collection, query, where, getDocs, setDoc, doc, serverTimestamp } from 
 import { db } from "../services/firebase";
 import { nanoid } from "nanoid";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { addParticipant } from "../features/event/eventService";
 
 export default function Join() {
   const [code, setCode] = useState("");
@@ -41,12 +42,15 @@ export default function Join() {
 
       const userId = nanoid();
 
-      // Set document with userId as the document ID
+      // Set document with userId as the document ID in users collection (for legacy compatibility)
       await setDoc(doc(db, "users", userId), {
         username,
         eventId,
         createdAt: serverTimestamp(),
       });
+
+      // Also add as participant in event sub-collection (new structure)
+      await addParticipant(eventId, userId, username);
 
       localStorage.setItem("userDocId", userId);
       localStorage.setItem("userId", userId);

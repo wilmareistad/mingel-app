@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../services/firebase";
 import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentQuestion } from "../features/question/questionService";
@@ -36,7 +38,7 @@ export default function Results() {
         setQuestion(q);
 
         if (q) {
-          const allAnswers = await getQuestionAnswers(q.id);
+          const allAnswers = await getQuestionAnswers(eventId, q.id);
           setAnswers(allAnswers);
         }
       } catch (error) {
@@ -99,6 +101,24 @@ export default function Results() {
 
       <div className="results-footer">
         <p className="results-count">Total votes: {totalVotes}</p>
+        
+        {/* TEMP: Return to lobby button - remove when timer implemented */}
+        <button 
+          onClick={async () => {
+            try {
+              // Change status back to lobby so the listener redirects
+              await updateDoc(doc(db, "events", eventId), {
+                status: "lobby"
+              });
+              navigate(`/lobby/${eventId}`);
+            } catch (error) {
+              console.error("Error returning to lobby:", error);
+            }
+          }}
+          style={{marginTop: "20px"}}
+        >
+          TEMP: Return to Lobby
+        </button>
       </div>
     </div>
   );

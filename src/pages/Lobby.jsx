@@ -11,6 +11,10 @@ import {
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
+import { listenToParticipants, resetParticipantsAnswered } from "../features/event/eventService";
+import { deleteAnswersForEvent } from "../features/game/dataCleanup";
+import { getCurrentQuestion } from "../features/question/questionService";
+import { debugQuestions } from "../features/question/debugQuestions";
 import UsersLobby from "../components/UsersLobby";
 import EventQRCode from "../components/QRCode";
 
@@ -20,11 +24,24 @@ export default function Lobby() {
 
   const [event, setEvent] = useState(null);
   const [players, setPlayers] = useState([]);
+  const [error, setError] = useState(null);
 
   const handleLeave = async () => {
     const userDocId = localStorage.getItem("userDocId");
+    const userId = localStorage.getItem("userId");
     if (userDocId) {
+      // Delete from legacy users collection
       await deleteDoc(doc(db, "users", userDocId));
+      
+      // Also delete from participants sub-collection if available
+      if (eventId && userId) {
+        try {
+          await deleteDoc(doc(db, "events", eventId, "participants", userId));
+        } catch (error) {
+          console.warn("Could not delete participant:", error);
+        }
+      }
+      
       localStorage.removeItem("userId");
       localStorage.removeItem("eventId");
       localStorage.removeItem("userDocId");
@@ -40,6 +57,7 @@ export default function Lobby() {
       if (docSnap.exists()) {
         const eventData = docSnap.data();
         setEvent(eventData);
+        setError(null); // Clear error when event updates
 
         // GAME LOOP: If event status changes to "results" → show results
         if (eventData.status === "results") {
@@ -47,16 +65,40 @@ export default function Lobby() {
         }
 
         // GAME LOOP: If event status changes to "question" AND user hasn't answered yet
-        // redirect to game
+        // redirect to game (but first validate the question exists)
         if (eventData.status === "question") {
           const userId = localStorage.getItem("userId");
-          const currentQuestionId = eventData.questions?.[eventData.currentQuestionIndex];
+          const currentQuestionIndex = eventData.currentQuestionIndex;
           
-          // Only redirect if user hasn't answered this question yet
-          if (userId && currentQuestionId) {
-            const alreadyAnswered = await hasUserAnswered(userId, currentQuestionId);
-            if (!alreadyAnswered) {
-              navigate(`/game/${eventId}`);
+          console.log("Question status detected. Index:", currentQuestionIndex, "User:", userId);
+          
+          // Validate question exists before navigating
+          if (userId && currentQuestionIndex !== undefined) {
+            try {
+              const question = await getCurrentQuestion(eventId, currentQuestionIndex);
+              
+              console.log("Question loaded:", question);
+              
+              if (!question) {
+                // Question not found - show error on lobby
+                setError(`Question not found (index: ${currentQuestionIndex}). Make sure the question ID exists in the database.`);
+                console.log("Question is null, showing error");
+                return;
+              }
+
+              // Check if user already answered this question
+              const alreadyAnswered = await hasUserAnswered(eventId, userId, question.id);
+              console.log("Already answered:", alreadyAnswered);
+              
+              if (!alreadyAnswered) {
+                console.log("Navigating to game");
+                navigate(`/game/${eventId}`);
+              } else {
+                console.log("User already answered, staying on lobby");
+              }
+            } catch (err) {
+              console.error("Error validating question:", err);
+              setError("Error loading question. Please check the database.");
             }
           }
         }
@@ -65,23 +107,18 @@ export default function Lobby() {
       }
     });
 
-    // fetch users in this room
-    const usersRef = collection(db, "users");
-
-    const q = query(usersRef, where("eventId", "==", eventId));
-
-    const unsubscribeUsers = onSnapshot(q, (snapshot) => {
-      const userList = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setPlayers(userList);
+    // Listen to participants (new structure - more efficient than querying all users)
+    const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
+      setPlayers(participants.map(p => ({
+        id: p.id,
+        username: p.name,
+        ...p
+      })));
     });
 
     return () => {
       unsubscribeEvent();
-      unsubscribeUsers();
+      unsubscribeParticipants();
     };
   }, [eventId, navigate]);
 
@@ -91,19 +128,54 @@ export default function Lobby() {
   // Test buttons to trigger results (development only)
   const handleTestResults = async () => {
     try {
-      // Set one test answer first
-      const testAnswerId = await import("../features/game/gameService").then(m =>
-        m.submitAnswer(eventId, "q1", 0, localStorage.getItem("userId"))
-      );
-      
-      // Now transition to results
+      // Just transition to results without auto-submitting an answer
       await updateDoc(doc(db, "events", eventId), {
-        status: "results",
-        currentQuestionIndex: 0,
-        questions: ["q1"]  // Add q1 to questions array for testing
+        status: "results"
       });
     } catch (error) {
       console.error("Error:", error);
+      alert("Error: " + error.message);
+    }
+  };
+
+  const handleCleanupAnswers = async () => {
+    if (!window.confirm("Delete all answers for this event? This cannot be undone.")) {
+      return;
+    }
+    
+    try {
+      const deleted = await deleteAnswersForEvent(eventId);
+      alert(`Deleted ${deleted} answers`);
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
+  };
+
+  const handleTestQuestion = async () => {
+    try {
+      // Reset all participants' answered status before starting new question
+      await resetParticipantsAnswered(eventId);
+      
+      // Also clean up old answers from this question so users can answer again
+      await deleteAnswersForEvent(eventId);
+      
+      // Transition to question status
+      await updateDoc(doc(db, "events", eventId), {
+        status: "question"
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error: " + error.message);
+    }
+  };
+
+  const handleDebug = async () => {
+    try {
+      const questions = await debugQuestions();
+      alert(`Debug info logged to console. ${questions.length} questions found.`);
+    } catch (error) {
+      console.error("Debug error:", error);
+      alert("Error: " + error.message);
     }
   };
 
@@ -115,13 +187,47 @@ export default function Lobby() {
       <p><strong>Room Code:</strong> {event.code}</p>
       <p><strong>Status:</strong> {event.status}</p>
 
+      {error && (
+        <div style={{
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+          padding: "12px",
+          borderRadius: "4px",
+          marginTop: "20px",
+          border: "1px solid #f5c6cb"
+        }}>
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+
       <EventQRCode eventCode={event.code} />
 
       <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username }))} />
       
-      {/* Development: Test results page */}
-      <button onClick={handleTestResults} style={{marginTop: "20px"}}>
+      {/* Show answer progress when game is in question state */}
+      {event.status === "question" && (
+        <div style={{marginTop: "20px", padding: "12px", backgroundColor: "#e7f3ff", borderRadius: "6px"}}>
+          <p style={{margin: "0"}}>
+            <strong>Answers:</strong> {players.filter(p => p.hasAnswered).length} / {players.length} participants
+          </p>
+        </div>
+      )}
+      
+      {/* Development: Test buttons */}
+      <button onClick={handleTestQuestion} style={{marginTop: "20px"}}>
+        TEST: Trigger Question
+      </button>
+      
+      <button onClick={handleTestResults} style={{marginTop: "12px"}}>
         TEST: Trigger Results
+      </button>
+      
+      <button onClick={handleDebug} style={{marginTop: "12px", background: "#6c757d"}}>
+        DEBUG: Check Questions (see console)
+      </button>
+      
+      <button onClick={handleCleanupAnswers} style={{marginTop: "12px", background: "#dc3545"}}>
+        CLEANUP: Delete All Answers
       </button>
 
       <button onClick={handleLeave}>Leave Game</button>

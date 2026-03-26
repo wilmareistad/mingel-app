@@ -6,6 +6,7 @@ import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
+import { listenToParticipants } from "../features/event/eventService";
 import "./Game.css";
 
 export default function Game() {
@@ -19,8 +20,7 @@ export default function Game() {
   const [answered, setAnswered] = useState(false);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [totalPlayers, setTotalPlayers] = useState(0);
-  const [answersCount, setAnswersCount] = useState(0);
+  const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
     if (!event) return;
@@ -40,13 +40,22 @@ export default function Game() {
         );
         setQuestion(q);
 
+        // If question not found, redirect back to lobby
+        if (!q) {
+          console.warn("Question not found, redirecting to lobby");
+          navigate(`/lobby/${eventId}`);
+          return;
+        }
+
         // Check if user already answered this question
         if (user && q) {
-          const alreadyAnswered = await hasUserAnswered(user.id, q.id);
+          const alreadyAnswered = await hasUserAnswered(eventId, user.id, q.id);
           setAnswered(alreadyAnswered);
         }
       } catch (error) {
         console.error("Error loading question:", error);
+        // Redirect to lobby on error
+        navigate(`/lobby/${eventId}`);
       } finally {
         setLoading(false);
       }
@@ -54,31 +63,13 @@ export default function Game() {
 
     loadQuestion();
 
-    // Listen to active players
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("eventId", "==", eventId));
-    const unsubscribePlayers = onSnapshot(q, (snapshot) => {
-      setTotalPlayers(snapshot.docs.length);
+    // Listen to participants (new structure for checking who answered)
+    const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
+      setParticipants(participants);
     });
 
-    // Listen to answers for the current question
-    if (event.questions?.[event.currentQuestionIndex]) {
-      const currentQuestionId = event.questions[event.currentQuestionIndex];
-      const answersRef = collection(db, "answers");
-      const answersQuery = query(answersRef, where("questionId", "==", currentQuestionId));
-      
-      const unsubscribeAnswers = onSnapshot(answersQuery, (snapshot) => {
-        setAnswersCount(snapshot.docs.length);
-      });
-
-      return () => {
-        unsubscribePlayers();
-        unsubscribeAnswers();
-      };
-    }
-
     return () => {
-      unsubscribePlayers();
+      unsubscribeParticipants();
     };
   }, [event, user, eventId, navigate]);
 
@@ -100,54 +91,7 @@ export default function Game() {
       // Mark as answered
       setAnswered(true);
 
-      // Delay before checking if all have answered (give time for Firestore to update)
-      setTimeout(async () => {
-        try {
-          // Get total active players
-          const usersRef = collection(db, "users");
-          const usersQuery = query(usersRef, where("eventId", "==", eventId));
-          
-          let totalUsers = 0;
-          let answeredCount = 0;
-
-          // Get snapshot of users
-          const usersSnapshot = await new Promise((resolve) => {
-            const unsub = onSnapshot(usersQuery, (snap) => {
-              resolve(snap);
-              unsub();
-            });
-          });
-          
-          totalUsers = usersSnapshot.docs.length;
-
-          // Get current answer count
-          const answersRef = collection(db, "answers");
-          const answersQuery = query(answersRef, where("questionId", "==", question.id));
-          
-          const answersSnapshot = await new Promise((resolve) => {
-            const unsub = onSnapshot(answersQuery, (snap) => {
-              resolve(snap);
-              unsub();
-            });
-          });
-          
-          answeredCount = answersSnapshot.docs.length;
-
-          console.log(`Answers: ${answeredCount}/${totalUsers}`);
-
-          // If all players have answered, transition to results
-          if (answeredCount >= totalUsers && totalUsers > 0) {
-            console.log("All players answered, transitioning to results");
-            await updateDoc(doc(db, "events", eventId), {
-              status: "results"
-            });
-          }
-        } catch (error) {
-          console.error("Error checking answer count:", error);
-        }
-      }, 500);
-
-      // Delay before redirect (2.5 seconds)
+      // Delay before redirect back to lobby (2.5 seconds)
       setTimeout(() => {
         navigate(`/lobby/${eventId}`);
       }, 2500);
@@ -163,6 +107,9 @@ export default function Game() {
 
   return (
     <div className="game-container">
+      <div style={{fontSize: "14px", color: "#666", marginBottom: "10px"}}>
+        Question {(question.currentIndex || 0) + 1} of {question.totalQuestions || '?'}
+      </div>
       <h1>{question.text}</h1>
 
       <div className="answer-buttons">

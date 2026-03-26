@@ -2,13 +2,16 @@ import { useState } from "react";
 import { collection, setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { nanoid } from "nanoid";
+import { useAuth } from "../features/auth/useAuth";
 
 export default function CreateEvent() {
   const [eventName, setEventName] = useState("");
   const [message, setMessage] = useState("");
+  const { user } = useAuth();
 
   const handleCreate = async () => {
     if (!eventName) return setMessage("Enter event name");
+    if (!user) return setMessage("You must be logged in");
 
     // Generate a 4-character code using nanoid
     const code = nanoid(4).toUpperCase();
@@ -21,8 +24,8 @@ export default function CreateEvent() {
         name: eventName,
         code,
         status: "lobby",
-        questions: [],
         currentQuestionIndex: 0,
+        createdBy: user.uid,
         createdAt: serverTimestamp()
       });
 
