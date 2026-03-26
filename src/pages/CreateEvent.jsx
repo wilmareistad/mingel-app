@@ -1,19 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { collection, setDoc, doc, serverTimestamp } from "firebase/firestore";
-import { db } from "../services/firebase";
+import { db, auth } from "../services/firebase";
 import { nanoid } from "nanoid";
 
 export default function CreateEvent() {
   const [eventName, setEventName] = useState("");
   const [message, setMessage] = useState("");
+  const [adminId, setAdminId] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Get current admin's ID
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setAdminId(user.uid);
+      } else {
+        setAdminId(null);
+      }
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
 
   const handleCreate = async () => {
     if (!eventName) return setMessage("Enter event name");
+    if (!adminId) return setMessage("You must be logged in");
 
     // Generate a 4-character code using nanoid
     const code = nanoid(4).toUpperCase();
 
-    // Create document ID as "EventName_CODE" (e.g., "Hamburgerevent_SR9E")
     const docId = `${eventName.replace(/\s+/g, '')}_${code}`;
 
     try {
@@ -23,7 +39,8 @@ export default function CreateEvent() {
         status: "lobby",
         questions: [],
         currentQuestionIndex: 0,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        adminId: adminId
       });
 
       setMessage(`Event created! Code: ${code}`);
@@ -33,6 +50,8 @@ export default function CreateEvent() {
       setMessage("Error creating event");
     }
   };
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div>
