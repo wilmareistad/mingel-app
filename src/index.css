@@ -26,6 +26,10 @@
 }
 
 
+.home_button_to_tutorial {
+  all: unset;
+}
+
 html, body, #root {
   margin: 0;
   padding: 0;

@@ -1,0 +1,153 @@
+.tutorial_dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 30px 0 40px 0;
+}
+
+.tutorial_dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #c5c5d0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.tutorial_dot.active {
+    background-color: #001a4d;
+}
+
+.tutorial_page_1,
+.tutorial_page_2,
+.tutorial_page_3 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px 60px 20px;
+    text-align: center;
+}
+
+/* Page 1 */
+.tutorial_page_1 h1 {
+    font-size: 48px;
+    font-weight: 600;
+    color: #001a4d;
+    margin: 0 0 40px 0;
+    letter-spacing: -0.5px;
+}
+
+.tutorial_page_1 h2 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #001a4d;
+    margin: 0 0 20px 0;
+}
+
+.tutorial_page_1 > p:nth-of-type(1) {
+    font-size: 14px;
+    color: #333;
+    margin: 0 0 12px 0;
+}
+
+.tutorial_statement {
+    font-size: 16px;
+    font-weight: 500;
+    color: #001a4d;
+    border: 2px solid #001a4d;
+    border-radius: 8px;
+    padding: 16px 24px;
+    margin: 0 0 50px 0;
+    min-width: 300px;
+    background-color: transparent;
+}
+
+/* Pages 2 & 3 */
+.tutorial_page_2 img,
+.tutorial_page_3 img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 30px;
+}
+
+.tutorial_page_2 h2,
+.tutorial_page_3 h2 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #001a4d;
+    margin: 0 0 20px 0;
+}
+
+.tutorial_page_2 p,
+.tutorial_page_3 p {
+    font-size: 16px;
+    color: #333;
+    margin: 0 0 50px 0;
+    max-width: 450px;
+    line-height: 1.5;
+}
+
+/* Buttons */
+.tutorial_next,
+.tutorial_prev,
+.tutorial_skip {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tutorial_page_1 button {
+    margin-bottom: 12px;
+}
+
+.tutorial_page_1 .tutorial_next,
+.tutorial_page_1 .tutorial_skip {
+    width: 120px;
+    padding: 12px 16px;
+}
+
+.tutorial_page_2 .tutorial_next,
+.tutorial_page_2 .tutorial_prev,
+.tutorial_page_3 .tutorial_next,
+.tutorial_page_3 .tutorial_prev {
+    width: 120px;
+    padding: 12px 16px;
+    display: inline-block;
+    margin: 0 8px;
+}
+
+.tutorial_next {
+    background-color: #001a4d;
+    color: white;
+}
+
+.tutorial_next:hover {
+    background-color: #000d2e;
+}
+
+.tutorial_prev {
+    background-color: transparent;
+    color: #001a4d;
+    border: 1.5px solid #001a4d;
+}
+
+.tutorial_prev:hover {
+    background-color: #f0f0f5;
+}
+
+.tutorial_skip {
+    background: none;
+    color: #666;
+    font-size: 13px;
+    margin-top: 16px;
+    padding: 0;
+    text-decoration: none;
+}
+
+.tutorial_skip:hover {
+    color: #333;
+}
