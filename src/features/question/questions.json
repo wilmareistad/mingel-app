@@ -188,5 +188,105 @@
     "category": "work",
     "text": "Remote workers are more productive than office workers.",
     "options": ["Agree", "Disagree"]
+  },
+  "q39": {
+    "category": "fun",
+    "text": "Pineapple belongs on pizza.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q40": {
+    "category": "fun",
+    "text": "Dancing in public is totally acceptable if you hear a good song.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q41": {
+    "category": "fun",
+    "text": "You can never have too many throw pillows.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q42": {
+    "category": "fun",
+    "text": "Talking to pets is a normal form of conversation.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q43": {
+    "category": "fun",
+    "text": "Breakfast food is acceptable at any time of day.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q44": {
+    "category": "fun",
+    "text": "Singing in the shower should be considered an Olympic sport.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q45": {
+    "category": "fun",
+    "text": "Socks with sandals are a crime against fashion.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q46": {
+    "category": "fun",
+    "text": "Selfies are a form of modern art.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q47": {
+    "category": "fun",
+    "text": "Watching a movie alone is better than with a crowd.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q48": {
+    "category": "fun",
+    "text": "Bubble wrap is one of life's greatest joys.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q49": {
+    "category": "fun",
+    "text": "Chocolate ice cream is superior to vanilla.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q50": {
+    "category": "fun",
+    "text": "Wearing pajamas all day is a valid life choice.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q51": {
+    "category": "fun",
+    "text": "Laughing at your own jokes is mandatory.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q52": {
+    "category": "fun",
+    "text": "Spicy food makes everything better.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q53": {
+    "category": "fun",
+    "text": "You should clap when the plane lands.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q54": {
+    "category": "fun",
+    "text": "Cats are secretly plotting world domination.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q55": {
+    "category": "fun",
+    "text": "You can't have too many mugs.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q56": {
+    "category": "fun",
+    "text": "Karaoke is more fun when nobody judges.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q57": {
+    "category": "fun",
+    "text": "Board games are better than video games.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q58": {
+    "category": "fun",
+    "text": "Life would be better if we all carried tiny party hats everywhere.",
+    "options": ["Agree", "Disagree"]
   }
 }
