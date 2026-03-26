@@ -44,8 +44,8 @@ export default function UsersLobby({ users }) {
 
         // First pass: move all avatars
         Object.keys(updated).forEach((userId) => {
-          updated[userId].x += (Math.random() - 0.5) * 0.5;
-          updated[userId].y += (Math.random() - 0.5) * 0.5;
+          updated[userId].x += (Math.random() - 0.5) * 1.2;
+          updated[userId].y += (Math.random() - 0.5) * 1.2;
 
           // Keep within visible bounds (with padding for avatar + name)
           updated[userId].x = Math.max(10, Math.min(90, updated[userId].x));
@@ -84,7 +84,7 @@ export default function UsersLobby({ users }) {
 
         return updated;
       });
-    }, 2000); // Update every 2 seconds for smooth slow movement
+    }, 1200); // Update every 1.2 seconds for faster movement
 
     return () => clearInterval(interval);
   }, [positions]);

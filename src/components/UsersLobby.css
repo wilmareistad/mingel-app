@@ -15,7 +15,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  transition: left 2s ease-in-out, top 2s ease-in-out;
+  transition: left 1.2s ease-in-out, top 1.2s ease-in-out;
   cursor: pointer;
 }
 

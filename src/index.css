@@ -54,7 +54,7 @@ html, body, #root {
 
 /* Gradient 1 – red, starts top-left */
 .gradient1 {
-  background: radial-gradient(circle, #9CA9F4), transparent 70%);
+  background: radial-gradient(circle, #9CA9F4, transparent 70%);
   top: -30%;
   left: -30%;
   animation: float1 6s linear infinite;
