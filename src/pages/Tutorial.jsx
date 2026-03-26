@@ -70,7 +70,7 @@ export default function Tutorial() {
                 <div className="tutorial_page_3">
                     <img src={statsIcon} alt="See results"></img>
                     <h2>See results</h2>
-                    <p>View real-time aggregated results after each round. No individula data is shown.</p>
+                    <p>View real-time aggregated results after each round. No individual data is shown.</p>
                     <div>
                         <button className="tutorial_prev" onClick={handlePrevious}>Previous</button>
                         <button className="tutorial_next" onClick={handleNext}>Next</button>
