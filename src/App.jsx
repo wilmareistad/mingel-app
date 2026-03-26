@@ -5,6 +5,7 @@ import Join from "./pages/Join";
 import CreateEvent from "./pages/CreateEvent";
 import Lobby from "./pages/Lobby";
 import Login from "./pages/Login";
+import Tutorial from "./pages/Tutorial";
 import AdminPanel from "./pages/AdminPanel";
 import Game from "./pages/Game";
 import Results from "./pages/Results";
@@ -46,6 +47,7 @@ function App() {
             <Route path="/create" element={<CreateEvent />} />
             <Route path="/lobby/:eventId" element={<Lobby />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/tutorial" element={<Tutorial />} />
             <Route
               path="/admin"
               element={user ? <AdminPanel /> : <Navigate to="/login" />}
