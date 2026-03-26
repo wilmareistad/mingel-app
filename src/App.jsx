@@ -7,6 +7,7 @@ import Lobby from "./pages/Lobby";
 import Login from "./pages/Login";
 import AdminPanel from "./pages/AdminPanel";
 import Game from "./pages/Game";
+import Results from "./pages/Results";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Header from './components/Header';
@@ -50,6 +51,7 @@ function App() {
               element={user ? <AdminPanel /> : <Navigate to="/login" />}
             />
             <Route path="/game/:eventId" element={<Game />} />
+            <Route path="/results/:eventId" element={<Results />} />
           </Routes>
         </main>
       </BrowserRouter>

@@ -7,6 +7,7 @@ import {
   where,
   onSnapshot,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
@@ -39,6 +40,11 @@ export default function Lobby() {
       if (docSnap.exists()) {
         const eventData = docSnap.data();
         setEvent(eventData);
+
+        // GAME LOOP: If event status changes to "results" → show results
+        if (eventData.status === "results") {
+          navigate(`/results/${eventId}`);
+        }
 
         // GAME LOOP: If event status changes to "question" AND user hasn't answered yet
         // redirect to game
@@ -82,6 +88,25 @@ export default function Lobby() {
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
 
+  // Test buttons to trigger results (development only)
+  const handleTestResults = async () => {
+    try {
+      // Set one test answer first
+      const testAnswerId = await import("../features/game/gameService").then(m =>
+        m.submitAnswer(eventId, "q1", 0, localStorage.getItem("userId"))
+      );
+      
+      // Now transition to results
+      await updateDoc(doc(db, "events", eventId), {
+        status: "results",
+        currentQuestionIndex: 0,
+        questions: ["q1"]  // Add q1 to questions array for testing
+      });
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   return (
     <div>
       <h1>Lobby</h1>
@@ -93,6 +118,11 @@ export default function Lobby() {
       <EventQRCode eventCode={event.code} />
 
       <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username }))} />
+      
+      {/* Development: Test results page */}
+      <button onClick={handleTestResults} style={{marginTop: "20px"}}>
+        TEST: Trigger Results
+      </button>
 
       <button onClick={handleLeave}>Leave Game</button>
     </div>
