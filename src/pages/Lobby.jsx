@@ -109,6 +109,7 @@ export default function Lobby() {
 
     // Listen to participants (new structure - more efficient than querying all users)
     const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
+      console.log("Participants updated:", participants);
       setPlayers(participants.map(p => ({
         id: p.id,
         username: p.name,
@@ -153,8 +154,10 @@ export default function Lobby() {
 
   const handleTestQuestion = async () => {
     try {
-      // Reset all participants' answered status before starting new question
+      // First, ensure all participants have a hasAnswered field set to false
+      console.log("Resetting participants...");
       await resetParticipantsAnswered(eventId);
+      console.log("Participants reset completed");
       
       // Also clean up old answers from this question so users can answer again
       await deleteAnswersForEvent(eventId);
@@ -209,6 +212,11 @@ export default function Lobby() {
         <div style={{marginTop: "20px", padding: "12px", backgroundColor: "#e7f3ff", borderRadius: "6px"}}>
           <p style={{margin: "0"}}>
             <strong>Answers:</strong> {players.filter(p => p.hasAnswered).length} / {players.length} participants
+            {players.length > 0 && (
+              <span style={{fontSize: "12px", marginLeft: "12px"}}>
+                ({players.map(p => `${p.name}:${p.hasAnswered}`).join(", ")})
+              </span>
+            )}
           </p>
         </div>
       )}

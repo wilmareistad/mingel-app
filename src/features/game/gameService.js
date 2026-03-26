@@ -21,9 +21,12 @@ export async function submitAnswer(eventId, questionId, optionIndex, userId) {
     submittedAt: serverTimestamp()
   });
 
+  console.log("Answer submitted:", { eventId, questionId, userId, optionIndex });
+
   // Update participant's hasAnswered flag
   try {
     await updateParticipantAnswered(eventId, userId, true);
+    console.log("Participant answered flag updated:", { eventId, userId });
   } catch (error) {
     console.warn("Could not update participant answered status:", error);
   }

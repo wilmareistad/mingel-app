@@ -48,7 +48,6 @@ export async function updateCurrentQuestionIndex(eventId, questionIndex) {
 }
 
 /**
-<<<<<<< HEAD
  * Add a participant to an event
  * @param {string} eventId - Event ID
  * @param {string} userId - User ID
@@ -56,11 +55,13 @@ export async function updateCurrentQuestionIndex(eventId, questionIndex) {
  */
 export async function addParticipant(eventId, userId, username) {
   const participantRef = doc(db, "events", eventId, "participants", userId);
+  console.log("addParticipant called:", { eventId, userId, username });
   await setDoc(participantRef, {
     name: username,
     joinedAt: serverTimestamp(),
     hasAnswered: false
-  });
+  }, { merge: false }); // Don't merge - ensure clean creation
+  console.log("addParticipant completed:", { eventId, userId });
 }
 
 /**
@@ -71,9 +72,11 @@ export async function addParticipant(eventId, userId, username) {
  */
 export async function updateParticipantAnswered(eventId, userId, hasAnswered) {
   const participantRef = doc(db, "events", eventId, "participants", userId);
+  console.log("updateParticipantAnswered called:", { eventId, userId, hasAnswered });
   await updateDoc(participantRef, {
     hasAnswered
   });
+  console.log("updateParticipantAnswered completed");
 }
 
 /**
@@ -105,6 +108,7 @@ export function listenToParticipants(eventId, callback) {
       id: doc.id,
       ...doc.data()
     }));
+    console.log("listenToParticipants fired:", participants);
     callback(participants);
   });
 
@@ -133,15 +137,54 @@ export function listenToAdminEvents(adminId, callback) {
 }
 
 /**
+ * Ensure all participants have hasAnswered field initialized
+ * This prevents race conditions where documents might not have the field
+ * @param {string} eventId - Event ID
+ */
+export async function ensureParticipantsInitialized(eventId) {
+  try {
+    console.log("ensureParticipantsInitialized START:", { eventId });
+    const participants = await getEventParticipants(eventId);
+    
+    const initPromises = participants.map(participant => {
+      if (participant.hasAnswered === undefined || participant.hasAnswered === null) {
+        console.log("Initializing hasAnswered for participant:", participant.id);
+        return updateParticipantAnswered(eventId, participant.id, false);
+      }
+      return Promise.resolve();
+    });
+    
+    await Promise.all(initPromises);
+    console.log("ensureParticipantsInitialized COMPLETE");
+  } catch (error) {
+    console.error("ensureParticipantsInitialized ERROR:", error);
+    throw error;
+  }
+}
+
+/**
  * Reset all participants' answered status (when starting new question)
  * @param {string} eventId - Event ID
  */
 export async function resetParticipantsAnswered(eventId) {
-  const participants = await getEventParticipants(eventId);
-  
-  const updatePromises = participants.map(participant =>
-    updateParticipantAnswered(eventId, participant.id, false)
-  );
-  
-  await Promise.all(updatePromises);
+  try {
+    console.log("resetParticipantsAnswered START:", { eventId });
+    
+    // First ensure all participants are initialized
+    await ensureParticipantsInitialized(eventId);
+    
+    const participants = await getEventParticipants(eventId);
+    console.log("resetParticipantsAnswered found participants:", participants.length, participants.map(p => p.id));
+    
+    const updatePromises = participants.map(participant => {
+      console.log("Resetting participant:", participant.id);
+      return updateParticipantAnswered(eventId, participant.id, false);
+    });
+    
+    await Promise.all(updatePromises);
+    console.log("resetParticipantsAnswered COMPLETE:", { eventId, participantCount: participants.length });
+  } catch (error) {
+    console.error("resetParticipantsAnswered ERROR:", error);
+    throw error;
+  }
 }
