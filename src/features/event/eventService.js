@@ -48,6 +48,7 @@ export async function updateCurrentQuestionIndex(eventId, questionIndex) {
 }
 
 /**
+<<<<<<< HEAD
  * Add a participant to an event
  * @param {string} eventId - Event ID
  * @param {string} userId - User ID
@@ -105,6 +106,27 @@ export function listenToParticipants(eventId, callback) {
       ...doc.data()
     }));
     callback(participants);
+  });
+
+  return unsubscribe;
+}
+
+/**
+ * Listen to admin's events in real-time
+ * @param {string} adminId - Admin user ID
+ * @param {function} callback - Called with array of events when they change
+ * @returns {function} Unsubscribe function
+ */
+export function listenToAdminEvents(adminId, callback) {
+  const eventsRef = collection(db, "events");
+  const q = query(eventsRef, where("adminId", "==", adminId));
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const events = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    callback(events);
   });
 
   return unsubscribe;
