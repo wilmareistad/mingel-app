@@ -22,7 +22,7 @@ export default function EventQuestionsList({ questionIds }) {
   if (!questionIds || questionIds.length === 0) return <p>No questions selected.</p>;
 
   return (
-    <div style={{ margin: '1rem 0' }}>
+    <div>
       <h3>Selected Questions</h3>
       <ol>
         {questions.map((q, i) => (
