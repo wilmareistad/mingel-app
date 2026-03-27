@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { collection, setDoc, doc, serverTimestamp, getDocs } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
 import { nanoid } from "nanoid";
@@ -13,6 +14,7 @@ const themes = [
 const timerOptions = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720, 810, 900];
 
 export default function CreateEvent() {
+  const navigate = useNavigate();
   const [eventName, setEventName] = useState("");
   const [message, setMessage] = useState("");
   const [adminId, setAdminId] = useState(null);
@@ -76,13 +78,7 @@ export default function CreateEvent() {
         questionTimerSeconds,
         resultTimerSeconds,
       });
-      setMessage(`Event created! Code: ${code}`);
-      setEventName("");
-      setSelectedQuestions([]);
-      setTheme("");
-      setQuestionCategory("");
-      setQuestionTimerSeconds(300);
-      setResultTimerSeconds(60);
+      navigate(`/admin/settings/${docId}`);
     } catch (error) {
       console.error("Error creating event:", error);
       setMessage("Error creating event");
