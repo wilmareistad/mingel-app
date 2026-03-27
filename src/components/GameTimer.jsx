@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styles from "./Timer.module.css";
+import styles from "./GameTimer.module.css";
 
 export default function Timer({ 
   eventId, 

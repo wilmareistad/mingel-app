@@ -7,7 +7,7 @@ import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
 import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetParticipantsAnswered, updateCurrentQuestionIndex } from "../features/event/eventService";
-import Timer from "../components/Timer";
+import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
 import "./Game.css";
 
@@ -179,7 +179,7 @@ export default function Game() {
       {/* Timer */}
       {event && (
         <div style={{marginBottom: "20px"}}>
-          <Timer 
+          <GameTimer 
             eventId={eventId}
             event={event}
             onTimeExpired={handleTimerExpired}

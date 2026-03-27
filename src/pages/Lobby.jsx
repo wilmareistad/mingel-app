@@ -13,9 +13,9 @@ import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
 import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetParticipantsAnswered, updateCurrentQuestionIndex } from "../features/event/eventService";
 import { getCurrentEventQuestion } from "../features/question/questionService";
-import UsersLobby from "../components/UsersLobby";
-import EventQRCode from "../components/QRCode";
-import Timer from "../components/Timer";
+import UsersLobby from "./UsersLobby";
+import EventQRCodeDisplay from "../components/QRCodeDisplay";
+import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
 
 export default function Lobby() {
@@ -212,12 +212,12 @@ export default function Lobby() {
         </div>
       )}
 
-      <EventQRCode eventCode={event.code} />
+      <EventQRCodeDisplay eventCode={event.code} />
 
       {/* Show timer when game is in question state */}
       {event.status === "question" && (
         <div style={{marginTop: "20px", marginBottom: "20px"}}>
-          <Timer 
+          <GameTimer 
             eventId={eventId}
             event={event}
             onTimeExpired={handleTimerExpired}

@@ -4,7 +4,8 @@ import { db, auth } from "../services/firebase";
 import { listenToAdminEvents } from "../features/event/eventService";
 import { signOut } from "firebase/auth";
 import { deleteDoc, doc, writeBatch, collection, query, where, getDocs } from "firebase/firestore";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../components/ConfirmModal";
+import EventCard from "../components/EventCard";
 import styles from "./AdminPanel.module.css";
 
 export default function AdminPanel() {
@@ -163,38 +164,12 @@ export default function AdminPanel() {
           <p className={styles.noEvents}>No events yet. Create one to get started!</p>
         ) : (
           adminEvents.map((event) => (
-            <div key={event.id} className={styles.eventCard}>
-              <div className={styles.eventInfo}>
-                <h3>{event.name}</h3>
-                <p className={styles.code}>Code: <strong>{event.code}</strong></p>
-                <p className={`${styles.status} ${styles[getStatusColor(event.status)]}`}>
-                  Status: <strong>{event.status}</strong>
-                </p>
-                <p className={styles.details}>
-                  Questions: {event.questions?.length || 0} | Round: {event.roundLength}m | Theme: {event.theme}
-                </p>
-                {event.createdAt && (
-                  <p className={styles.date}>
-                    Created: {new Date(event.createdAt.toMillis?.() || event.createdAt).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-
-              <div className={styles.actions}>
-                <button
-                  className={styles.lobbyBtn}
-                  onClick={() => handleGoToSettings(event.id)}
-                >
-                  Manage Event
-                </button>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDeleteEvent(event.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+            <EventCard 
+              key={event.id}
+              event={event}
+              onManage={handleGoToSettings}
+              onDelete={handleDeleteEvent}
+            />
           ))
         )}
       </div>

@@ -6,7 +6,9 @@ import { listenToParticipants, resetParticipantsAnswered, setShowingResultsOnly,
 import { updateEventStatus, updateCurrentQuestionIndex } from "../features/event/eventService";
 import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { getQuestionAnswers } from "../features/game/gameService";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../components/ConfirmModal";
+import ParticipantsPanel from "../components/ParticipantsPanel";
+import QuestionDisplay from "../components/QuestionDisplay";
 import styles from "./AdminSettings.module.css";
 
 export default function AdminSettings() {
@@ -191,6 +193,9 @@ export default function AdminSettings() {
       
       // Clear the "showing results only" flag
       await setShowingResultsOnly(eventId, false);
+      
+      // DELETE answers from previous question to prevent phantom votes
+      await deleteAnswersForEvent(eventId);
       
       // Reset all participants answered status before showing next question
       await resetParticipantsAnswered(eventId);
@@ -450,22 +455,14 @@ export default function AdminSettings() {
           {event.status === "question" && (
             <>
               <div className={styles.questionSection}>
-                {currentQuestion && (
-                  <div className={styles.currentQuestion}>
-                    <h3>Current Question ({(event.currentQuestionIndex || 0) + 1}/{event.questions.length})</h3>
-                    <p>{currentQuestion.text}</p>
-                    <div className={styles.questionFooter}>
-                      <p className={styles.voteCount}>
-                        Votes: {voteCount} / {participants.length}
-                      </p>
-                      {event.status === "question" && (
-                        <p className={styles.timeLeft}>
-                          Time left: {getTimeLeftDisplay()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                <QuestionDisplay 
+                  question={currentQuestion}
+                  currentIndex={event?.currentQuestionIndex || 0}
+                  totalQuestions={event?.questions?.length || 0}
+                  votes={voteCount}
+                  totalParticipants={participants.length}
+                  timeLeft={getTimeLeftDisplay()}
+                />
               </div>
               <div className={styles.buttonGroup}>
                 <button className={styles.nextBtn} onClick={handleNextQuestion}>
@@ -513,41 +510,12 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* Participants Section */}
-      <div className={styles.participantsSection}>
-        <div className={styles.participantsHeader}>
-          <h2>Participants ({participants.length})</h2>
-          <button 
-            className={`${styles.kickBtn} ${isKickMode ? styles.active : ''}`}
-            onClick={() => setIsKickMode(!isKickMode)}
-          >
-            {isKickMode ? 'Cancel Kick' : 'Kick Player'}
-          </button>
-        </div>
-        <div className={styles.participantsList}>
-          {participants.length === 0 ? (
-            <p className={styles.noParticipants}>No participants yet. Waiting for players to join...</p>
-          ) : (
-            participants.map((participant) => (
-              <div 
-                key={participant.id} 
-                className={`${styles.participantCard} ${isKickMode ? styles.kickMode : ''}`}
-              >
-                <span className={styles.name}>{participant.name}</span>
-                {isKickMode && (
-                  <button 
-                    className={styles.deleteBtn}
-                    onClick={() => handleKickPlayer(participant)}
-                    title={`Kick ${participant.name}`}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+      <ParticipantsPanel 
+        participants={participants}
+        isKickMode={isKickMode}
+        onToggleKickMode={() => setIsKickMode(!isKickMode)}
+        onKickClick={handleKickPlayer}
+      />
 
       <ConfirmModal
         isOpen={modalState.isOpen}

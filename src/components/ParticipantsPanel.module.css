@@ -1,0 +1,153 @@
+.section {
+  width: 100%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.section:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow);
+}
+
+.section h3 {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 1.1rem;
+}
+
+.participantsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.participantsHeader h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.kickBtn {
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.kickBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.kickBtn.active {
+  background: #dc3545;
+}
+
+.kickBtn.active:hover {
+  background: #c82333;
+}
+
+.participantsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.participantCard {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  text-align: center;
+  position: relative;
+}
+
+.participantCard:hover {
+  border-color: var(--accent-border);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.participantCard.kickMode {
+  cursor: pointer;
+}
+
+.participantCard.kickMode:hover {
+  animation: shake 0.5s;
+  border-color: #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+  transform: none;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+.name {
+  color: var(--text-h);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.deleteBtn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.deleteBtn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.empty {
+  color: var(--text);
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .participantsList {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
