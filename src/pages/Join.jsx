@@ -58,6 +58,7 @@ export default function Join() {
       localStorage.setItem("userDocId", userId);
       localStorage.setItem("userId", userId);
       localStorage.setItem("eventId", eventId);
+      localStorage.setItem("username", username);
 
       navigate(`/lobby/${eventId}`);
     } catch (error) {

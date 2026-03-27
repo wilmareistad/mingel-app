@@ -4,7 +4,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
-import { getCurrentQuestion } from "../features/question/questionService";
+import { getCurrentEventQuestion } from "../features/question/questionService";
 import { getQuestionAnswers } from "../features/game/gameService";
 import "./Results.css";
 
@@ -22,8 +22,8 @@ export default function Results() {
   useEffect(() => {
     if (!event) return;
 
-    // If game is no longer in results state → go back to lobby
-    if (event.status !== "results") {
+    // If game is no longer in results state AND we're not showing results for just this question → go back to lobby
+    if (event.status !== "results" && !event.showingResultsOnly) {
       navigate(`/lobby/${eventId}`);
       return;
     }
@@ -31,7 +31,7 @@ export default function Results() {
     // Load current question and answers
     async function loadData() {
       try {
-        const q = await getCurrentQuestion(
+        const q = await getCurrentEventQuestion(
           event.id,
           event.currentQuestionIndex
         );

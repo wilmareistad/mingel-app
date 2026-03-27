@@ -4,7 +4,7 @@ import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/f
 import { db } from "../services/firebase";
 import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
-import { getCurrentQuestion } from "../features/question/questionService";
+import { getCurrentEventQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
 import { listenToParticipants } from "../features/event/eventService";
 import "./Game.css";
@@ -34,7 +34,7 @@ export default function Game() {
     // Load current question
     async function loadQuestion() {
       try {
-        const q = await getCurrentQuestion(
+        const q = await getCurrentEventQuestion(
           event.id,
           event.currentQuestionIndex
         );

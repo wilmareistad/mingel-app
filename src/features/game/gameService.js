@@ -11,6 +11,8 @@ import { updateParticipantAnswered } from "../event/eventService";
  * @returns {Promise<string>} Answer document ID
  */
 export async function submitAnswer(eventId, questionId, optionIndex, userId) {
+  console.log("submitAnswer called:", { eventId, questionId, userId, optionIndex });
+  
   // Store in event-scoped answers sub-collection (NEW STRUCTURE)
   const answersRef = collection(db, "events", eventId, "answers");
 
@@ -21,14 +23,16 @@ export async function submitAnswer(eventId, questionId, optionIndex, userId) {
     submittedAt: serverTimestamp()
   });
 
-  console.log("Answer submitted:", { eventId, questionId, userId, optionIndex });
+  console.log("Answer submitted to Firestore:", { answerId: docRef.id, eventId, questionId, userId, optionIndex });
 
   // Update participant's hasAnswered flag
   try {
+    console.log("About to update participant answered flag:", { eventId, userId });
     await updateParticipantAnswered(eventId, userId, true);
-    console.log("Participant answered flag updated:", { eventId, userId });
+    console.log("Participant answered flag updated successfully:", { eventId, userId });
   } catch (error) {
-    console.warn("Could not update participant answered status:", error);
+    console.error("ERROR updating participant answered status:", error);
+    throw error;
   }
 
   return docRef.id;
