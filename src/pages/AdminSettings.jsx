@@ -8,6 +8,7 @@ import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { getQuestionAnswers } from "../features/game/gameService";
 import ConfirmModal from "../components/ConfirmModal";
 import ParticipantsPanel from "../components/ParticipantsPanel";
+import ToggleButton from "../components/ToggleButton";
 import QuestionDisplay from "../components/QuestionDisplay";
 import styles from "./AdminSettings.module.css";
 
@@ -418,23 +419,19 @@ export default function AdminSettings() {
         <div className={styles.statusSection}>
           <h2>Question Timer</h2>
           <div className={styles.timerControl}>
-            <button 
-              className={styles.timerArrowBtn}
+            <ToggleButton 
+              direction="left"
               onClick={handleTimerDecrement}
-              title="Decrease time"
-            >
-              ‹
-            </button>
+              label="Decrease time"
+            />
             <div className={styles.timerInputDisplay}>
               <span>{getCurrentTimerLabel()}</span>
             </div>
-            <button 
-              className={styles.timerArrowBtn}
+            <ToggleButton 
+              direction="right"
               onClick={handleTimerIncrement}
-              title="Increase time"
-            >
-              ›
-            </button>
+              label="Increase time"
+            />
             <button 
               className={styles.setTimerBtn}
               onClick={handleConfirmTimer}

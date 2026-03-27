@@ -4,8 +4,7 @@ import { db } from "../services/firebase";
 import { nanoid } from "nanoid";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { addParticipant } from "../features/event/eventService";
-import caretRight from "../assets/caret-left.svg";
-import caretLeft from "../assets/caret-right.svg";
+import ToggleButton from "../components/ToggleButton";
 import styles from "../styles/Join.module.css";
 
 export default function Join() {
@@ -71,32 +70,32 @@ export default function Join() {
     <div>
       <h1>Join Game</h1>
 
-      <div className="avatar_creator">
-        <div className="avatar_view"></div>
-        <div className="avatar_row">
-          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+      <div className={styles.avatarCreator}>
+        <div className={styles.avatarView}></div>
+        <div className={styles.avatarRow}>
+          <ToggleButton direction="left" label="Previous Base" />
           <p>Base</p>
-          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+          <ToggleButton direction="right" label="Next Base" />
         </div>
-        <div className="avatar_row">
-          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+        <div className={styles.avatarRow}>
+          <ToggleButton direction="left" label="Previous Hair" />
           <p>Hair</p>
-          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+          <ToggleButton direction="right" label="Next Hair" />
         </div>
-        <div className="avatar_row">
-          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+        <div className={styles.avatarRow}>
+          <ToggleButton direction="left" label="Previous Eyes" />
           <p>Eyes</p>
-          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+          <ToggleButton direction="right" label="Next Eyes" />
         </div>
-        <div className="avatar_row">
-          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+        <div className={styles.avatarRow}>
+          <ToggleButton direction="left" label="Previous Nose" />
           <p>Nose</p>
-          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+          <ToggleButton direction="right" label="Next Nose" />
         </div>
-        <div className="avatar_row">
-          <button className="avatar_left"><img src={caretLeft} alt="Previous" /></button>
+        <div className={styles.avatarRow}>
+          <ToggleButton direction="left" label="Previous Mouth" />
           <p>Mouth</p>
-          <button className="avatar_right"><img src={caretRight} alt="Next" /></button>
+          <ToggleButton direction="right" label="Next Mouth" />
         </div>
       </div>
 

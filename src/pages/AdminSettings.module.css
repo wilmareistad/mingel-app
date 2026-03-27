@@ -123,34 +123,6 @@
   justify-content: center;
 }
 
-.timerArrowBtn {
-  padding: 0;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text-h);
-  font-weight: 700;
-  font-size: 1.25rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.timerArrowBtn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(102, 126, 234, 0.05);
-}
-
-.timerArrowBtn:active {
-  transform: scale(0.95);
-}
-
 .timerInputDisplay {
   background: var(--bg);
   border: 1px solid var(--border);

@@ -1,0 +1,35 @@
+.toggleButton {
+  background: none !important;
+  border: none !important;
+  padding: 4px !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  min-width: auto !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.toggleButton:hover:not(:disabled) {
+  background-color: rgba(102, 126, 234, 0.1);
+  transform: scale(1.1);
+}
+
+.toggleButton:active:not(:disabled) {
+  background-color: rgba(102, 126, 234, 0.2);
+  transform: scale(0.95);
+}
+
+.toggleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggleButton img {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
