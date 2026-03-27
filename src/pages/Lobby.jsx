@@ -7,14 +7,11 @@ import {
   where,
   onSnapshot,
   deleteDoc,
-  updateDoc,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
-import { listenToParticipants, resetParticipantsAnswered } from "../features/event/eventService";
-import { deleteAnswersForEvent } from "../features/game/dataCleanup";
-import { getCurrentQuestion } from "../features/question/questionService";
-import { debugQuestions } from "../features/question/debugQuestions";
+import { listenToParticipants } from "../features/event/eventService";
+import { getCurrentEventQuestion } from "../features/question/questionService";
 import UsersLobby from "../components/UsersLobby";
 import EventQRCode from "../components/QRCode";
 
@@ -75,7 +72,7 @@ export default function Lobby() {
           // Validate question exists before navigating
           if (userId && currentQuestionIndex !== undefined) {
             try {
-              const question = await getCurrentQuestion(eventId, currentQuestionIndex);
+              const question = await getCurrentEventQuestion(eventId, currentQuestionIndex);
               
               console.log("Question loaded:", question);
               
@@ -109,7 +106,6 @@ export default function Lobby() {
 
     // Listen to participants (new structure - more efficient than querying all users)
     const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
-      console.log("Participants updated:", participants);
       setPlayers(participants.map(p => ({
         id: p.id,
         username: p.name,
@@ -125,62 +121,6 @@ export default function Lobby() {
 
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
-
-  // Test buttons to trigger results (development only)
-  const handleTestResults = async () => {
-    try {
-      // Just transition to results without auto-submitting an answer
-      await updateDoc(doc(db, "events", eventId), {
-        status: "results"
-      });
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error: " + error.message);
-    }
-  };
-
-  const handleCleanupAnswers = async () => {
-    if (!window.confirm("Delete all answers for this event? This cannot be undone.")) {
-      return;
-    }
-    
-    try {
-      const deleted = await deleteAnswersForEvent(eventId);
-      alert(`Deleted ${deleted} answers`);
-    } catch (error) {
-      alert("Error: " + error.message);
-    }
-  };
-
-  const handleTestQuestion = async () => {
-    try {
-      // First, ensure all participants have a hasAnswered field set to false
-      console.log("Resetting participants...");
-      await resetParticipantsAnswered(eventId);
-      console.log("Participants reset completed");
-      
-      // Also clean up old answers from this question so users can answer again
-      await deleteAnswersForEvent(eventId);
-      
-      // Transition to question status
-      await updateDoc(doc(db, "events", eventId), {
-        status: "question"
-      });
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error: " + error.message);
-    }
-  };
-
-  const handleDebug = async () => {
-    try {
-      const questions = await debugQuestions();
-      alert(`Debug info logged to console. ${questions.length} questions found.`);
-    } catch (error) {
-      console.error("Debug error:", error);
-      alert("Error: " + error.message);
-    }
-  };
 
   return (
     <div>
@@ -212,31 +152,9 @@ export default function Lobby() {
         <div style={{marginTop: "20px", padding: "12px", backgroundColor: "#e7f3ff", borderRadius: "6px"}}>
           <p style={{margin: "0"}}>
             <strong>Answers:</strong> {players.filter(p => p.hasAnswered).length} / {players.length} participants
-            {players.length > 0 && (
-              <span style={{fontSize: "12px", marginLeft: "12px"}}>
-                ({players.map(p => `${p.name}:${p.hasAnswered}`).join(", ")})
-              </span>
-            )}
           </p>
         </div>
       )}
-      
-      {/* Development: Test buttons */}
-      <button onClick={handleTestQuestion} style={{marginTop: "20px"}}>
-        TEST: Trigger Question
-      </button>
-      
-      <button onClick={handleTestResults} style={{marginTop: "12px"}}>
-        TEST: Trigger Results
-      </button>
-      
-      <button onClick={handleDebug} style={{marginTop: "12px", background: "#6c757d"}}>
-        DEBUG: Check Questions (see console)
-      </button>
-      
-      <button onClick={handleCleanupAnswers} style={{marginTop: "12px", background: "#dc3545"}}>
-        CLEANUP: Delete All Answers
-      </button>
 
       <button onClick={handleLeave}>Leave Game</button>
     </div>

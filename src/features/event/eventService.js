@@ -72,11 +72,34 @@ export async function addParticipant(eventId, userId, username) {
  */
 export async function updateParticipantAnswered(eventId, userId, hasAnswered) {
   const participantRef = doc(db, "events", eventId, "participants", userId);
-  console.log("updateParticipantAnswered called:", { eventId, userId, hasAnswered });
-  await updateDoc(participantRef, {
-    hasAnswered
+  console.log("🔴 updateParticipantAnswered START:", { 
+    eventId, 
+    userId, 
+    hasAnswered, 
+    docPath: participantRef.path,
+    timestamp: new Date().toISOString()
   });
-  console.log("updateParticipantAnswered completed");
+  
+  try {
+    await updateDoc(participantRef, {
+      hasAnswered
+    });
+    console.log("🟢 updateParticipantAnswered SUCCESS:", { 
+      eventId, 
+      userId, 
+      hasAnswered,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("🔴 updateParticipantAnswered FAILED:", { 
+      eventId, 
+      userId, 
+      hasAnswered, 
+      error: error.message,
+      errorCode: error.code 
+    });
+    throw error;
+  }
 }
 
 /**
@@ -108,7 +131,14 @@ export function listenToParticipants(eventId, callback) {
       id: doc.id,
       ...doc.data()
     }));
-    console.log("listenToParticipants fired:", participants);
+    console.log("listenToParticipants fired - participant count:", participants.length);
+    console.log("listenToParticipants - hasAnswered breakdown:", participants.map(p => ({ id: p.id, name: p.name, hasAnswered: p.hasAnswered })));
+    
+    // Extra logging to see exact state of each participant
+    participants.forEach(p => {
+      console.log(`  Participant ${p.id} (${p.name}): hasAnswered=${p.hasAnswered}`);
+    });
+    
     callback(participants);
   });
 
@@ -187,4 +217,16 @@ export async function resetParticipantsAnswered(eventId) {
     console.error("resetParticipantsAnswered ERROR:", error);
     throw error;
   }
+}
+
+/**
+ * Set whether we're showing results for just the current question without ending the game
+ * @param {string} eventId - Event ID
+ * @param {boolean} showingResultsOnly - Whether showing results without ending game
+ */
+export async function setShowingResultsOnly(eventId, showingResultsOnly) {
+  const eventRef = doc(db, "events", eventId);
+  await updateDoc(eventRef, {
+    showingResultsOnly
+  });
 }

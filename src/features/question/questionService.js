@@ -25,6 +25,48 @@ export async function getQuestion(questionId) {
 }
 
 /**
+ * Get the current question for an event based on event's question list
+ * @param {string} eventId - Event ID
+ * @param {number} questionIndex - Index within the event's question list (0-based)
+ * @returns {Promise<object>} Current question data or null if not found
+ */
+export async function getCurrentEventQuestion(eventId, questionIndex) {
+  try {
+    const eventRef = doc(db, "events", eventId);
+    const eventSnap = await getDoc(eventRef);
+
+    if (!eventSnap.exists()) {
+      console.warn("Event not found:", eventId);
+      return null;
+    }
+
+    const eventData = eventSnap.data();
+    const questionIds = eventData.questions || [];
+
+    if (questionIndex < 0 || questionIndex >= questionIds.length) {
+      console.warn(`Question index ${questionIndex} out of range (${questionIds.length} questions available)`);
+      return null;
+    }
+
+    const questionId = questionIds[questionIndex];
+    const question = await getQuestion(questionId);
+
+    if (question) {
+      return {
+        ...question,
+        totalQuestions: questionIds.length,
+        currentIndex: questionIndex
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error in getCurrentEventQuestion:", error);
+    return null;
+  }
+}
+
+/**
  * Get the current question for an event
  * Fetches questions dynamically from the questions collection
  * @param {string} eventId - Event ID
@@ -32,6 +74,8 @@ export async function getQuestion(questionId) {
  * @returns {Promise<object>} Current question data with metadata
  */
 export async function getCurrentQuestion(eventId, questionIndex) {
+  console.log("getCurrentQuestion called:", { eventId, questionIndex });
+  
   // Get all questions from the questions collection, sorted by ID
   const questionsRef = collection(db, "questions");
   const snapshot = await getDocs(questionsRef);
@@ -49,12 +93,16 @@ export async function getCurrentQuestion(eventId, questionIndex) {
   // Sort by ID for consistent ordering
   allQuestions.sort((a, b) => a.id.localeCompare(b.id));
 
+  console.log("All questions sorted by ID:", allQuestions.map(q => q.id));
+
   if (questionIndex >= allQuestions.length) {
     console.warn(`Question index ${questionIndex} out of range (${allQuestions.length} questions available)`);
     return null;
   }
 
   const question = allQuestions[questionIndex];
+  console.log("Selected question at index", questionIndex, ":", question.id);
+  
   return {
     id: question.id,
     text: question.text,

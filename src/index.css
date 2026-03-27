@@ -272,11 +272,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Button container spacing */
-button + button {
-  margin-top: 12px;
-}
-
 ul {
   color: var(--text);
   list-style: none;
