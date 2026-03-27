@@ -1,6 +1,5 @@
 /* Import shared global utilities */
 @import './styles/globals.css';
-@import url('/fonts/alte-haas-grotesk.css');
 
 :root {
   --text: #001A52;
