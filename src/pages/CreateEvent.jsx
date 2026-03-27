@@ -4,10 +4,13 @@ import { db, auth } from "../services/firebase";
 import { nanoid } from "nanoid";
 import styles from "./CreateEvent.module.css"
 
+
 const themes = [
   { value: "yrgo", label: "YRGO Mode" },
   { value: "wedding", label: "Wedding Mode" },
 ];
+
+const timerOptions = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720, 810, 900];
 
 export default function CreateEvent() {
   const [eventName, setEventName] = useState("");
@@ -18,8 +21,9 @@ export default function CreateEvent() {
   const [categories, setCategories] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [theme, setTheme] = useState("");
-  const [roundLength, setRoundLength] = useState(3);
   const [questionCategory, setQuestionCategory] = useState("");
+  const [questionTimerSeconds, setQuestionTimerSeconds] = useState(300); // default 5 min
+  const [resultTimerSeconds, setResultTimerSeconds] = useState(60); // default 1 min
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -48,6 +52,7 @@ export default function CreateEvent() {
     );
   };
 
+
   const handleCreate = async () => {
     if (!eventName) return setMessage("Enter event name");
     if (!adminId) return setMessage("You must be logged in");
@@ -68,14 +73,16 @@ export default function CreateEvent() {
         createdBy: adminId,
         adminId,
         theme,
-        roundLength,
+        questionTimerSeconds,
+        resultTimerSeconds,
       });
       setMessage(`Event created! Code: ${code}`);
       setEventName("");
       setSelectedQuestions([]);
       setTheme("");
-      setRoundLength(3);
       setQuestionCategory("");
+      setQuestionTimerSeconds(300);
+      setResultTimerSeconds(60);
     } catch (error) {
       console.error("Error creating event:", error);
       setMessage("Error creating event");
@@ -103,10 +110,19 @@ export default function CreateEvent() {
       </div>
 
       <div>
-        <label>Round length (minutes):</label>
-        <select value={roundLength} onChange={(e) => setRoundLength(Number(e.target.value))}>
-          {[2, 3, 5, 10].map((v) => (
-            <option key={v} value={v}>{v}</option>
+        <label>Time for question:</label>
+        <select value={questionTimerSeconds} onChange={e => setQuestionTimerSeconds(Number(e.target.value))}>
+          {timerOptions.map((sec) => (
+            <option key={sec} value={sec}>{sec/60 >= 1 ? `${Math.floor(sec/60)} min${sec%60 ? ' ' + (sec%60) + 's' : ''}` : `${sec}s`}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label>Time for result:</label>
+        <select value={resultTimerSeconds} onChange={e => setResultTimerSeconds(Number(e.target.value))}>
+          {timerOptions.map((sec) => (
+            <option key={sec} value={sec}>{sec/60 >= 1 ? `${Math.floor(sec/60)} min${sec%60 ? ' ' + (sec%60) + 's' : ''}` : `${sec}s`}</option>
           ))}
         </select>
       </div>
