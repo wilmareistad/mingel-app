@@ -263,7 +263,7 @@ src/
 │
 ├── pages/                # Sidor (routes)
 │   ├── Home.jsx
-│   ├── CreateEvent.jsx
+│   ├── CreateEvent.jsx 
 │   ├── Join.jsx
 │   ├── Lobby.jsx
 │   ├── Game.jsx

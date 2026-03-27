@@ -1,0 +1,292 @@
+{
+  "q1": {
+    "category": "work",
+    "text": "Daily standups are important.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q2": {
+    "category": "work",
+    "text": "Meetings are usually a waste of time.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q3": {
+    "category": "work",
+    "text": "Remote work makes people less productive.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q4": {
+    "category": "work",
+    "text": "Multitasking reduces productivity.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q5": {
+    "category": "work",
+    "text": "Deadlines improve the quality of work.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q6": {
+    "category": "work",
+    "text": "Taking regular breaks improves performance.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q7": {
+    "category": "work",
+    "text": "A 4-day work week would increase productivity.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q8": {
+    "category": "work",
+    "text": "Employees should not work overtime.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q9": {
+    "category": "work",
+    "text": "Listening to music while working improves focus.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q10": {
+    "category": "work",
+    "text": "A good manager is more important than a high salary.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q11": {
+    "category": "work",
+    "text": "Managers should be friends with their employees.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q12": {
+    "category": "work",
+    "text": "Employees should be able to give anonymous feedback about their managers.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q13": {
+    "category": "work",
+    "text": "Managers should share company financial information with employees.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q14": {
+    "category": "work",
+    "text": "Leadership skills are more important than technical skills.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q15": {
+    "category": "work",
+    "text": "Employees should be involved in decision-making.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q16": {
+    "category": "work",
+    "text": "Company culture is more important than salary.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q17": {
+    "category": "work",
+    "text": "Workplaces should allow flexible hours.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q18": {
+    "category": "work",
+    "text": "Teamwork is more important than individual performance.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q19": {
+    "category": "work",
+    "text": "Competition between employees improves performance.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q20": {
+    "category": "work",
+    "text": "Workplace friendships improve productivity.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q21": {
+    "category": "work",
+    "text": "Employees should be allowed to make mistakes.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q22": {
+    "category": "work",
+    "text": "Companies should prioritize employee happiness.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q23": {
+    "category": "work",
+    "text": "Meetings should never be longer than 30 minutes.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q24": {
+    "category": "work",
+    "text": "Honest feedback is more important than being polite.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q25": {
+    "category": "work",
+    "text": "Chat apps (Slack/Teams) reduce productivity.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q26": {
+    "category": "work",
+    "text": "Everyone should keep their camera on during online meetings.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q27": {
+    "category": "work",
+    "text": "Brainstorming meetings are effective.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q28": {
+    "category": "work",
+    "text": "Job satisfaction is more important than salary.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q29": {
+    "category": "work",
+    "text": "It is better to be a specialist than a generalist.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q30": {
+    "category": "work",
+    "text": "Salary should be public within a company.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q31": {
+    "category": "work",
+    "text": "Meetings should be banned one day per week.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q32": {
+    "category": "work",
+    "text": "Managers don’t need to be experts in the work they manage.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q33": {
+    "category": "work",
+    "text": "Hard work is more important than talent.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q34": {
+    "category": "work",
+    "text": "Employees should be allowed to work whenever they want as long as work gets done.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q35": {
+    "category": "work",
+    "text": "Office work will disappear in the future.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q36": {
+    "category": "work",
+    "text": "Being busy does not mean being productive.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q37": {
+    "category": "work",
+    "text": "The best ideas usually don’t come from managers.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q38": {
+    "category": "work",
+    "text": "Remote workers are more productive than office workers.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q39": {
+    "category": "fun",
+    "text": "Pineapple belongs on pizza.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q40": {
+    "category": "fun",
+    "text": "Dancing in public is totally acceptable if you hear a good song.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q41": {
+    "category": "fun",
+    "text": "You can never have too many throw pillows.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q42": {
+    "category": "fun",
+    "text": "Talking to pets is a normal form of conversation.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q43": {
+    "category": "fun",
+    "text": "Breakfast food is acceptable at any time of day.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q44": {
+    "category": "fun",
+    "text": "Singing in the shower should be considered an Olympic sport.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q45": {
+    "category": "fun",
+    "text": "Socks with sandals are a crime against fashion.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q46": {
+    "category": "fun",
+    "text": "Selfies are a form of modern art.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q47": {
+    "category": "fun",
+    "text": "Watching a movie alone is better than with a crowd.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q48": {
+    "category": "fun",
+    "text": "Bubble wrap is one of life's greatest joys.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q49": {
+    "category": "fun",
+    "text": "Chocolate ice cream is superior to vanilla.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q50": {
+    "category": "fun",
+    "text": "Wearing pajamas all day is a valid life choice.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q51": {
+    "category": "fun",
+    "text": "Laughing at your own jokes is mandatory.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q52": {
+    "category": "fun",
+    "text": "Spicy food makes everything better.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q53": {
+    "category": "fun",
+    "text": "You should clap when the plane lands.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q54": {
+    "category": "fun",
+    "text": "Cats are secretly plotting world domination.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q55": {
+    "category": "fun",
+    "text": "You can't have too many mugs.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q56": {
+    "category": "fun",
+    "text": "Karaoke is more fun when nobody judges.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q57": {
+    "category": "fun",
+    "text": "Board games are better than video games.",
+    "options": ["Agree", "Disagree"]
+  },
+  "q58": {
+    "category": "fun",
+    "text": "Life would be better if we all carried tiny party hats everywhere.",
+    "options": ["Agree", "Disagree"]
+  }
+}

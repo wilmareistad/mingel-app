@@ -1,0 +1,29 @@
+.avatarCreator {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.avatarView {
+  width: 300px;
+  height: 300px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.avatarRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.avatarRow p {
+  min-width: 80px;
+  text-align: center;
+  font-weight: 500;
+  margin: 0;
+}
+

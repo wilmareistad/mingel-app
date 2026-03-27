@@ -1,3 +1,13 @@
+# Firebase Service Account Key (NEVER COMMIT THIS!)
+serviceAccountKey.json
+
+# Also ignore other sensitive files
+.env
+.env.local
+*.key
+*.pem
+
+
 # Logs
 logs
 *.log
