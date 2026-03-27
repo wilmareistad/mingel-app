@@ -230,3 +230,15 @@ export async function setShowingResultsOnly(eventId, showingResultsOnly) {
     showingResultsOnly
   });
 }
+
+/**
+ * Update the timer duration for questions (in seconds)
+ * @param {string} eventId - Event ID
+ * @param {number} durationSeconds - Duration in seconds
+ */
+export async function updateTimerDuration(eventId, durationSeconds) {
+  const eventRef = doc(db, "events", eventId);
+  await updateDoc(eventRef, {
+    questionTimerSeconds: durationSeconds
+  });
+}

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
-import { listenToParticipants } from "../features/event/eventService";
+import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetParticipantsAnswered, updateCurrentQuestionIndex } from "../features/event/eventService";
+import Timer from "../components/Timer";
 import "./Game.css";
 
 export default function Game() {
@@ -21,6 +22,46 @@ export default function Game() {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
   const [loading, setLoading] = useState(true);
   const [participants, setParticipants] = useState([]);
+
+  // Handle timer expiration: auto-transition to results
+  const handleTimerExpired = async () => {
+    if (!event || !question) return;
+    
+    try {
+      // Set showing results only flag and transition to results state
+      await setShowingResultsOnly(eventId, true);
+      await updateEventStatus(eventId, "results");
+      
+      // Set a timer to auto-advance after 2 minutes (120 seconds)
+      setTimeout(async () => {
+        try {
+          await setShowingResultsOnly(eventId, false);
+          
+          // Fetch the current event to get fresh data
+          const eventRef = doc(db, "events", eventId);
+          const eventSnap = await getDoc(eventRef);
+          const currentEvent = eventSnap.data();
+          
+          if (currentEvent) {
+            // Move to next question or end game
+            const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
+            if (currentEvent.questions && nextIndex < currentEvent.questions.length) {
+              await resetParticipantsAnswered(eventId);
+              await updateCurrentQuestionIndex(eventId, nextIndex);
+              await updateEventStatus(eventId, "question");
+            } else {
+              // Game ended - go back to lobby
+              await updateEventStatus(eventId, "lobby");
+            }
+          }
+        } catch (error) {
+          console.error("Error auto-advancing after results:", error);
+        }
+      }, 120000); // 2 minutes
+    } catch (error) {
+      console.error("Error handling timer expiration:", error);
+    }
+  };
 
   useEffect(() => {
     if (!event) return;
@@ -110,6 +151,19 @@ export default function Game() {
       <div style={{fontSize: "14px", color: "#666", marginBottom: "10px"}}>
         Question {(question.currentIndex || 0) + 1} of {question.totalQuestions || '?'}
       </div>
+
+      {/* Timer */}
+      {event && (
+        <div style={{marginBottom: "20px"}}>
+          <Timer 
+            eventId={eventId}
+            event={event}
+            onTimeExpired={handleTimerExpired}
+            isActive={true}
+          />
+        </div>
+      )}
+
       <h1>{question.text}</h1>
 
       <div className="answer-buttons">

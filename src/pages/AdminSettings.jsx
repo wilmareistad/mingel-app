@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
-import { listenToParticipants, resetParticipantsAnswered, setShowingResultsOnly } from "../features/event/eventService";
+import { listenToParticipants, resetParticipantsAnswered, setShowingResultsOnly, updateTimerDuration } from "../features/event/eventService";
 import { updateEventStatus, updateCurrentQuestionIndex } from "../features/event/eventService";
 import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { getQuestionAnswers } from "../features/game/gameService";
@@ -17,6 +17,7 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [adminId, setAdminId] = useState(null);
   const [message, setMessage] = useState("");
+  const [pendingTimerSeconds, setPendingTimerSeconds] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [voteCount, setVoteCount] = useState(0);
   const [modalState, setModalState] = useState({
@@ -163,9 +164,10 @@ export default function AdminSettings() {
       // Loop back to first question if we've reached the end
       const loopedIndex = nextIndex % event.questions.length;
       
+      // Update question index FIRST before changing status
       await updateCurrentQuestionIndex(eventId, loopedIndex);
       
-      // Transition back to question status
+      // Then transition to question status (this also sets phaseStartedAt)
       await updateEventStatus(eventId, "question");
       
       if (loopedIndex === 0 && nextIndex > 0) {
@@ -244,6 +246,57 @@ export default function AdminSettings() {
     navigate("/admin");
   };
 
+  // Timer options in seconds (0.5 to 15 minutes with 30-second increments)
+  const timerOptions = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720, 810, 900];
+
+  const handleTimerChange = async (seconds) => {
+    try {
+      await updateTimerDuration(eventId, seconds);
+      setMessage(`Timer set to ${Math.floor(seconds / 60)} minutes`);
+      setTimeout(() => setMessage(""), 3000);
+    } catch (error) {
+      console.error("Error updating timer:", error);
+      setMessage("Error updating timer");
+    }
+  };
+
+  const handleTimerIncrement = () => {
+    const currentSeconds = pendingTimerSeconds !== null ? pendingTimerSeconds : (event?.questionTimerSeconds || 300);
+    const currentIndex = timerOptions.indexOf(currentSeconds);
+    if (currentIndex < timerOptions.length - 1) {
+      setPendingTimerSeconds(timerOptions[currentIndex + 1]);
+    }
+  };
+
+  const handleTimerDecrement = () => {
+    const currentSeconds = pendingTimerSeconds !== null ? pendingTimerSeconds : (event?.questionTimerSeconds || 300);
+    const currentIndex = timerOptions.indexOf(currentSeconds);
+    if (currentIndex > 0) {
+      setPendingTimerSeconds(timerOptions[currentIndex - 1]);
+    }
+  };
+
+  const handleConfirmTimer = async () => {
+    if (pendingTimerSeconds !== null) {
+      await handleTimerChange(pendingTimerSeconds);
+      setPendingTimerSeconds(null);
+    }
+  };
+
+  const getCurrentTimerLabel = () => {
+    const seconds = pendingTimerSeconds !== null ? pendingTimerSeconds : (event?.questionTimerSeconds || 300);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    
+    if (minutes === 0) {
+      return `${seconds}s`;
+    } else if (remainingSeconds === 0) {
+      return `${minutes}min`;
+    } else {
+      return `${minutes}min ${remainingSeconds}s`;
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
 
   if (!event) {
@@ -274,6 +327,36 @@ export default function AdminSettings() {
             <span>Status: </span>
             <strong>{event.status}</strong>
           </p>
+        </div>
+
+        <div className={styles.statusSection}>
+          <h2>Question Timer</h2>
+          <div className={styles.timerControl}>
+            <button 
+              className={styles.timerArrowBtn}
+              onClick={handleTimerDecrement}
+              title="Decrease time"
+            >
+              ‹
+            </button>
+            <div className={styles.timerInputDisplay}>
+              <span>{getCurrentTimerLabel()}</span>
+            </div>
+            <button 
+              className={styles.timerArrowBtn}
+              onClick={handleTimerIncrement}
+              title="Increase time"
+            >
+              ›
+            </button>
+            <button 
+              className={styles.setTimerBtn}
+              onClick={handleConfirmTimer}
+              disabled={pendingTimerSeconds === null}
+            >
+              Set Time
+            </button>
+          </div>
         </div>
 
         <div className={styles.actionSection}>

@@ -7,13 +7,15 @@ import {
   where,
   onSnapshot,
   deleteDoc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
-import { listenToParticipants } from "../features/event/eventService";
+import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetParticipantsAnswered, updateCurrentQuestionIndex } from "../features/event/eventService";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import UsersLobby from "../components/UsersLobby";
 import EventQRCode from "../components/QRCode";
+import Timer from "../components/Timer";
 
 export default function Lobby() {
   const { eventId } = useParams();
@@ -22,6 +24,7 @@ export default function Lobby() {
   const [event, setEvent] = useState(null);
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState(null);
+  const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
 
   const handleLeave = async () => {
     const userDocId = localStorage.getItem("userDocId");
@@ -46,6 +49,44 @@ export default function Lobby() {
     navigate("/");
   };
 
+  const handleTimerExpired = async () => {
+    if (!event) return;
+    
+    try {
+      await setShowingResultsOnly(eventId, true);
+      await updateEventStatus(eventId, "results");
+      
+      // Set a timer to auto-advance after 2 minutes (120 seconds)
+      setTimeout(async () => {
+        try {
+          await setShowingResultsOnly(eventId, false);
+          
+          // Fetch the current event to get fresh data
+          const eventRef = doc(db, "events", eventId);
+          const eventSnap = await getDoc(eventRef);
+          const currentEvent = eventSnap.data();
+          
+          if (currentEvent) {
+            // Move to next question or end game
+            const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
+            if (currentEvent.questions && nextIndex < currentEvent.questions.length) {
+              await resetParticipantsAnswered(eventId);
+              await updateCurrentQuestionIndex(eventId, nextIndex);
+              await updateEventStatus(eventId, "question");
+            } else {
+              // Game ended - stay in lobby
+              await updateEventStatus(eventId, "lobby");
+            }
+          }
+        } catch (error) {
+          console.error("Error auto-advancing after results:", error);
+        }
+      }, 120000); // 2 minutes
+    } catch (error) {
+      console.error("Error handling timer expiration:", error);
+    }
+  };
+
   useEffect(() => {
     // fetch room data
     const eventRef = doc(db, "events", eventId);
@@ -67,7 +108,7 @@ export default function Lobby() {
           const userId = localStorage.getItem("userId");
           const currentQuestionIndex = eventData.currentQuestionIndex;
           
-          console.log("Question status detected. Index:", currentQuestionIndex, "User:", userId);
+          console.log("Question status detected. Index:", currentQuestionIndex, "User:", userId, "Last index:", lastQuestionIndex);
           
           // Validate question exists before navigating
           if (userId && currentQuestionIndex !== undefined) {
@@ -89,9 +130,13 @@ export default function Lobby() {
               
               if (!alreadyAnswered) {
                 console.log("Navigating to game");
+                // Track that we're processing this question
+                setLastQuestionIndex(currentQuestionIndex);
                 navigate(`/game/${eventId}`);
               } else {
                 console.log("User already answered, staying on lobby");
+                // Track that we're processing this question
+                setLastQuestionIndex(currentQuestionIndex);
               }
             } catch (err) {
               console.error("Error validating question:", err);
@@ -144,6 +189,18 @@ export default function Lobby() {
       )}
 
       <EventQRCode eventCode={event.code} />
+
+      {/* Show timer when game is in question state */}
+      {event.status === "question" && (
+        <div style={{marginTop: "20px", marginBottom: "20px"}}>
+          <Timer 
+            eventId={eventId}
+            event={event}
+            onTimeExpired={handleTimerExpired}
+            isActive={true}
+          />
+        </div>
+      )}
 
       <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username }))} />
       
