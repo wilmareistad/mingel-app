@@ -6,7 +6,7 @@ import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { getQuestionAnswers } from "../features/game/gameService";
-import "./Results.css";
+import styles from "../styles/Results.module.css";
 
 export default function Results() {
   const navigate = useNavigate();
@@ -65,42 +65,42 @@ export default function Results() {
   const totalVotes = answers.length;
 
   return (
-    <div className="results-container">
-      <div className="results-header">
+    <div className={styles.resultsContainer}>
+      <div className={styles.resultsHeader}>
         <h1>{question.text}</h1>
-        <p className="results-subtitle">Results</p>
+        <p className={styles.resultsSubtitle}>Results</p>
       </div>
 
-      <div className="results-columns">
+      <div className={styles.resultsColumns}>
         {question.options.map((option, index) => {
           const voteCount = voteCounts[index];
           const percentage =
             totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
 
           return (
-            <div key={index} className="results-column">
-              <div className="results-dots">
+            <div key={index} className={styles.resultsColumn}>
+              <div className={styles.resultsDots}>
                 {answers.map((answer, answerIndex) => (
                   answer.optionIndex === index && (
                     <div
                       key={answerIndex}
-                      className={`results-dot option-${index}`}
+                      className={`${styles.resultsDot} ${styles[`option${index}`]}`}
                     />
                   )
                 ))}
               </div>
 
-              <div className="results-label">
-                <p className="results-percentage">{percentage}%</p>
-                <p className="results-option">{option}</p>
+              <div className={styles.resultsLabel}>
+                <p className={styles.resultsPercentage}>{percentage}%</p>
+                <p className={styles.resultsOption}>{option}</p>
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className="results-footer">
-        <p className="results-count">Total votes: {totalVotes}</p>
+      <div className={styles.resultsFooter}>
+        <p className={styles.resultsCount}>Total votes: {totalVotes}</p>
         
         {/* TEMP: Return to lobby button - remove when timer implemented */}
         <button 

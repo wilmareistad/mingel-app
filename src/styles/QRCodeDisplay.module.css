@@ -1,4 +1,4 @@
-.qr-code-container {
+.qrCodeContainer {
   position: fixed;
   bottom: 20px;
   left: 20px;
@@ -7,13 +7,11 @@
   align-items: center;
   gap: 8px;
   padding: 12px;
-  /* background: var(--bg); */
-  /* border: 2px solid var(--border); */
   border-radius: 12px;
   z-index: 10;
 }
 
-#qr-code {
+.qrCode {
   padding: 8px;
   background: white;
   border-radius: 8px;
@@ -22,11 +20,11 @@
   justify-content: center;
 }
 
-#qr-code svg {
+.qrCode svg {
   display: block;
 }
 
-.qr-code-container h2 {
+.qrCodeContainer h2 {
   margin: 0;
   font-size: 16px;
   color: var(--text);
@@ -34,7 +32,7 @@
 
 /* Hide QR code on mobile - only show on desktop */
 @media (max-width: 1024px) {
-  .qr-code-container {
+  .qrCodeContainer {
     display: none;
   }
 }

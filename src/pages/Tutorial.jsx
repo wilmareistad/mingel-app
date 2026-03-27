@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Tutorial.css";
+import styles from "../styles/Tutorial.module.css";
 import checkIcon from "../assets/check-fill.svg";
 import statsIcon from "../assets/stats-chart.svg";
 

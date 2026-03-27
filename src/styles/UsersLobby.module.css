@@ -1,4 +1,4 @@
-.users-lobby {
+.usersLobby {
   position: relative;
   width: 100%;
   height: 50vh;
@@ -9,7 +9,7 @@
   margin: 40px 0;
 }
 
-.user-avatar-container {
+.userAvatarContainer {
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -19,7 +19,7 @@
   cursor: pointer;
 }
 
-.user-avatar {
+.userAvatar {
   width: 45px;
   height: 45px;
   border-radius: 50%;
@@ -32,19 +32,19 @@
   flex-shrink: 0;
 }
 
-.user-avatar:hover {
+.userAvatar:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
-.avatar-initial {
+.avatarInitial {
   font-size: 20px;
   font-weight: bold;
   color: white;
   line-height: 1;
 }
 
-.user-name {
+.userName {
   font-size: 12px;
   font-weight: 600;
   text-align: center;
@@ -58,20 +58,20 @@
 
 /* Tablet and up */
 @media (min-width: 640px) {
-  .users-lobby {
+  .usersLobby {
     height: 60vh;
   }
 
-  .user-avatar {
+  .userAvatar {
     width: 60px;
     height: 60px;
   }
 
-  .avatar-initial {
+  .avatarInitial {
     font-size: 28px;
   }
 
-  .user-name {
+  .userName {
     font-size: 13px;
     max-width: 85px;
   }
@@ -79,20 +79,20 @@
 
 /* Desktop - Large screens */
 @media (min-width: 1024px) {
-  .users-lobby {
+  .usersLobby {
     height: 70vh;
   }
 
-  .user-avatar {
+  .userAvatar {
     width: 100px;
     height: 100px;
   }
 
-  .avatar-initial {
+  .avatarInitial {
     font-size: 48px;
   }
 
-  .user-name {
+  .userName {
     font-size: 16px;
     max-width: 140px;
   }

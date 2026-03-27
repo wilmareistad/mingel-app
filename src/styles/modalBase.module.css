@@ -1,0 +1,146 @@
+/**
+ * Modal Base Styles
+ * Shared styling for all modals (ConfirmModal, KickedModal, etc.)
+ * Reduces duplication while allowing component-specific customization
+ */
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  animation: slideDown 0.3s ease;
+  overflow: hidden;
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.modalContent {
+  padding: 20px 24px;
+  color: var(--text-m);
+  line-height: 1.5;
+}
+
+.modalContent p {
+  margin: 0;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  justify-content: flex-end;
+  background: var(--bg-subtle);
+}
+
+/* ============================================
+   MODAL BUTTON STYLES
+   ============================================ */
+
+.modalButton {
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.modalButton:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  transform: translateY(-1px);
+}
+
+.modalButton:active {
+  transform: translateY(0);
+}
+
+.modalButton.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.modalButton.primary:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(170, 59, 255, 0.3);
+}
+
+.modalButton.danger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.modalButton.danger:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.3);
+}
+
+.modalButton.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-m);
+}
+
+.modalButton.secondary:hover {
+  background: var(--bg-subtle);
+  border-color: var(--accent);
+}
+
+/* ============================================
+   ANIMATIONS - Modal specific
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

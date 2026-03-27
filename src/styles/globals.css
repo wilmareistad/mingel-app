@@ -1,0 +1,262 @@
+/**
+ * Global Utilities & Base Styles
+ * Shared across all components to maintain consistency and reduce duplication
+ */
+
+/* ============================================
+   ANIMATIONS - Reusable across components
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* ============================================
+   COMMON FLEXBOX PATTERNS
+   ============================================ */
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-center-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ============================================
+   COMMON SPACING
+   ============================================ */
+
+.gap-sm {
+  gap: 8px;
+}
+
+.gap-md {
+  gap: 15px;
+}
+
+.gap-lg {
+  gap: 20px;
+}
+
+.gap-xl {
+  gap: 40px;
+}
+
+.p-sm {
+  padding: 8px;
+}
+
+.p-md {
+  padding: 16px;
+}
+
+.p-lg {
+  padding: 24px;
+}
+
+.m-none {
+  margin: 0;
+}
+
+/* ============================================
+   COMMON BORDERS & SHADOWS
+   ============================================ */
+
+.border-subtle {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.border-medium {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+}
+
+.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.shadow-lg {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.shadow-accent {
+  box-shadow: 0 0 15px rgba(170, 59, 255, 0.2);
+}
+
+/* ============================================
+   TEXT UTILITIES
+   ============================================ */
+
+.text-center {
+  text-align: center;
+}
+
+.text-bold {
+  font-weight: 600;
+}
+
+.text-muted {
+  color: var(--text-m);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.break-words {
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+/* ============================================
+   TRANSITION UTILITIES
+   ============================================ */
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.transition-fast {
+  transition: all 0.15s ease;
+}
+
+.transition-slow {
+  transition: all 0.5s ease;
+}
+
+/* ============================================
+   CURSOR UTILITIES
+   ============================================ */
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-default {
+  cursor: default;
+}
+
+.cursor-disabled {
+  cursor: not-allowed;
+}
+
+/* ============================================
+   OPACITY UTILITIES
+   ============================================ */
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+.opacity-disabled {
+  opacity: 0.6;
+}
+
+/* ============================================
+   VISIBILITY UTILITIES
+   ============================================ */
+
+.hidden-visual {
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+.truncate-single {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -9,7 +9,7 @@ import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
 import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetParticipantsAnswered, updateCurrentQuestionIndex } from "../features/event/eventService";
 import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
-import "./Game.css";
+import styles from "./Game.module.css";
 
 export default function Game() {
   const navigate = useNavigate();
@@ -171,7 +171,7 @@ export default function Game() {
   if (!question) return <div>No question available</div>;
 
   return (
-    <div className="game-container">
+    <div className={styles.gameContainer}>
       <div style={{fontSize: "14px", color: "#666", marginBottom: "10px"}}>
         Question {(question.currentIndex || 0) + 1} of {question.totalQuestions || '?'}
       </div>
@@ -190,13 +190,13 @@ export default function Game() {
 
       <h1>{question.text}</h1>
 
-      <div className="answer-buttons">
+      <div className={styles.answerButtons}>
         {question.options.map((option, index) => (
           <button
             key={index}
-            className={`answer-button ${
-              answered && selectedOptionIndex === index ? "selected" : ""
-            } ${answered && selectedOptionIndex !== index ? "hidden" : ""}`}
+            className={`${styles.answerButton} ${
+              answered && selectedOptionIndex === index ? styles.selected : ""
+            } ${answered && selectedOptionIndex !== index ? styles.hidden : ""}`}
             onClick={() => handleAnswer(index)}
             disabled={answered}
           >
@@ -206,7 +206,7 @@ export default function Game() {
       </div>
 
       {answered && (
-        <div className="confirmation-message">
+        <div className={styles.confirmationMessage}>
           <p>✓ Your answer has been registered!</p>
         </div>
       )}

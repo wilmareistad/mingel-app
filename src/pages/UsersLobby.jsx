@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import "./UsersLobby.css";
+import styles from "../styles/UsersLobby.module.css";
 
 export default function UsersLobby({ users }) {
   const [positions, setPositions] = useState({});
@@ -90,7 +90,7 @@ export default function UsersLobby({ users }) {
   }, [positions]);
 
   return (
-    <div className="users-lobby" data-avatar-size={avatarSize}>
+    <div className={styles.usersLobby} data-avatar-size={avatarSize}>
       {users.map((user) => {
         let pos = positions[user.userId] || { x: 0, y: 0 };
         
@@ -105,7 +105,7 @@ export default function UsersLobby({ users }) {
         return (
           <div
             key={user.userId}
-            className="user-avatar-container"
+            className={styles.userAvatarContainer}
             style={{
               left: `${pos.x}%`,
               top: `${pos.y}%`,
@@ -113,14 +113,14 @@ export default function UsersLobby({ users }) {
             }}
           >
             <div 
-              className="user-avatar"
+              className={styles.userAvatar}
               style={{
                 width: `${config.desktop}px`,
                 height: `${config.desktop}px`,
               }}
             >
               <span 
-                className="avatar-initial"
+                className={styles.avatarInitial}
                 style={{
                   fontSize: `${config.fontSize}px`,
                 }}
@@ -128,7 +128,7 @@ export default function UsersLobby({ users }) {
                 {user.name.charAt(0).toUpperCase()}
               </span>
             </div>
-            <p className="user-name">{user.name}</p>
+            <p className={styles.userName}>{user.name}</p>
           </div>
         );
       })}

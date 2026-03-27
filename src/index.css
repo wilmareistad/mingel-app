@@ -1,3 +1,6 @@
+/* Import shared global utilities */
+@import './styles/globals.css';
+
 :root {
   --text: #001A52;
   --text-h: #08060d;

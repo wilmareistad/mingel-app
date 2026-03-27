@@ -1,0 +1,187 @@
+/**
+ * Button Base Styles
+ * Shared button styling patterns across components
+ * Promotes consistency and reduces duplication
+ */
+
+.button {
+  padding: 10px 16px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--bg);
+  color: var(--text-h);
+  font-family: inherit;
+}
+
+.button:hover:not(:disabled) {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(170, 59, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================================
+   BUTTON VARIANTS
+   ============================================ */
+
+.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 0 20px rgba(170, 59, 255, 0.4);
+}
+
+.secondary {
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--text-h);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--bg-subtle);
+  border-color: var(--accent);
+}
+
+.danger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.danger:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.3);
+}
+
+.success {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.success:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+/* ============================================
+   BUTTON SIZES
+   ============================================ */
+
+.small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.large {
+  padding: 14px 24px;
+  font-size: 16px;
+  height: 50px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* ============================================
+   SPECIAL BUTTON STYLES
+   ============================================ */
+
+.icon-button {
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.answer-button {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 16px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.answer-button:hover:not(:disabled) {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(170, 59, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.answer-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.answer-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.answer-button.selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  box-shadow: 0 0 20px rgba(170, 59, 255, 0.4);
+  transform: scale(1.05);
+}
+
+.answer-button.hidden {
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+/* ============================================
+   BUTTON GROUP
+   ============================================ */
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.button-group.vertical {
+  flex-direction: column;
+}
+
+.button-group.fullWidth {
+  width: 100%;
+}
+
+.button-group.fullWidth .button {
+  flex: 1;
+}

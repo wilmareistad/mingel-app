@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { addParticipant } from "../features/event/eventService";
 import caretRight from "../assets/caret-left.svg";
 import caretLeft from "../assets/caret-right.svg";
-import "./Join.css";
+import styles from "../styles/Join.module.css";
 
 export default function Join() {
   const [code, setCode] = useState("");
