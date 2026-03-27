@@ -20,6 +20,7 @@ export default function AdminSettings() {
   const [pendingTimerSeconds, setPendingTimerSeconds] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [voteCount, setVoteCount] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [modalState, setModalState] = useState({
     isOpen: false,
     title: "",
@@ -116,6 +117,39 @@ export default function AdminSettings() {
 
     return () => clearInterval(interval);
   }, [eventId, event?.status, currentQuestion?.id]);
+
+  // Calculate time remaining for the current question
+  useEffect(() => {
+    if (!event || event.status !== "question") {
+      setTimeLeft(0);
+      return;
+    }
+
+    const updateTimeLeft = () => {
+      const durationSeconds = event.questionTimerSeconds || 300;
+      const phaseStartedAt = event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
+      
+      if (!phaseStartedAt) {
+        setTimeLeft(durationSeconds);
+        return;
+      }
+
+      const now = Date.now();
+      const elapsedMs = now - phaseStartedAt;
+      const elapsedSeconds = Math.floor(elapsedMs / 1000);
+      const remaining = Math.max(0, durationSeconds - elapsedSeconds);
+
+      setTimeLeft(remaining);
+    };
+
+    // Update immediately
+    updateTimeLeft();
+
+    // Then update every 100ms for smooth display
+    const interval = setInterval(updateTimeLeft, 100);
+
+    return () => clearInterval(interval);
+  }, [event]);
 
   const openConfirmModal = (title, message, onConfirm, confirmText = "Confirm", confirmStyle = "default") => {
     setModalState({
@@ -297,6 +331,19 @@ export default function AdminSettings() {
     }
   };
 
+  const getTimeLeftDisplay = () => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    
+    if (minutes === 0) {
+      return `${seconds}s`;
+    } else if (seconds === 0) {
+      return `${minutes}min`;
+    } else {
+      return `${minutes}min ${seconds}s`;
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
 
   if (!event) {
@@ -373,9 +420,16 @@ export default function AdminSettings() {
                   <div className={styles.currentQuestion}>
                     <h3>Current Question ({(event.currentQuestionIndex || 0) + 1}/{event.questions.length})</h3>
                     <p>{currentQuestion.text}</p>
-                    <p className={styles.voteCount}>
-                      Votes: {voteCount} / {participants.length}
-                    </p>
+                    <div className={styles.questionFooter}>
+                      <p className={styles.voteCount}>
+                        Votes: {voteCount} / {participants.length}
+                      </p>
+                      {event.status === "question" && (
+                        <p className={styles.timeLeft}>
+                          Time left: {getTimeLeftDisplay()}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

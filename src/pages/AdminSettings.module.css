@@ -261,6 +261,26 @@
   margin-top: 1rem !important;
 }
 
+.questionFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.timeLeft {
+  padding: 0.75rem 1.25rem;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
 .answered {
   color: var(--text);
   font-size: 0.9rem;
