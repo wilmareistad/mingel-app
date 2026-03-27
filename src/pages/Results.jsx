@@ -117,7 +117,7 @@ export default function Results() {
           }}
           style={{marginTop: "20px"}}
         >
-          TEMP: Return to Lobby
+          Return to Lobby
         </button>
       </div>
     </div>
