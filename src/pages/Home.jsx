@@ -30,11 +30,13 @@ export default function Home() {
     <div>
       <h1>Pulse</h1>
 
-      <button onClick={() => navigate("/join")}>Join Game</button>
+      <div className="button-container">
+        <button onClick={() => navigate("/join")}>Join Game</button>
 
-      <button onClick={handleManageGame}>Manage Game</button>
+        <button onClick={handleManageGame}>Manage Game</button>
 
-      <button className="home_button_to_tutorial" onClick={() => navigate("/tutorial")}>Tutorial</button>
+        <button className="home_button_to_tutorial" onClick={() => navigate("/tutorial")}>Tutorial</button>
+      </div>
     </div>
   );
 }

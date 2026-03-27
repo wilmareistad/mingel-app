@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
-import { listenToParticipants, resetParticipantsAnswered, setShowingResultsOnly, updateTimerDuration } from "../features/event/eventService";
+import { listenToParticipants, resetParticipantsAnswered, setShowingResultsOnly, updateTimerDuration, removeParticipant } from "../features/event/eventService";
 import { updateEventStatus, updateCurrentQuestionIndex } from "../features/event/eventService";
 import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { getQuestionAnswers } from "../features/game/gameService";
@@ -21,6 +21,7 @@ export default function AdminSettings() {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [voteCount, setVoteCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [isKickMode, setIsKickMode] = useState(false);
   const [modalState, setModalState] = useState({
     isOpen: false,
     title: "",
@@ -317,6 +318,39 @@ export default function AdminSettings() {
     }
   };
 
+  const handleKickPlayer = (participant) => {
+    console.log("handleKickPlayer called with:", { eventId, participant });
+    if (!eventId) {
+      console.error("Event ID is not available");
+      setMessage("Error: Event ID not found.");
+      return;
+    }
+
+    const currentEventId = String(eventId);
+    const participantId = String(participant.id);
+    const participantName = participant.name;
+    console.log("currentEventId set to:", currentEventId);
+    setModalState({
+      isOpen: true,
+      title: "Kick Player",
+      message: `Are you sure you want to kick ${participantName} from the game?`,
+      onConfirm: async () => {
+        console.log("Modal onConfirm - about to kick player:", { currentEventId, participantId });
+        try {
+          await removeParticipant(currentEventId, participantId);
+          setMessage(`${participantName} has been kicked from the game.`);
+          setTimeout(() => setMessage(""), 3000);
+        } catch (error) {
+          console.error("Error kicking player:", error);
+          setMessage("Error kicking player. Please try again.");
+        }
+        setModalState(prev => ({ ...prev, isOpen: false }));
+      },
+      confirmText: "Kick Player",
+      confirmStyle: "danger",
+    });
+  };
+
   const getCurrentTimerLabel = () => {
     const seconds = pendingTimerSeconds !== null ? pendingTimerSeconds : (event?.questionTimerSeconds || 300);
     const minutes = Math.floor(seconds / 60);
@@ -481,14 +515,34 @@ export default function AdminSettings() {
 
       {/* Participants Section */}
       <div className={styles.participantsSection}>
-        <h2>Participants ({participants.length})</h2>
+        <div className={styles.participantsHeader}>
+          <h2>Participants ({participants.length})</h2>
+          <button 
+            className={`${styles.kickBtn} ${isKickMode ? styles.active : ''}`}
+            onClick={() => setIsKickMode(!isKickMode)}
+          >
+            {isKickMode ? 'Cancel Kick' : 'Kick Player'}
+          </button>
+        </div>
         <div className={styles.participantsList}>
           {participants.length === 0 ? (
             <p className={styles.noParticipants}>No participants yet. Waiting for players to join...</p>
           ) : (
             participants.map((participant) => (
-              <div key={participant.userId} className={styles.participantCard}>
+              <div 
+                key={participant.id} 
+                className={`${styles.participantCard} ${isKickMode ? styles.kickMode : ''}`}
+              >
                 <span className={styles.name}>{participant.name}</span>
+                {isKickMode && (
+                  <button 
+                    className={styles.deleteBtn}
+                    onClick={() => handleKickPlayer(participant)}
+                    title={`Kick ${participant.name}`}
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             ))
           )}

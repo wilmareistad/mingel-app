@@ -1,4 +1,4 @@
-import { doc, onSnapshot, updateDoc, serverTimestamp, collection, query, where, getDocs, setDoc } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc, serverTimestamp, collection, query, where, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../services/firebase";
 
 /**
@@ -241,4 +241,23 @@ export async function updateTimerDuration(eventId, durationSeconds) {
   await updateDoc(eventRef, {
     questionTimerSeconds: durationSeconds
   });
+}
+
+/**
+ * Remove a participant from an event
+ * @param {string} eventId - Event ID
+ * @param {string} userId - User ID to remove
+ */
+export async function removeParticipant(eventId, userId) {
+  console.log("removeParticipant called with:", { eventId, userId, eventIdType: typeof eventId, userIdType: typeof userId });
+  
+  if (!eventId || !userId) {
+    throw new Error(`Missing required parameters: eventId=${eventId}, userId=${userId}`);
+  }
+  
+  console.log("Creating doc reference with path: events/" + eventId + "/participants/" + userId);
+  const participantRef = doc(db, "events", eventId, "participants", userId);
+  console.log("Deleting participant...");
+  await deleteDoc(participantRef);
+  console.log("Participant deleted successfully");
 }

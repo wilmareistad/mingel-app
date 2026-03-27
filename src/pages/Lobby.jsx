@@ -16,6 +16,7 @@ import { getCurrentEventQuestion } from "../features/question/questionService";
 import UsersLobby from "../components/UsersLobby";
 import EventQRCode from "../components/QRCode";
 import Timer from "../components/Timer";
+import KickedModal from "../components/KickedModal";
 
 export default function Lobby() {
   const { eventId } = useParams();
@@ -25,6 +26,7 @@ export default function Lobby() {
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState(null);
   const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
+  const [isKicked, setIsKicked] = useState(false);
 
   const handleLeave = async () => {
     const userDocId = localStorage.getItem("userDocId");
@@ -46,6 +48,14 @@ export default function Lobby() {
       localStorage.removeItem("eventId");
       localStorage.removeItem("userDocId");
     }
+    navigate("/");
+  };
+
+  const handleKickedModalClose = () => {
+    // Clear user data and redirect to home
+    localStorage.removeItem("userId");
+    localStorage.removeItem("eventId");
+    localStorage.removeItem("userDocId");
     navigate("/");
   };
 
@@ -151,6 +161,20 @@ export default function Lobby() {
 
     // Listen to participants (new structure - more efficient than querying all users)
     const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
+      const userId = localStorage.getItem("userId");
+      
+      // Check if current user is still in participants list
+      // If not, they've been kicked by the admin
+      if (userId) {
+        const userExists = participants.some(p => p.id === userId);
+        if (!userExists) {
+          console.log("User has been kicked from the event");
+          // Show kicked modal instead of immediately navigating
+          setIsKicked(true);
+          return;
+        }
+      }
+      
       setPlayers(participants.map(p => ({
         id: p.id,
         username: p.name,
@@ -214,6 +238,8 @@ export default function Lobby() {
       )}
 
       <button onClick={handleLeave}>Leave Game</button>
+
+      <KickedModal isOpen={isKicked} onClose={handleKickedModalClose} />
     </div>
   );
 }

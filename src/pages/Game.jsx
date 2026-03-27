@@ -8,6 +8,7 @@ import { getCurrentEventQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
 import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetParticipantsAnswered, updateCurrentQuestionIndex } from "../features/event/eventService";
 import Timer from "../components/Timer";
+import KickedModal from "../components/KickedModal";
 import "./Game.css";
 
 export default function Game() {
@@ -22,6 +23,7 @@ export default function Game() {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
   const [loading, setLoading] = useState(true);
   const [participants, setParticipants] = useState([]);
+  const [isKicked, setIsKicked] = useState(false);
 
   // Handle timer expiration: auto-transition to results
   const handleTimerExpired = async () => {
@@ -61,6 +63,14 @@ export default function Game() {
     } catch (error) {
       console.error("Error handling timer expiration:", error);
     }
+  };
+
+  const handleKickedModalClose = () => {
+    // Clear user data and redirect to home
+    localStorage.removeItem("userId");
+    localStorage.removeItem("eventId");
+    localStorage.removeItem("userDocId");
+    navigate("/");
   };
 
   useEffect(() => {
@@ -106,6 +116,20 @@ export default function Game() {
 
     // Listen to participants (new structure for checking who answered)
     const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
+      const userId = localStorage.getItem("userId");
+      
+      // Check if current user is still in participants list
+      // If not, they've been kicked by the admin
+      if (userId) {
+        const userExists = participants.some(p => p.id === userId);
+        if (!userExists) {
+          console.log("User has been kicked from the event");
+          // Show kicked modal instead of immediately navigating
+          setIsKicked(true);
+          return;
+        }
+      }
+      
       setParticipants(participants);
     });
 
@@ -186,6 +210,8 @@ export default function Game() {
           <p>✓ Your answer has been registered!</p>
         </div>
       )}
+
+      <KickedModal isOpen={isKicked} onClose={handleKickedModalClose} />
     </div>
   );
 }
