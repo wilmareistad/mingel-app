@@ -1,5 +1,6 @@
 /* Import shared global utilities */
 @import './styles/globals.css';
+@import url('/fonts/alte-haas-grotesk.css');
 
 :root {
   --text: #001A52;
@@ -14,11 +15,12 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  --alte-haas: 'Alte Haas Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
+  font: 18px/145% var(--alte-haas);
   letter-spacing: 0.18px;
   color: var(--text);
   background: var(--bg);
@@ -39,6 +41,8 @@ html, body, #root {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
+  color: var(--text);
+  font-family: var(--alte-haas);
 }
 .animated-bg {
   position: relative;
@@ -173,9 +177,11 @@ main > div {
   overflow: hidden;
 }
 
+
+/* Headings use Alte Haas Grotesk as well */
 h1,
 h2 {
-  font-family: var(--heading);
+  font-family: var(--alte-haas);
   font-weight: 500;
   color: var(--text-h);
 }
