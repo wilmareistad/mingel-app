@@ -10,6 +10,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import ParticipantsPanel from "../components/ParticipantsPanel";
 import ToggleButton from "../components/ToggleButton";
 import QuestionDisplay from "../components/QuestionDisplay";
+import EventQuestionsList from "../components/EventQuestionsList";
 import styles from "./AdminSettings.module.css";
 
 export default function AdminSettings() {
@@ -444,9 +445,12 @@ export default function AdminSettings() {
 
         <div className={styles.actionSection}>
           {event.status === "lobby" && (
-            <button className={styles.startBtn} onClick={handleStartGame}>
-              Start Game
-            </button>
+            <>
+              <EventQuestionsList questionIds={event.questions} />
+              <button className={styles.startBtn} onClick={handleStartGame}>
+                Start Game
+              </button>
+            </>
           )}
 
           {event.status === "question" && (
