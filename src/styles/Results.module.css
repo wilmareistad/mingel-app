@@ -65,13 +65,14 @@
 }
 
 .resultsDot.option0 {
-  background: #E74C3C;
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  background: #224d5c;
+  box-shadow: 0 4px 12px rgba(34, 77, 92, 0.3);
 }
 
 .resultsDot.option1 {
-  background: #224d5c;
-  box-shadow: 0 4px 12px rgba(34, 77, 92, 0.3);
+  background: #E74C3C;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+
 }
 
 @keyframes popIn {

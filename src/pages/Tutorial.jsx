@@ -31,82 +31,82 @@ export default function Tutorial() {
   };
 
   return (
-    <div className="tutorial_container">
+    <div className={styles.tutorialContainer}>
       {currentPage === 0 && (
-        <div className="tutorial_page tutorial_page_1">
+        <div className={`${styles.tutorialPage} ${styles.tutorialPage1}`}>
           <h1>Welcome <br /> to PULSE</h1>
           <h2>A question will appear on the screen:</h2>
           <p>Statement:</p>
-          <p className="tutorial_statement">Remote work is good</p>
+          <p className={styles.tutorialStatement}>Remote work is good</p>
 
-          <div className="tutorial_footer">
-            <div className="tutorial_dots">
+          <div className={styles.tutorialFooter}>
+            <div className={styles.tutorialDots}>
               {[0, 1, 2].map((index) => (
                 <span
                   key={index}
-                  className={`tutorial_dot ${currentPage === index ? "active" : ""}`}
+                  className={`${styles.tutorialDot} ${currentPage === index ? styles.active : ""}`}
                   onClick={() => handleDotClick(index)}
                 ></span>
               ))}
             </div>
-            <button className="tutorial_next" onClick={handleNext}>NEXT</button>
+            <button className={styles.tutorialNext} onClick={handleNext}>NEXT</button>
           </div>
 
-          <button className="tutorial_skip" onClick={handleSkip}>Skip tutorial</button>
+          <button className={styles.tutorialSkip} onClick={handleSkip}>Skip tutorial</button>
         </div>
       )}
 
       {currentPage === 1 && (
-        <div className="tutorial_page tutorial_page_2">
+        <div className={`${styles.tutorialPage} ${styles.tutorialPage2}`}>
           <img src={checkIcon} alt="Vote anonymously" />
           <h2>Vote anonymously</h2>
           <p>Respond to statements with Agree or Disagree. Your vote is completely anonymous.</p>
 
-          <div className="tutorial_footer">
-            <div className="tutorial_dots">
+          <div className={styles.tutorialFooter}>
+            <div className={styles.tutorialDots}>
               {[0, 1, 2].map((index) => (
                 <span
                   key={index}
-                  className={`tutorial_dot ${currentPage === index ? "active" : ""}`}
+                  className={`${styles.tutorialDot} ${currentPage === index ? styles.active : ""}`}
                   onClick={() => handleDotClick(index)}
                 ></span>
               ))}
             </div>
 
-            <div className="tutorial_nav_buttons">
-              <button className="tutorial_prev" onClick={handlePrevious}>Previous</button>
-              <button className="tutorial_next" onClick={handleNext}>Next</button>
+            <div className={styles.tutorialNavButtons}>
+              <button className={styles.tutorialPrev} onClick={handlePrevious}>Previous</button>
+              <button className={styles.tutorialNext} onClick={handleNext}>Next</button>
             </div>
           </div>
 
-          <button className="tutorial_skip" onClick={handleSkip}>Skip tutorial</button>
+          <button className={styles.tutorialSkip} onClick={handleSkip}>Skip tutorial</button>
         </div>
       )}
 
       {currentPage === 2 && (
-        <div className="tutorial_page tutorial_page_3">
+        <div className={`${styles.tutorialPage} ${styles.tutorialPage3}`}>
           <img src={statsIcon} alt="See results" />
           <h2>See results</h2>
           <p>View real-time aggregated results after each round. No individual data is shown.</p>
 
-          <div className="tutorial_footer">
-            <div className="tutorial_dots">
+          <div className={styles.tutorialFooter}>
+            <div className={styles.tutorialDots}>
               {[0, 1, 2].map((index) => (
                 <span
                   key={index}
-                  className={`tutorial_dot ${currentPage === index ? "active" : ""}`}
+                  className={`${styles.tutorialDot} ${currentPage === index ? styles.active : ""}`}
                   onClick={() => handleDotClick(index)}
                 ></span>
               ))}
             </div>
 
-            <div className="tutorial_nav_buttons">
-              <button className="tutorial_prev" onClick={handlePrevious}>Previous</button>
-              <button className="tutorial_next" onClick={handleNext}>Next</button>
+            <div className={styles.tutorialNavButtons}>
+              <button className={styles.tutorialPrev} onClick={handlePrevious}>Previous</button>
+              <button className={styles.tutorialNext} onClick={handleNext}>Next</button>
             </div>
           </div>
 
-          <button className="tutorial_skip" onClick={handleSkip}>Skip tutorial</button>
+          <button className={styles.tutorialSkip} onClick={handleSkip}>Skip tutorial</button>
         </div>
       )}
     </div>

@@ -5,6 +5,8 @@
   padding: 1.5rem;
   border-radius: 8px;
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .currentQuestion h3 {
