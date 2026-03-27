@@ -2,7 +2,7 @@
     display: flex;
     justify-content: center;
     gap: 12px;
-    padding: 30px 0 40px 0;
+    padding: 12px;
 }
 
 .tutorial_dot {
@@ -25,30 +25,26 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0 20px 60px 20px;
     text-align: center;
 }
 
+.tutorial_page_1 h2 {
+ font-weight: 700;
+ font-size: 1.5rem;
+}
 /* Page 1 */
 .tutorial_page_1 h1 {
-    font-size: 48px;
-    font-weight: 600;
-    color: #001a4d;
-    margin: 0 0 40px 0;
+    font-size: 64px;
+    font-weight: 700;
+    margin: 7rem 0 65px 0;
     letter-spacing: -0.5px;
-}
-
-.tutorial_page_1 h2 {
-    font-size: 18px;
-    font-weight: 500;
-    color: #001a4d;
-    margin: 0 0 20px 0;
+    line-height: 1;
 }
 
 .tutorial_page_1 > p:nth-of-type(1) {
-    font-size: 14px;
+    font-size: 24px;
     color: #333;
-    margin: 0 0 12px 0;
+    margin: 12px 0 12px 0;
 }
 
 .tutorial_statement {
@@ -58,7 +54,7 @@
     border: 2px solid #001a4d;
     border-radius: 8px;
     padding: 16px 24px;
-    margin: 0 0 50px 0;
+    margin: 0 0 6rem 0;
     min-width: 300px;
     background-color: transparent;
 }
@@ -74,7 +70,7 @@
 .tutorial_page_2 h2,
 .tutorial_page_3 h2 {
     font-size: 32px;
-    font-weight: 600;
+    font-weight: 700;
     color: #001a4d;
     margin: 0 0 20px 0;
 }
@@ -98,10 +94,6 @@
     font-size: 14px;
     font-weight: 500;
     transition: all 0.3s ease;
-}
-
-.tutorial_page_1 button {
-    margin-bottom: 12px;
 }
 
 .tutorial_page_1 .tutorial_next,
@@ -143,7 +135,6 @@
     background: none;
     color: #666;
     font-size: 13px;
-    margin-top: 16px;
     padding: 0;
     text-decoration: none;
 }
