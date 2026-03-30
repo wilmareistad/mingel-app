@@ -19,9 +19,8 @@
 }
 
 .header h1 {
-  margin: 0;
   font-size: 2rem;
-  color: var(--text-h);
+  line-height: normal;
 }
 
 .logoutBtn {
@@ -50,14 +49,7 @@
 }
 
 .createBtn {
-  padding: 12px 24px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
+  width: 100%;
 }
 
 .createBtn:hover {
