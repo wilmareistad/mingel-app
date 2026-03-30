@@ -45,10 +45,6 @@
   color: var(--text-h);
 }
 
-.button:hover {
-  transform: translateY(-2px);
-}
-
 .cancel {
   border-color: var(--border);
   color: var(--text-h);

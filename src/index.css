@@ -118,12 +118,6 @@ html, body, #root {
   }
 }
 
-
-
-
-
-
-
 body {
   margin: 0;
 }
@@ -189,10 +183,6 @@ h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
 }
 
 .button-container {
@@ -207,9 +197,6 @@ h2 {
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
 }
 
 p {
@@ -270,12 +257,6 @@ button {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-}
-
-button:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
 }
 
 button:active {
