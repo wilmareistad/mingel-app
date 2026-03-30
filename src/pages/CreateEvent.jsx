@@ -167,7 +167,7 @@ export default function CreateEvent() {
           ))}
         </div>
       </div>
-
+      
       <button onClick={handleCreate}>Create Event</button>
       {message && <p>{message}</p>}
     </div>
