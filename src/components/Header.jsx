@@ -23,10 +23,12 @@ export default function Header() {
 
   return (
     <header className={styles.header}>
+      <nav>
       <a href="/" onClick={handleLogoClick} className={styles.logo}>
         Pulse
       </a>
       <img src={GearIcon} alt="Settings" className={styles.icon} />
+      </nav>
     </header>
   );
 }
