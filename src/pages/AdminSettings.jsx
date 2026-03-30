@@ -19,7 +19,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import ParticipantsPanel from "../components/ParticipantsPanel";
 import ToggleButton from "../components/ToggleButton";
 import QuestionDisplay from "../components/QuestionDisplay";
-import EventQuestionsList from "../components/EventQuestionsList";
+import AllQuestionsList from "../components/AllQuestionsList";
 import styles from "./AdminSettings.module.css";
 
 export default function AdminSettings() {
@@ -74,21 +74,32 @@ export default function AdminSettings() {
         }
 
         // Get current question if event is showing a question
-        if (
-          eventData.status === "question" &&
-          eventData.questions &&
-          eventData.questions.length > 0
-        ) {
+        if (eventData.status === "question") {
+          const allQuestionIds = [
+            ...(eventData.questions || []),
+            ...(eventData.customQuestions || [])
+          ];
+          
           const questionIndex = eventData.currentQuestionIndex || 0;
-          if (questionIndex < eventData.questions.length) {
-            const questionId = eventData.questions[questionIndex];
-            const questionRef = doc(db, "questions", questionId);
-            const questionSnap = await getDoc(questionRef);
+          if (questionIndex < allQuestionIds.length) {
+            const questionId = allQuestionIds[questionIndex];
+            
+            // Try to fetch from public questions first
+            let questionSnap = await getDoc(doc(db, "questions", questionId));
+            
+            // If not found in public, try custom questions
+            if (!questionSnap.exists()) {
+              questionSnap = await getDoc(doc(db, "customQuestions", questionId));
+            }
+            
             if (questionSnap.exists()) {
               setCurrentQuestion({
                 id: questionSnap.id,
                 ...questionSnap.data(),
               });
+            } else {
+              console.error("Question not found:", questionId);
+              setCurrentQuestion(null);
             }
           }
         }
@@ -224,11 +235,14 @@ export default function AdminSettings() {
 
       // Reset all participants answered status before showing next question
       await resetParticipantsAnswered(eventId);
-
+      
+      // Calculate total questions (public + custom)
+      const totalQuestions = (event.questions?.length || 0) + (event.customQuestions?.length || 0);
+      
       const nextIndex = (event.currentQuestionIndex || 0) + 1;
       // Loop back to first question if we've reached the end
-      const loopedIndex = nextIndex % event.questions.length;
-
+      const loopedIndex = nextIndex % totalQuestions;
+      
       // Update question index FIRST before changing status
       await updateCurrentQuestionIndex(eventId, loopedIndex);
 
@@ -491,7 +505,10 @@ export default function AdminSettings() {
         <div className={styles.actionSection}>
           {event.status === "lobby" && (
             <>
-              <EventQuestionsList questionIds={event.questions} />
+              <AllQuestionsList 
+                publicQuestionIds={event.questions} 
+                customQuestionIds={event.customQuestions}
+              />
               <button
                 className={`${styles.startBtn} adminButton`}
                 onClick={handleStartGame}
