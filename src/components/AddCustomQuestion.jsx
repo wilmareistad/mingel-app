@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./AddCustomQuestion.module.css";
 
-export default function AddCustomQuestion({ eventId, adminId, onQuestionAdded, categories }) {
+export default function AddCustomQuestion({ eventId, adminId, onQuestionAdded, categories, eventCategories = [] }) {
   const [showForm, setShowForm] = useState(false);
   const [text, setText] = useState("");
   const [category, setCategory] = useState("");
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
   const [options, setOptions] = useState(["Agree", "Disagree"]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Set default category to the last event category when form opens
+  useEffect(() => {
+    if (showForm && eventCategories.length > 0 && !category) {
+      setCategory(eventCategories[eventCategories.length - 1]);
+    }
+  }, [showForm, eventCategories, category]);
 
   const handleAddOption = () => {
     setOptions([...options, ""]);
@@ -33,7 +42,10 @@ export default function AddCustomQuestion({ eventId, adminId, onQuestionAdded, c
       return;
     }
     
-    if (!category.trim()) {
+    // Use new category if created, otherwise use selected category
+    const finalCategory = showNewCategoryInput ? newCategory.trim() : category.trim();
+    
+    if (!finalCategory) {
       setMessage("Select or enter a category");
       return;
     }
@@ -49,13 +61,15 @@ export default function AddCustomQuestion({ eventId, adminId, onQuestionAdded, c
     try {
       await onQuestionAdded({
         text: text.trim(),
-        category: category.trim(),
+        category: finalCategory,
         options: options.map((opt) => opt.trim()),
       });
 
       // Reset form
       setText("");
       setCategory("");
+      setNewCategory("");
+      setShowNewCategoryInput(false);
       setOptions(["Agree", "Disagree"]);
       setMessage("✅ Question added!");
       setTimeout(() => {
@@ -101,18 +115,67 @@ export default function AddCustomQuestion({ eventId, adminId, onQuestionAdded, c
 
         <div className={styles.formGroup}>
           <label>Category:</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            disabled={loading}
-          >
-            <option value="">Select or type category</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
+          {!showNewCategoryInput ? (
+            <div className={styles.categoryRow}>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                disabled={loading}
+              >
+                <option value="">Select a category</option>
+                {eventCategories.length > 0 && (
+                  <optgroup label="Event Categories">
+                    {eventCategories.map((cat) => (
+                      <option key={`event-${cat}`} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {categories.length > 0 && (
+                  <optgroup label="Global Categories">
+                    {categories.map((cat) => (
+                      <option key={`global-${cat}`} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewCategoryInput(true);
+                  setCategory("");
+                }}
+                className={styles.newCategoryBtn}
+                disabled={loading}
+              >
+                + New
+              </button>
+            </div>
+          ) : (
+            <div className={styles.categoryRow}>
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="Enter new category name"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewCategoryInput(false);
+                  setNewCategory("");
+                }}
+                className={styles.cancelCategoryBtn}
+                disabled={loading}
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
 
         <div className={styles.formGroup}>

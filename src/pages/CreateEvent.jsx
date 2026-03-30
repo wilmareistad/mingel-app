@@ -23,6 +23,7 @@ export default function CreateEvent() {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [eventCategories, setEventCategories] = useState([]); // Event-specific categories
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [customQuestions, setCustomQuestions] = useState([]);
   const [selectedCustomQuestions, setSelectedCustomQuestions] = useState([]);
@@ -69,6 +70,11 @@ export default function CreateEvent() {
       // Don't create in Firestore yet - just store locally
       // We'll create them in batch when the event is created
       const tempId = nanoid(12);
+      
+      // Add category to event-specific categories if it's new
+      if (questionData.category && !eventCategories.includes(questionData.category)) {
+        setEventCategories((prev) => [...prev, questionData.category]);
+      }
       
       // Add to local state
       setCustomQuestions((prev) => [
@@ -230,6 +236,7 @@ export default function CreateEvent() {
         adminId={adminId}
         onQuestionAdded={handleAddCustomQuestion}
         categories={categories}
+        eventCategories={eventCategories}
       />
 
       {selectedCustomQuestions.length > 0 && (
