@@ -2,8 +2,17 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
-import { listenToParticipants, resetParticipantsAnswered, setShowingResultsOnly, updateTimerDuration, removeParticipant } from "../features/event/eventService";
-import { updateEventStatus, updateCurrentQuestionIndex } from "../features/event/eventService";
+import {
+  listenToParticipants,
+  resetParticipantsAnswered,
+  setShowingResultsOnly,
+  updateTimerDuration,
+  removeParticipant,
+} from "../features/event/eventService";
+import {
+  updateEventStatus,
+  updateCurrentQuestionIndex,
+} from "../features/event/eventService";
 import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { getQuestionAnswers } from "../features/game/gameService";
 import ConfirmModal from "../components/ConfirmModal";
@@ -65,7 +74,11 @@ export default function AdminSettings() {
         }
 
         // Get current question if event is showing a question
-        if (eventData.status === "question" && eventData.questions && eventData.questions.length > 0) {
+        if (
+          eventData.status === "question" &&
+          eventData.questions &&
+          eventData.questions.length > 0
+        ) {
           const questionIndex = eventData.currentQuestionIndex || 0;
           if (questionIndex < eventData.questions.length) {
             const questionId = eventData.questions[questionIndex];
@@ -74,7 +87,7 @@ export default function AdminSettings() {
             if (questionSnap.exists()) {
               setCurrentQuestion({
                 id: questionSnap.id,
-                ...questionSnap.data()
+                ...questionSnap.data(),
               });
             }
           }
@@ -107,7 +120,10 @@ export default function AdminSettings() {
 
     const loadAnswers = async () => {
       try {
-        const allAnswers = await getQuestionAnswers(eventId, currentQuestion.id);
+        const allAnswers = await getQuestionAnswers(
+          eventId,
+          currentQuestion.id,
+        );
         setVoteCount(allAnswers.length);
       } catch (error) {
         console.error("Error loading answers:", error);
@@ -132,8 +148,9 @@ export default function AdminSettings() {
 
     const updateTimeLeft = () => {
       const durationSeconds = event.questionTimerSeconds || 300;
-      const phaseStartedAt = event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
-      
+      const phaseStartedAt =
+        event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
+
       if (!phaseStartedAt) {
         setTimeLeft(durationSeconds);
         return;
@@ -156,7 +173,13 @@ export default function AdminSettings() {
     return () => clearInterval(interval);
   }, [event]);
 
-  const openConfirmModal = (title, message, onConfirm, confirmText = "Confirm", confirmStyle = "default") => {
+  const openConfirmModal = (
+    title,
+    message,
+    onConfirm,
+    confirmText = "Confirm",
+    confirmStyle = "default",
+  ) => {
     setModalState({
       isOpen: true,
       title,
@@ -178,7 +201,7 @@ export default function AdminSettings() {
     try {
       // Reset all participants answered status before starting
       await resetParticipantsAnswered(eventId);
-      
+
       // Then transition to question status
       await updateEventStatus(eventId, "question");
       setMessage("Game started! First question displayed.");
@@ -192,26 +215,26 @@ export default function AdminSettings() {
   const handleNextQuestion = async () => {
     try {
       if (!event) return;
-      
+
       // Clear the "showing results only" flag
       await setShowingResultsOnly(eventId, false);
-      
+
       // DELETE answers from previous question to prevent phantom votes
       await deleteAnswersForEvent(eventId);
-      
+
       // Reset all participants answered status before showing next question
       await resetParticipantsAnswered(eventId);
-      
+
       const nextIndex = (event.currentQuestionIndex || 0) + 1;
       // Loop back to first question if we've reached the end
       const loopedIndex = nextIndex % event.questions.length;
-      
+
       // Update question index FIRST before changing status
       await updateCurrentQuestionIndex(eventId, loopedIndex);
-      
+
       // Then transition to question status (this also sets phaseStartedAt)
       await updateEventStatus(eventId, "question");
-      
+
       if (loopedIndex === 0 && nextIndex > 0) {
         // We've looped back to the start
         setMessage("Looping back to first question...");
@@ -241,7 +264,7 @@ export default function AdminSettings() {
         }
       },
       "End Game",
-      "danger"
+      "danger",
     );
   };
 
@@ -250,7 +273,9 @@ export default function AdminSettings() {
       // Show results for current question without ending the game
       await setShowingResultsOnly(eventId, true);
       await updateEventStatus(eventId, "results");
-      setMessage("Question ended. Results displayed. Click 'Next Question' to continue.");
+      setMessage(
+        "Question ended. Results displayed. Click 'Next Question' to continue.",
+      );
       setTimeout(() => setMessage(""), 3000);
     } catch (error) {
       console.error("Error ending question:", error);
@@ -267,7 +292,7 @@ export default function AdminSettings() {
         try {
           // Clear all answers from previous round
           await deleteAnswersForEvent(eventId);
-          
+
           // Reset to lobby state and back to first question
           await updateCurrentQuestionIndex(eventId, 0);
           await resetParticipantsAnswered(eventId);
@@ -280,7 +305,7 @@ export default function AdminSettings() {
         }
       },
       "Reset",
-      "danger"
+      "danger",
     );
   };
 
@@ -289,7 +314,10 @@ export default function AdminSettings() {
   };
 
   // Timer options in seconds (0.5 to 15 minutes with 30-second increments)
-  const timerOptions = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720, 810, 900];
+  const timerOptions = [
+    30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720,
+    810, 900,
+  ];
 
   const handleTimerChange = async (seconds) => {
     try {
@@ -303,7 +331,10 @@ export default function AdminSettings() {
   };
 
   const handleTimerIncrement = () => {
-    const currentSeconds = pendingTimerSeconds !== null ? pendingTimerSeconds : (event?.questionTimerSeconds || 300);
+    const currentSeconds =
+      pendingTimerSeconds !== null
+        ? pendingTimerSeconds
+        : event?.questionTimerSeconds || 300;
     const currentIndex = timerOptions.indexOf(currentSeconds);
     if (currentIndex < timerOptions.length - 1) {
       setPendingTimerSeconds(timerOptions[currentIndex + 1]);
@@ -311,7 +342,10 @@ export default function AdminSettings() {
   };
 
   const handleTimerDecrement = () => {
-    const currentSeconds = pendingTimerSeconds !== null ? pendingTimerSeconds : (event?.questionTimerSeconds || 300);
+    const currentSeconds =
+      pendingTimerSeconds !== null
+        ? pendingTimerSeconds
+        : event?.questionTimerSeconds || 300;
     const currentIndex = timerOptions.indexOf(currentSeconds);
     if (currentIndex > 0) {
       setPendingTimerSeconds(timerOptions[currentIndex - 1]);
@@ -342,7 +376,10 @@ export default function AdminSettings() {
       title: "Kick Player",
       message: `Are you sure you want to kick ${participantName} from the game?`,
       onConfirm: async () => {
-        console.log("Modal onConfirm - about to kick player:", { currentEventId, participantId });
+        console.log("Modal onConfirm - about to kick player:", {
+          currentEventId,
+          participantId,
+        });
         try {
           await removeParticipant(currentEventId, participantId);
           setMessage(`${participantName} has been kicked from the game.`);
@@ -351,7 +388,7 @@ export default function AdminSettings() {
           console.error("Error kicking player:", error);
           setMessage("Error kicking player. Please try again.");
         }
-        setModalState(prev => ({ ...prev, isOpen: false }));
+        setModalState((prev) => ({ ...prev, isOpen: false }));
       },
       confirmText: "Kick Player",
       confirmStyle: "danger",
@@ -359,10 +396,13 @@ export default function AdminSettings() {
   };
 
   const getCurrentTimerLabel = () => {
-    const seconds = pendingTimerSeconds !== null ? pendingTimerSeconds : (event?.questionTimerSeconds || 300);
+    const seconds =
+      pendingTimerSeconds !== null
+        ? pendingTimerSeconds
+        : event?.questionTimerSeconds || 300;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    
+
     if (minutes === 0) {
       return `${seconds}s`;
     } else if (remainingSeconds === 0) {
@@ -375,7 +415,7 @@ export default function AdminSettings() {
   const getTimeLeftDisplay = () => {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-    
+
     if (minutes === 0) {
       return `${seconds}s`;
     } else if (seconds === 0) {
@@ -390,7 +430,9 @@ export default function AdminSettings() {
   if (!event) {
     return (
       <div className={styles.container}>
-        <button onClick={handleBackToPanel}>← Back to Panel</button>
+        <button className="adminButton" onClick={handleBackToPanel}>
+          ← Back to Panel
+        </button>
         <p className={styles.error}>{message || "Event not found"}</p>
       </div>
     );
@@ -399,7 +441,10 @@ export default function AdminSettings() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={handleBackToPanel}>
+        <button
+          className={`${styles.backBtn} adminButton`}
+          onClick={handleBackToPanel}
+        >
           ← Back to Panel
         </button>
         <h1>{event.name}</h1>
@@ -420,7 +465,7 @@ export default function AdminSettings() {
         <div className={styles.statusSection}>
           <h2>Question Timer</h2>
           <div className={styles.timerControl}>
-            <ToggleButton 
+            <ToggleButton
               direction="left"
               onClick={handleTimerDecrement}
               label="Decrease time"
@@ -428,12 +473,12 @@ export default function AdminSettings() {
             <div className={styles.timerInputDisplay}>
               <span>{getCurrentTimerLabel()}</span>
             </div>
-            <ToggleButton 
+            <ToggleButton
               direction="right"
               onClick={handleTimerIncrement}
               label="Increase time"
             />
-            <button 
+            <button
               className={styles.setTimerBtn}
               onClick={handleConfirmTimer}
               disabled={pendingTimerSeconds === null}
@@ -447,7 +492,10 @@ export default function AdminSettings() {
           {event.status === "lobby" && (
             <>
               <EventQuestionsList questionIds={event.questions} />
-              <button className={styles.startBtn} onClick={handleStartGame}>
+              <button
+                className={`${styles.startBtn} adminButton`}
+                onClick={handleStartGame}
+              >
                 Start Game
               </button>
             </>
@@ -456,7 +504,7 @@ export default function AdminSettings() {
           {event.status === "question" && (
             <>
               <div className={styles.questionSection}>
-                <QuestionDisplay 
+                <QuestionDisplay
                   question={currentQuestion}
                   currentIndex={event?.currentQuestionIndex || 0}
                   totalQuestions={event?.questions?.length || 0}
@@ -466,13 +514,22 @@ export default function AdminSettings() {
                 />
               </div>
               <div className={styles.buttonGroup}>
-                <button className={styles.nextBtn} onClick={handleNextQuestion}>
+                <button
+                  className={`${styles.nextBtn} adminButton`}
+                  onClick={handleNextQuestion}
+                >
                   Next Question
                 </button>
-                <button className={styles.endQuestionBtn} onClick={handleEndQuestion}>
+                <button
+                  className={`${styles.endQuestionBtn} adminButton`}
+                  onClick={handleEndQuestion}
+                >
                   End Question & Show Results
                 </button>
-                <button className={styles.endBtn} onClick={handleEndGame}>
+                <button
+                  className={`${styles.endBtn} adminButton`}
+                  onClick={handleEndGame}
+                >
                   End Game & Show Results
                 </button>
               </div>
@@ -483,24 +540,40 @@ export default function AdminSettings() {
             <div className={styles.resultsSection}>
               {event.showingResultsOnly ? (
                 <>
-                  <p className={styles.resultsText}>Showing results for current question.</p>
+                  <p className={styles.resultsText}>
+                    Showing results for current question.
+                  </p>
                   <div className={styles.resultActions}>
-                    <button className={styles.nextBtn} onClick={handleNextQuestion}>
+                    <button
+                      className={`${styles.nextBtn} adminButton`}
+                      onClick={handleNextQuestion}
+                    >
                       Next Question
                     </button>
-                    <button className={styles.endBtn} onClick={handleEndGame}>
+                    <button
+                      className={`${styles.endBtn} adminButton`}
+                      onClick={handleEndGame}
+                    >
                       End Game & Show Results
                     </button>
                   </div>
                 </>
               ) : (
                 <>
-                  <p className={styles.resultsText}>Game has finished. Results are being displayed.</p>
+                  <p className={styles.resultsText}>
+                    Game has finished. Results are being displayed.
+                  </p>
                   <div className={styles.resultActions}>
-                    <button className={styles.resetBtn} onClick={handleResetGame}>
+                    <button
+                      className={`${styles.resetBtn} adminButton`}
+                      onClick={handleResetGame}
+                    >
                       Reset Game
                     </button>
-                    <button className={styles.backBtn} onClick={() => handleBackToPanel()}>
+                    <button
+                      className={`${styles.backBtn} adminButton`}
+                      onClick={() => handleBackToPanel()}
+                    >
                       Back to Panel
                     </button>
                   </div>
@@ -511,7 +584,7 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      <ParticipantsPanel 
+      <ParticipantsPanel
         participants={participants}
         isKickMode={isKickMode}
         onToggleKickMode={() => setIsKickMode(!isKickMode)}
