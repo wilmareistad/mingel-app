@@ -47,7 +47,7 @@ export default function AdminPanel() {
         <h1 className={styles.title}>Welcome, {adminEmail}!</h1>
       </div>
 
-      <button className={styles.createBtn} onClick={() => navigate("/create")}>
+  <button className={`${styles.createBtn} adminButton`} onClick={() => navigate("/create")}> 
         + Create New Event
       </button>
 

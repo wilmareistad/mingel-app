@@ -147,7 +147,7 @@ export default function CreateEvent() {
             ))}
           </select>
           {questionCategory && (
-            <button onClick={() => setQuestionCategory("")}>Clear filter</button>
+            <button className="adminButton" onClick={() => setQuestionCategory("")}>Clear filter</button>
           )}
         </div>
 
@@ -167,8 +167,8 @@ export default function CreateEvent() {
           ))}
         </div>
       </div>
-      
-      <button onClick={handleCreate}>Create Event</button>
+
+  <button className="adminButton" onClick={handleCreate}>Create Event</button>
       {message && <p>{message}</p>}
     </div>
   );
