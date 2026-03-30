@@ -3,9 +3,3 @@
   padding: 16px 24px;
   border: 2px solid var(--border);
 }
-
-.eventCard:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
