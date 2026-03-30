@@ -25,6 +25,30 @@ export async function getQuestion(questionId) {
 }
 
 /**
+ * Get a custom question by ID from the customQuestions collection
+ * @param {string} questionId - Custom Question ID
+ * @returns {Promise<object>} Question data with standardized format
+ */
+export async function getCustomQuestion(questionId) {
+  const questionRef = doc(db, "customQuestions", questionId);
+  const docSnap = await getDoc(questionRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    return {
+      id: docSnap.id,
+      text: data.text,
+      options: data.options || ["Agree", "Disagree"],
+      category: data.category,
+      isCustom: true,
+      ...data
+    };
+  }
+
+  return null;
+}
+
+/**
  * Get the current question for an event based on event's question list
  * @param {string} eventId - Event ID
  * @param {number} questionIndex - Index within the event's question list (0-based)
@@ -41,24 +65,36 @@ export async function getCurrentEventQuestion(eventId, questionIndex) {
     }
 
     const eventData = eventSnap.data();
-    const questionIds = eventData.questions || [];
+    // Combine public and custom questions
+    const allQuestionIds = [
+      ...(eventData.questions || []),
+      ...(eventData.customQuestions || [])
+    ];
 
-    if (questionIndex < 0 || questionIndex >= questionIds.length) {
-      console.warn(`Question index ${questionIndex} out of range (${questionIds.length} questions available)`);
+    if (questionIndex < 0 || questionIndex >= allQuestionIds.length) {
+      console.warn(`Question index ${questionIndex} out of range (${allQuestionIds.length} questions available)`);
       return null;
     }
 
-    const questionId = questionIds[questionIndex];
-    const question = await getQuestion(questionId);
+    const questionId = allQuestionIds[questionIndex];
+    
+    // Try to fetch from public questions first
+    let question = await getQuestion(questionId);
+    
+    // If not found in public, try custom questions
+    if (!question) {
+      question = await getCustomQuestion(questionId);
+    }
 
     if (question) {
       return {
         ...question,
-        totalQuestions: questionIds.length,
+        totalQuestions: allQuestionIds.length,
         currentIndex: questionIndex
       };
     }
 
+    console.error(`Question not found: ${questionId}`);
     return null;
   } catch (error) {
     console.error("Error in getCurrentEventQuestion:", error);
@@ -128,13 +164,22 @@ export async function getEventQuestions(eventId) {
   }
 
   const eventData = eventSnap.data();
-  const questionIds = eventData.questions || [];
+  // Combine public and custom question IDs
+  const publicIds = eventData.questions || [];
+  const customIds = eventData.customQuestions || [];
 
-  const questions = await Promise.all(
-    questionIds.map(id => getQuestion(id))
+  const publicQuestions = await Promise.all(
+    publicIds.map(id => getQuestion(id))
   );
 
-  return questions.filter(q => q !== null);
+  const customQuestions = await Promise.all(
+    customIds.map(id => getCustomQuestion(id))
+  );
+
+  return [
+    ...publicQuestions.filter(q => q !== null),
+    ...customQuestions.filter(q => q !== null)
+  ];
 }
 
 /**

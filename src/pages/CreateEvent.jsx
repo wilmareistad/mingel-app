@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { collection, setDoc, doc, serverTimestamp, getDocs } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
 import { nanoid } from "nanoid";
+import { createCustomQuestion, getCustomQuestionsForEvent } from "../features/customQuestion/customQuestionService";
+import AddCustomQuestion from "../components/AddCustomQuestion";
 import styles from "./CreateEvent.module.css"
 
 
@@ -22,6 +24,8 @@ export default function CreateEvent() {
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [customQuestions, setCustomQuestions] = useState([]);
+  const [selectedCustomQuestions, setSelectedCustomQuestions] = useState([]);
   const [theme, setTheme] = useState("");
   const [questionCategory, setQuestionCategory] = useState("");
   const [questionTimerSeconds, setQuestionTimerSeconds] = useState(300); // default 5 min
@@ -54,22 +58,75 @@ export default function CreateEvent() {
     );
   };
 
+  const handleCustomQuestionToggle = (id) => {
+    setSelectedCustomQuestions((prev) =>
+      prev.includes(id) ? prev.filter((qid) => qid !== id) : [...prev, id]
+    );
+  };
+
+  const handleAddCustomQuestion = async (questionData) => {
+    try {
+      // Don't create in Firestore yet - just store locally
+      // We'll create them in batch when the event is created
+      const tempId = nanoid(12);
+      
+      // Add to local state
+      setCustomQuestions((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          ...questionData,
+          isTemp: true, // Mark as temporary (not yet in Firestore)
+        },
+      ]);
+
+      // Add to selected questions
+      setSelectedCustomQuestions((prev) => [...prev, tempId]);
+    } catch (error) {
+      console.error("Error adding custom question:", error);
+    }
+  };
+
 
   const handleCreate = async () => {
     if (!eventName) return setMessage("Enter event name");
     if (!adminId) return setMessage("You must be logged in");
     if (!theme) return setMessage("Select a theme");
-    if (selectedQuestions.length === 0) return setMessage("Select at least one question");
+    
+    const totalQuestions = selectedQuestions.length + selectedCustomQuestions.length;
+    if (totalQuestions === 0) return setMessage("Select at least one question");
 
     const code = nanoid(4).toUpperCase();
     const docId = `${eventName.replace(/\s+/g, "")}_${code}`;
 
     try {
+      // First, create all custom questions with the real event ID
+      const customQuestionIds = [];
+      for (const customQId of selectedCustomQuestions) {
+        const customQ = customQuestions.find(q => q.id === customQId);
+        if (customQ && customQ.isTemp) {
+          // This is a temporary local question, create it in Firestore
+          const createdId = await createCustomQuestion(
+            docId,
+            customQ.text,
+            customQ.category,
+            customQ.options,
+            adminId
+          );
+          customQuestionIds.push(createdId);
+        } else {
+          // This is already in Firestore from a previous creation, keep the ID
+          customQuestionIds.push(customQId);
+        }
+      }
+
+      // Create event with both question types
       await setDoc(doc(db, "events", docId), {
         name: eventName,
         code,
         status: "lobby",
         questions: selectedQuestions,
+        customQuestions: customQuestionIds,
         currentQuestionIndex: 0,
         createdAt: serverTimestamp(),
         createdBy: adminId,
@@ -167,6 +224,33 @@ export default function CreateEvent() {
           ))}
         </div>
       </div>
+
+      <AddCustomQuestion 
+        eventId="new"
+        adminId={adminId}
+        onQuestionAdded={handleAddCustomQuestion}
+        categories={categories}
+      />
+
+      {selectedCustomQuestions.length > 0 && (
+        <div>
+          <label>Custom Questions ({selectedCustomQuestions.length} selected):</label>
+          <div style={{ height: "150px", overflowY: "scroll", border: "1px solid #ccc", padding: "8px" }}>
+            {customQuestions.map((q) => (
+              <div key={q.id}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={selectedCustomQuestions.includes(q.id)}
+                    onChange={() => handleCustomQuestionToggle(q.id)}
+                  />
+                  {q.text} <em>({q.category})</em>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <button onClick={handleCreate}>Create Event</button>
       {message && <p>{message}</p>}
