@@ -124,7 +124,6 @@ body {
   align-items: center;
   justify-content: flex-start;
   background: transparent;
-  color: var(--text-h);
 }
 
 main {
@@ -170,7 +169,6 @@ h1,
 h2 {
   font-family: var(--alte-haas);
   font-weight: 500;
-  color: var(--text-h);
 }
 
 h1 {

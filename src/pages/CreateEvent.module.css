@@ -1,0 +1,110 @@
+h1 {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 111%;
+  color: var(--text-h);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.inputContainer > label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-h);
+  text-align: center;
+}
+
+.inputContainer input,
+.inputContainer select {
+  padding: 16px 20px;
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+}
+
+.questionItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.questionItem input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.questionCount {
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-h);
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: scroll;
+}
+
+.questionItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  font-weight: normal;
+}
+
+.questionItem input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.questionCount {
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-h);
+  opacity: 0.6;
+  margin: 4px 0 0 0;
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filterRow select {
+  flex: 1;
+}
+
+.clearFilter {
+  background: none;
+  border: none;
+  width:fit-content;
+  text-decoration: underline;
+  color: var(--text-h);
+  font-size: 13px;
+  padding: 0;
+}
