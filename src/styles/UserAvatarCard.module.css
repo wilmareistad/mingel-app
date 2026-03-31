@@ -4,34 +4,37 @@
   align-items: center;
   position: absolute;
   transition: left 0.3s ease, top 0.3s ease;
+  gap: var(--user-card-gap);
 }
 
 .userAvatar {
-  border: 3px solid #001A52;
+  border: var(--user-card-border);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #F5F5F5;
+  background-color: var(--user-card-bg);
   overflow: hidden;
 }
 
 .avatarInitial {
   font-weight: 700;
-  color: #001A52;
+  color: var(--user-card-text-color);
   line-height: 1;
+  text-shadow: var(--user-card-text-shadow);
 }
 
 .userName {
   font-size: 14px;
   font-weight: 600;
-  color: #001A52;
+  color: var(--user-card-text-color);
   margin: 0;
   text-align: center;
   max-width: 120px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transform: translateY(var(--user-card-name-margin));
 }
 
 @media (max-width: 768px) {

@@ -1,37 +1,10 @@
+/* Import global variables and utilities */
+@import './styles/global/variables.css';
 @import './styles/globals.css';
 
-:root {
-  --text: #001A52;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #434343;
-  --code-bg: #9e009e;
-  --accent: #001A52;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(225, 0, 161, 0.5);
-  --shadow:
-  rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-  
-  --alte-haas: 'Alte Haas Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-  
-  font: 18px/145% var(--alte-haas);
-  letter-spacing: 0.18px;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-
-.home_button_to_tutorial {
-  all: unset;
-}
+/* ============================================
+   BASE STYLES - HTML, BODY, ROOT
+   ============================================ */
 
 html, body, #root {
   margin: 0;
@@ -42,75 +15,6 @@ html, body, #root {
   color: var(--text);
   font-family: var(--alte-haas);
 }
-
-.animated-bg {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden; /* hides gradients moving outside */
-  background: rgb(255, 255, 255);
-}
-
-/* Base gradient style */
-.gradient {
-  position: absolute;
-  width: 100vw;
-  height: 100vw;
-  border-radius: 50%;
-  pointer-events: none;
-  top: 0;
-  left: 0;
-}
-
-/* Gradient 1 – red, starts top-left */
-.gradient1 {
-  background: radial-gradient(circle, #9CA9F4, transparent 70%);
-  top: -30%;
-  left: -30%;
-  animation: float1 6s linear infinite;
-}
-
-/* Gradient 2 – green, starts bottom-left */
-.gradient2 {
-  background: radial-gradient(circle, #9CA9F4, transparent 70%);
-  top: 20%;
-  left: -40%;
-  animation: float2 8s linear infinite;
-}
-
-/* Gradient 3 – blue, starts center-right */
-.gradient3 {
-  background: radial-gradient(circle, #9CA9F4, transparent 70%);
-  top: 10%;
-  left: 50%;
-  animation: float3 10s linear infinite;
-}
-
-/* Continuous floating animations using translate with different directions */
-@keyframes float1 {
-  0%   { transform: translate(0, 0); }
-  25%  { transform: translate(10vw, 5vw); }
-  50%  { transform: translate(-5vw, 15vw); }
-  75%  { transform: translate(15vw, 10vw); }
-  100% { transform: translate(0, 0); }
-}
-
-@keyframes float2 {
-  0%   { transform: translate(0, 0); }
-  25%  { transform: translate(-10vw, 15vw); }
-  50%  { transform: translate(5vw, -10vw); }
-  75%  { transform: translate(-15vw, 5vw); }
-  100% { transform: translate(0, 0); }
-}
-
-@keyframes float3 {
-  0%   { transform: translate(0, 0); }
-  25%  { transform: translate(8vw, -12vw); }
-  50%  { transform: translate(-12vw, 8vw); }
-  75%  { transform: translate(10vw, 10vw); }
-  100% { transform: translate(0, 0); }
-}
-
 
 body {
   margin: 0;
@@ -153,6 +57,10 @@ main > div {
   box-sizing: border-box;
 }
 
+/* ============================================
+   ANIMATED BACKGROUND
+   ============================================ */
+
 .animated-bg {
   position: fixed;
   top: 0;
@@ -161,10 +69,68 @@ main > div {
   height: 100vh;
   z-index: -1;
   overflow: hidden;
+  background: rgb(255, 255, 255);
 }
 
+.gradient {
+  position: absolute;
+  width: 100vw;
+  height: 100vw;
+  border-radius: 50%;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+}
 
-/* Headings use Alte Haas Grotesk as well */
+.gradient1 {
+  background: radial-gradient(circle, #9CA9F4, transparent 70%);
+  top: -30%;
+  left: -30%;
+  animation: float1 6s linear infinite;
+}
+
+.gradient2 {
+  background: radial-gradient(circle, #9CA9F4, transparent 70%);
+  top: 20%;
+  left: -40%;
+  animation: float2 8s linear infinite;
+}
+
+.gradient3 {
+  background: radial-gradient(circle, #9CA9F4, transparent 70%);
+  top: 10%;
+  left: 50%;
+  animation: float3 10s linear infinite;
+}
+
+@keyframes float1 {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(10vw, 5vw); }
+  50%  { transform: translate(-5vw, 15vw); }
+  75%  { transform: translate(15vw, 10vw); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes float2 {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-10vw, 15vw); }
+  50%  { transform: translate(5vw, -10vw); }
+  75%  { transform: translate(-15vw, 5vw); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes float3 {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(8vw, -12vw); }
+  50%  { transform: translate(-12vw, 8vw); }
+  75%  { transform: translate(10vw, 10vw); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
 h1,
 h2 {
   font-family: var(--alte-haas);
@@ -175,13 +141,6 @@ h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
-}
-
-.button-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
 }
 
 h2 {
@@ -196,22 +155,10 @@ p {
   color: var(--text);
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
-}
-
-/* Input and button styling for both light and dark modes */
 input,
 textarea {
   background: var(--bg);
@@ -231,6 +178,10 @@ textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
+
+/* ============================================
+   BUTTONS
+   ============================================ */
 
 button {
   background: var(--accent);
@@ -260,14 +211,44 @@ button:disabled {
   cursor: not-allowed;
 }
 
+@media (min-width: 1025px) {
+  .adminButton:hover {
+    background: #062a78;
+  }
+}
+
+/* ============================================
+   CODE & OTHER ELEMENTS
+   ============================================ */
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
+
 ul {
   color: var(--text);
   list-style: none;
   padding: 0;
 }
 
-@media (min-width: 1025px) {
-  .adminButton:hover {
-    background: #062a78;
-  }
+.home_button_to_tutorial {
+  all: unset;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
 }

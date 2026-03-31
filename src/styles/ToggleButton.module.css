@@ -1,7 +1,7 @@
 .toggleButton {
   background: none !important;
   border: none !important;
-  padding: 4px !important;
+  padding: var(--spacing-xs) !important;
   cursor: pointer;
   display: flex;
   align-items: center;

@@ -17,6 +17,7 @@ import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
+import styles from "./Lobby.module.css";
 
 export default function Lobby() {
   const { eventId } = useParams();
@@ -200,14 +201,7 @@ export default function Lobby() {
       <p><strong>Status:</strong> {event.status}</p>
 
       {error && (
-        <div style={{
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
-          padding: "12px",
-          borderRadius: "4px",
-          marginTop: "20px",
-          border: "1px solid #f5c6cb"
-        }}>
+        <div className={styles.errorMessage}>
           <strong>Error:</strong> {error}
         </div>
       )}
@@ -216,7 +210,7 @@ export default function Lobby() {
 
       {/* Show timer when game is in question state */}
       {event.status === "question" && (
-        <div style={{marginTop: "20px", marginBottom: "20px"}}>
+        <div className={styles.timerContainer}>
           <GameTimer 
             eventId={eventId}
             event={event}
@@ -230,8 +224,8 @@ export default function Lobby() {
       
       {/* Show answer progress when game is in question state */}
       {event.status === "question" && (
-        <div style={{marginTop: "20px", padding: "12px", backgroundColor: "#e7f3ff", borderRadius: "6px"}}>
-          <p style={{margin: "0"}}>
+        <div className={styles.answerProgress}>
+          <p className={styles.answerProgressText}>
             <strong>Answers:</strong> {players.filter(p => p.hasAnswered).length} / {players.length} participants
           </p>
         </div>

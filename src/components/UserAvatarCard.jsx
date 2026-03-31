@@ -18,9 +18,7 @@ export default function UserAvatarCard({
   // Determine if we have a custom avatar
   const hasAvatar = user.avatar && Object.keys(user.avatar).length > 0;
 
-  const containerStyle = {
-    gap: `${config.initial}px`,
-  };
+  const containerStyle = {};
 
   // Add positioning if provided
   if (position) {

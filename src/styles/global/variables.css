@@ -1,0 +1,75 @@
+:root {
+  /* Colors - App Theme */
+  --color-primary: #001A52;
+  --color-secondary: #FFB6D9;
+  --color-background: #FFFFFF;
+  --color-text: #000000;
+  --color-text-muted: #666666;
+  
+  /* Legacy color variables (for compatibility) */
+  --text: #001A52;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #434343;
+  --code-bg: #9e009e;
+  --accent: #001A52;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(225, 0, 161, 0.5);
+  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  
+  /* Avatar Variables */
+  --avatar-background-color: #606091;
+  /* --avatar-border-radius: 8px; */
+  
+  /* User Card Variables */
+  --user-card-bg: #f5f5f5;
+  --user-card-border-radius: 12px;
+  --user-card-border: none;
+  --user-card-gap: 0px;
+  --user-card-name-margin: -5px;
+  --user-card-text-color: #0c0c0c;
+  
+  /* Button Variables */
+  --btn-primary-bg: #001A52;
+  --btn-primary-hover: #003399;
+  --btn-secondary-bg: #FFB6D9;
+  --btn-secondary-hover: #FF9AC5;
+  
+  /* Typography */
+  --font-primary: 'Alte Haas Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --alte-haas: 'Alte Haas Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+  --font-size-sm: 12px;
+  --font-size-md: 16px;
+  --font-size-lg: 24px;
+  --font-size-xl: 32px;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  
+  /* Breakpoints */
+  --breakpoint-mobile: 480px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  
+  /* Borders */
+  --border-color: #E0E0E0;
+  --border-radius: 8px;
+  
+  /* Base Font Settings */
+  font: 18px/145% var(--alte-haas);
+  letter-spacing: 0.18px;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
