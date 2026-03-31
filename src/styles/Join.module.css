@@ -11,6 +11,9 @@
   border: 2px solid #ccc;
   border-radius: 8px;
   margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .avatarRow {
