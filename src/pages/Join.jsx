@@ -151,12 +151,21 @@ export default function Join() {
       });
 
       // Also add as participant in event sub-collection (new structure)
-      await addParticipant(eventId, userId, username);
+      const avatarConfig = {
+        baseIndex,
+        hairIndex,
+        eyeIndex,
+        noseIndex,
+        mouthIndex,
+        clothesIndex,
+      };
+      await addParticipant(eventId, userId, username, avatarConfig);
 
       localStorage.setItem("userDocId", userId);
       localStorage.setItem("userId", userId);
       localStorage.setItem("eventId", eventId);
       localStorage.setItem("username", username);
+      localStorage.setItem("avatar", JSON.stringify(avatarConfig));
 
       navigate(`/lobby/${eventId}`);
     } catch (error) {
@@ -168,47 +177,41 @@ export default function Join() {
   return (
     <div>
       <div className={styles.avatarCreator}>
-        <div className={styles.avatarView}>
-          <AvatarViewer
-            baseIndex={baseIndex}
-            hairIndex={hairIndex}
-            eyeIndex={eyeIndex}
-            noseIndex={noseIndex}
-            mouthIndex={mouthIndex}
-            clothesIndex={clothesIndex}
-            layerCounts={layerCounts}
-          />
+        <div className={styles.avatarControlsWrapper}>
+          {/* Left controls */}
+          <div className={styles.leftControls}>
+            <ToggleButton size="small" direction="left" label="Previous Hair" onClick={() => handleHairChange("left")} />
+            <ToggleButton size="small" direction="left" label="Previous Eyes" onClick={() => handleEyeChange("left")} />
+            <ToggleButton size="small" direction="left" label="Previous Nose" onClick={() => handleNoseChange("left")} />
+            <ToggleButton size="small" direction="left" label="Previous Mouth" onClick={() => handleMouthChange("left")} />
+            <ToggleButton size="small" direction="left" label="Previous Base" onClick={() => handleBaseChange("left")} />
+            <ToggleButton size="small" direction="left" label="Previous Clothes" onClick={() => handleClothesChange("left")} />
+          </div>
+
+          {/* Center image */}
+          <div className={styles.avatarView}>
+            <AvatarViewer
+              baseIndex={baseIndex}
+              hairIndex={hairIndex}
+              eyeIndex={eyeIndex}
+              noseIndex={noseIndex}
+              mouthIndex={mouthIndex}
+              clothesIndex={clothesIndex}
+              layerCounts={layerCounts}
+            />
+          </div>
+
+          {/* Right controls */}
+          <div className={styles.rightControls}>
+            <ToggleButton size="small" direction="right" label="Next Hair" onClick={() => handleHairChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Eyes" onClick={() => handleEyeChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Nose" onClick={() => handleNoseChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Mouth" onClick={() => handleMouthChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Base" onClick={() => handleBaseChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Clothes" onClick={() => handleClothesChange("right")} />
+          </div>
         </div>
-        <div className={styles.avatarRow}>
-          <ToggleButton direction="left" label="Previous Base" onClick={() => handleBaseChange("left")} />
-          <p>Base</p>
-          <ToggleButton direction="right" label="Next Base" onClick={() => handleBaseChange("right")} />
-        </div>
-        <div className={styles.avatarRow}>
-          <ToggleButton direction="left" label="Previous Hair" onClick={() => handleHairChange("left")} />
-          <p>Hair</p>
-          <ToggleButton direction="right" label="Next Hair" onClick={() => handleHairChange("right")} />
-        </div>
-        <div className={styles.avatarRow}>
-          <ToggleButton direction="left" label="Previous Eyes" onClick={() => handleEyeChange("left")} />
-          <p>Eyes</p>
-          <ToggleButton direction="right" label="Next Eyes" onClick={() => handleEyeChange("right")} />
-        </div>
-        <div className={styles.avatarRow}>
-          <ToggleButton direction="left" label="Previous Nose" onClick={() => handleNoseChange("left")} />
-          <p>Nose</p>
-          <ToggleButton direction="right" label="Next Nose" onClick={() => handleNoseChange("right")} />
-        </div>
-        <div className={styles.avatarRow}>
-          <ToggleButton direction="left" label="Previous Mouth" onClick={() => handleMouthChange("left")} />
-          <p>Mouth</p>
-          <ToggleButton direction="right" label="Next Mouth" onClick={() => handleMouthChange("right")} />
-        </div>
-        <div className={styles.avatarRow}>
-          <ToggleButton direction="left" label="Previous Clothes" onClick={() => handleClothesChange("left")} />
-          <p>Clothes</p>
-          <ToggleButton direction="right" label="Next Clothes" onClick={() => handleClothesChange("right")} />
-        </div>
+
         <button className={styles.randomizeButton} onClick={() => randomizeAvatar()}>
           Randomize
         </button>

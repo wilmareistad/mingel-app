@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import UserAvatarCard from "../components/UserAvatarCard";
 import styles from "../styles/UsersLobby.module.css";
 
 export default function UsersLobby({ users }) {
@@ -12,13 +13,6 @@ export default function UsersLobby({ users }) {
     if (userCount <= 30) return "small"; // 60px desktop, 45px mobile
     return "tiny"; // 45px desktop, 35px mobile
   }, [users.length]);
-
-  const sizeConfig = {
-    large: { desktop: 100, mobile: 80, initial: 12, fontSize: 48 },
-    medium: { desktop: 80, mobile: 60, initial: 10, fontSize: 36 },
-    small: { desktop: 60, mobile: 45, initial: 8, fontSize: 28 },
-    tiny: { desktop: 45, mobile: 35, initial: 6, fontSize: 20 },
-  };
 
   useEffect(() => {
     // Initialize random positions for each user
@@ -100,36 +94,17 @@ export default function UsersLobby({ users }) {
           y: Math.max(5, Math.min(75, pos.y)),
         };
         
-        const config = sizeConfig[avatarSize];
-        
         return (
-          <div
+          <UserAvatarCard
             key={user.userId}
-            className={styles.userAvatarContainer}
-            style={{
-              left: `${pos.x}%`,
-              top: `${pos.y}%`,
-              gap: `${config.initial}px`,
+            user={{
+              userId: user.userId,
+              name: user.name,
+              avatar: user.avatar || {},
             }}
-          >
-            <div 
-              className={styles.userAvatar}
-              style={{
-                width: `${config.desktop}px`,
-                height: `${config.desktop}px`,
-              }}
-            >
-              <span 
-                className={styles.avatarInitial}
-                style={{
-                  fontSize: `${config.fontSize}px`,
-                }}
-              >
-                {user.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <p className={styles.userName}>{user.name}</p>
-          </div>
+            size={avatarSize}
+            position={pos}
+          />
         );
       })}
     </div>

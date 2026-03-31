@@ -6,29 +6,34 @@
   margin-bottom: 20px;
 }
 
+.avatarControlsWrapper {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.leftControls,
+.rightControls {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  justify-content: space-between;
+  flex: 0 0 auto;
+}
+
 .avatarView {
-  margin-top: 20px;
-  width: 300px;
-  height: 300px;
+  flex: 0 0 auto;
+  width: 280px;
+  height: 280px;
   border: 2px solid #001A52;
   border-radius: 11px;
   display: flex;
   justify-content: center;
   align-items: center;
-}
 
-.avatarRow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.avatarRow p {
-  min-width: 80px;
-  text-align: center;
-  font-weight: 500;
-  margin: 0;
 }
 
 .randomizeButton {
@@ -51,5 +56,19 @@
 
 .randomizeButton:active {
   transform: scale(0.98);
+}
+
+/* Mobile - small screens */
+@media (max-width: 480px) {
+  .avatarView {
+    width: 220px;
+    height: 220px;
+        background-color: rgb(241, 241, 241);
+
+  }
+
+  .avatarControlsWrapper {
+    gap: 8px;
+  }
 }
 

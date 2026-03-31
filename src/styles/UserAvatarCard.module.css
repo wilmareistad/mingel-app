@@ -1,0 +1,45 @@
+.userAvatarContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  transition: left 0.3s ease, top 0.3s ease;
+}
+
+.userAvatar {
+  border: 3px solid #001A52;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #F5F5F5;
+  overflow: hidden;
+}
+
+.avatarInitial {
+  font-weight: 700;
+  color: #001A52;
+  line-height: 1;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #001A52;
+  margin: 0;
+  text-align: center;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .userName {
+    font-size: 12px;
+  }
+
+  .userAvatar {
+    border-width: 2px;
+  }
+}

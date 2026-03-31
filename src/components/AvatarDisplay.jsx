@@ -2,14 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import AvatarSVG from "../assets/Avatar.svg";
 import styles from "../styles/AvatarDisplay.module.css";
 
-export default function AvatarViewer({
-  baseIndex,
-  hairIndex,
-  eyeIndex,
-  noseIndex,
-  mouthIndex,
-  clothesIndex,
-  layerCounts,
+export default function AvatarDisplay({
+  baseIndex = 0,
+  hairIndex = 0,
+  eyeIndex = 0,
+  noseIndex = 0,
+  mouthIndex = 0,
+  clothesIndex = 0,
 }) {
   const svgContainerRef = useRef(null);
 
@@ -67,9 +66,12 @@ export default function AvatarViewer({
         });
 
         // Set width and height to fit container
-        svgElement.setAttribute("width", "300");
-        svgElement.setAttribute("height", "300");
-        svgElement.setAttribute("class", styles.avatarSvg);
+        svgElement.setAttribute("width", "100%");
+        svgElement.setAttribute("height", "100%");
+        svgElement.setAttribute(
+          "class",
+          styles.avatarSvg
+        );
 
         // Clear previous SVG but preserve container classes
         while (svgContainerRef.current.firstChild) {
@@ -93,4 +95,4 @@ export default function AvatarViewer({
       }}
     />
   );
-};
+}

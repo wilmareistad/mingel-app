@@ -226,7 +226,7 @@ export default function Lobby() {
         </div>
       )}
 
-      <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username }))} />
+      <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar }))} />
       
       {/* Show answer progress when game is in question state */}
       {event.status === "question" && (

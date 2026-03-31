@@ -53,14 +53,29 @@ export async function updateCurrentQuestionIndex(eventId, questionIndex) {
  * @param {string} userId - User ID
  * @param {string} username - User's display name
  */
-export async function addParticipant(eventId, userId, username) {
+export async function addParticipant(eventId, userId, username, avatar = null) {
   const participantRef = doc(db, "events", eventId, "participants", userId);
   console.log("addParticipant called:", { eventId, userId, username });
-  await setDoc(participantRef, {
+  
+  const participantData = {
     name: username,
     joinedAt: serverTimestamp(),
     hasAnswered: false
-  }, { merge: false }); // Don't merge - ensure clean creation
+  };
+  
+  // Add avatar configuration if provided
+  if (avatar) {
+    participantData.avatar = {
+      baseIndex: avatar.baseIndex || 0,
+      hairIndex: avatar.hairIndex || 0,
+      eyeIndex: avatar.eyeIndex || 0,
+      noseIndex: avatar.noseIndex || 0,
+      mouthIndex: avatar.mouthIndex || 0,
+      clothesIndex: avatar.clothesIndex || 0,
+    };
+  }
+  
+  await setDoc(participantRef, participantData, { merge: false }); // Don't merge - ensure clean creation
   console.log("addParticipant completed:", { eventId, userId });
 }
 
