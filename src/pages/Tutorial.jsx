@@ -3,13 +3,16 @@ import { useNavigate } from "react-router-dom";
 import styles from "../styles/Tutorial.module.css";
 import checkIcon from "../assets/check-fill.svg";
 import statsIcon from "../assets/stats-chart.svg";
+import { useTutorialVisited } from "../hooks/useTutorialVisited";
 
 export default function Tutorial() {
   const [currentPage, setCurrentPage] = useState(0);
   const navigate = useNavigate();
+  const { setTutorialVisited } = useTutorialVisited();
 
   const handleNext = () => {
     if (currentPage === 2) {
+      setTutorialVisited();
       navigate("/");
     } else {
       setCurrentPage(currentPage + 1);
@@ -27,6 +30,7 @@ export default function Tutorial() {
   };
 
   const handleSkip = () => {
+    setTutorialVisited();
     navigate("/");
   };
 
