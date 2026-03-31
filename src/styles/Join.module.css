@@ -3,14 +3,15 @@
   flex-direction: column;
   gap: 20px;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .avatarView {
+  margin-top: 20px;
   width: 300px;
   height: 300px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  border: 2px solid #001A52;
+  border-radius: 11px;
   display: flex;
   justify-content: center;
   align-items: center;

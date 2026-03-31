@@ -101,29 +101,35 @@ export default function Join() {
   }, [mouthIndex]);
 
   // Helper function to cycle through layers
-  const cycleLayer = (currentIndex, setter, layerCount) => {
+  const cycleLayer = (currentIndex, setter, layerCount, direction) => {
     if (layerCount <= 1) return; // Don't cycle if only 1 layer
-    setter((currentIndex + 1) % layerCount);
+    if (direction === "left") {
+      // Go to previous option, wrap to end if at start
+      setter((currentIndex - 1 + layerCount) % layerCount);
+    } else {
+      // Go to next option, wrap to start if at end
+      setter((currentIndex + 1) % layerCount);
+    }
   };
 
   const handleBaseChange = (direction) => {
-    cycleLayer(baseIndex, setBaseIndex, layerCounts["Bases"]);
+    cycleLayer(baseIndex, setBaseIndex, layerCounts["Bases"], direction);
   };
 
   const handleHairChange = (direction) => {
-    cycleLayer(hairIndex, setHairIndex, layerCounts["Hairs"]);
+    cycleLayer(hairIndex, setHairIndex, layerCounts["Hairs"], direction);
   };
 
   const handleEyeChange = (direction) => {
-    cycleLayer(eyeIndex, setEyeIndex, layerCounts["Eyes"]);
+    cycleLayer(eyeIndex, setEyeIndex, layerCounts["Eyes"], direction);
   };
 
   const handleNoseChange = (direction) => {
-    cycleLayer(noseIndex, setNoseIndex, layerCounts["Noses"]);
+    cycleLayer(noseIndex, setNoseIndex, layerCounts["Noses"], direction);
   };
 
   const handleMouthChange = (direction) => {
-    cycleLayer(mouthIndex, setMouthIndex, layerCounts["Mouths"]);
+    cycleLayer(mouthIndex, setMouthIndex, layerCounts["Mouths"], direction);
   };
 
   // On mount, check if code is in URL params
@@ -179,8 +185,6 @@ export default function Join() {
 
   return (
     <div>
-      <h1>Join Game</h1>
-
       <div className={styles.avatarCreator}>
         <div className={styles.avatarView}><svg width="243" height="300" viewBox="0 0 462 571" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="Avatar">
