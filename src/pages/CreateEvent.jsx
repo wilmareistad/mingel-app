@@ -126,6 +126,9 @@ export default function CreateEvent() {
         theme,
         questionTimerSeconds,
         resultTimerSeconds,
+        phaseStartedAt: null,
+        showingResultsOnly: false,
+        resultsPhaseStartedAt: null,
       });
       navigate(`/admin/settings/${docId}`);
     } catch (error) {
