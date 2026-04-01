@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import AvatarSVG from "../assets/Avatar.svg";
+import AvatarSVG from "../assets/avatar.svg";
 import styles from "../styles/AvatarDisplay.module.css";
 
 export default function AvatarViewer({
