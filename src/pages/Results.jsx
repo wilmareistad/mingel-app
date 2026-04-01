@@ -99,16 +99,6 @@ export default function Results() {
 
       <div className={styles.resultsFooter}>
         <p className={styles.resultsCount}>Total votes: {totalVotes}</p>
-        
-        {/* Navigate locally without changing game state */}
-        <button 
-          onClick={() => {
-            navigate(`/lobby/${eventId}`);
-          }}
-          className={styles.returnButton}
-        >
-          Back to Lobby
-        </button>
       </div>
     </div>
   );

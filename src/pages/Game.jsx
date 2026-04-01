@@ -34,7 +34,10 @@ export default function Game() {
       await setShowingResultsOnly(eventId, true);
       await updateEventStatus(eventId, "results");
       
-      // Set a timer to auto-advance after 2 minutes (120 seconds)
+      // Get results timer duration from event settings (default 10 seconds)
+      const resultsTimerSeconds = event.resultsTimerSeconds || 10;
+      
+      // Auto-advance after results timer expires
       setTimeout(async () => {
         try {
           await setShowingResultsOnly(eventId, false);
@@ -59,7 +62,7 @@ export default function Game() {
         } catch (error) {
           console.error("Error auto-advancing after results:", error);
         }
-      }, 120000); // 2 minutes
+      }, resultsTimerSeconds * 1000); // Convert to milliseconds
     } catch (error) {
       console.error("Error handling timer expiration:", error);
     }
