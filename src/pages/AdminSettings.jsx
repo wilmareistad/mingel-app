@@ -7,6 +7,7 @@ import {
   resetParticipantsAnswered,
   setShowingResultsOnly,
   updateTimerDuration,
+  updateResultsTimerDuration,
   removeParticipant,
 } from "../features/event/eventService";
 import {
@@ -31,9 +32,11 @@ export default function AdminSettings() {
   const [adminId, setAdminId] = useState(null);
   const [message, setMessage] = useState("");
   const [pendingTimerSeconds, setPendingTimerSeconds] = useState(null);
+  const [pendingResultsTimerSeconds, setPendingResultsTimerSeconds] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [voteCount, setVoteCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [resultsTimeLeft, setResultsTimeLeft] = useState(0);
   const [isKickMode, setIsKickMode] = useState(false);
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -184,6 +187,40 @@ export default function AdminSettings() {
     return () => clearInterval(interval);
   }, [event]);
 
+  // Calculate time remaining for the results phase
+  useEffect(() => {
+    if (!event || event.status !== "results" || !event.showingResultsOnly) {
+      setResultsTimeLeft(0);
+      return;
+    }
+
+    const updateResultsTimeLeft = () => {
+      const durationSeconds = event.resultsTimerSeconds || 10;
+      const phaseStartedAt =
+        event.resultsPhaseStartedAt?.toMillis?.() || event.resultsPhaseStartedAt;
+
+      if (!phaseStartedAt) {
+        setResultsTimeLeft(durationSeconds);
+        return;
+      }
+
+      const now = Date.now();
+      const elapsedMs = now - phaseStartedAt;
+      const elapsedSeconds = Math.floor(elapsedMs / 1000);
+      const remaining = Math.max(0, durationSeconds - elapsedSeconds);
+
+      setResultsTimeLeft(remaining);
+    };
+
+    // Update immediately
+    updateResultsTimeLeft();
+
+    // Then update every 100ms for smooth display
+    const interval = setInterval(updateResultsTimeLeft, 100);
+
+    return () => clearInterval(interval);
+  }, [event]);
+
   const openConfirmModal = (
     title,
     message,
@@ -250,8 +287,8 @@ export default function AdminSettings() {
       await updateEventStatus(eventId, "question");
 
       if (loopedIndex === 0 && nextIndex > 0) {
-        // We've looped back to the start
-        setMessage("Looping back to first question...");
+        // We've looped back to the start - reset all answers for a fresh game
+        setMessage("Looping back to first question. Game reset for new round!");
       } else {
         setMessage("Next question displayed.");
       }
@@ -329,7 +366,7 @@ export default function AdminSettings() {
 
   // Timer options in seconds (0.5 to 15 minutes with 30-second increments)
   const timerOptions = [
-    30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720,
+    10, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720,
     810, 900,
   ];
 
@@ -370,6 +407,49 @@ export default function AdminSettings() {
     if (pendingTimerSeconds !== null) {
       await handleTimerChange(pendingTimerSeconds);
       setPendingTimerSeconds(null);
+    }
+  };
+
+  // Results timer options in seconds (5 to 60 seconds with 5-second increments)
+  const resultsTimerOptions = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+
+  const handleResultsTimerChange = async (seconds) => {
+    try {
+      await updateResultsTimerDuration(eventId, seconds);
+      setMessage(`Results timer set to ${seconds} seconds`);
+      setTimeout(() => setMessage(""), 3000);
+    } catch (error) {
+      console.error("Error updating results timer:", error);
+      setMessage("Error updating results timer");
+    }
+  };
+
+  const handleResultsTimerIncrement = () => {
+    const currentSeconds =
+      pendingResultsTimerSeconds !== null
+        ? pendingResultsTimerSeconds
+        : event?.resultsTimerSeconds || 10;
+    const currentIndex = resultsTimerOptions.indexOf(currentSeconds);
+    if (currentIndex < resultsTimerOptions.length - 1) {
+      setPendingResultsTimerSeconds(resultsTimerOptions[currentIndex + 1]);
+    }
+  };
+
+  const handleResultsTimerDecrement = () => {
+    const currentSeconds =
+      pendingResultsTimerSeconds !== null
+        ? pendingResultsTimerSeconds
+        : event?.resultsTimerSeconds || 10;
+    const currentIndex = resultsTimerOptions.indexOf(currentSeconds);
+    if (currentIndex > 0) {
+      setPendingResultsTimerSeconds(resultsTimerOptions[currentIndex - 1]);
+    }
+  };
+
+  const handleConfirmResultsTimer = async () => {
+    if (pendingResultsTimerSeconds !== null) {
+      await handleResultsTimerChange(pendingResultsTimerSeconds);
+      setPendingResultsTimerSeconds(null);
     }
   };
 
@@ -439,6 +519,18 @@ export default function AdminSettings() {
     }
   };
 
+  const getCurrentResultsTimerLabel = () => {
+    const seconds =
+      pendingResultsTimerSeconds !== null
+        ? pendingResultsTimerSeconds
+        : event?.resultsTimerSeconds || 10;
+    return `${seconds}s`;
+  };
+
+  const getResultsTimeLeftDisplay = () => {
+    return `${resultsTimeLeft}s`;
+  };
+
   if (loading) return <p>Loading...</p>;
 
   if (!event) {
@@ -502,6 +594,32 @@ export default function AdminSettings() {
           </div>
         </div>
 
+        <div className={styles.statusSection}>
+          <h2>Results Timer</h2>
+          <div className={styles.timerControl}>
+            <ToggleButton
+              direction="left"
+              onClick={handleResultsTimerDecrement}
+              label="Decrease time"
+            />
+            <div className={styles.timerInputDisplay}>
+              <span>{getCurrentResultsTimerLabel()}</span>
+            </div>
+            <ToggleButton
+              direction="right"
+              onClick={handleResultsTimerIncrement}
+              label="Increase time"
+            />
+            <button
+              className={styles.setTimerBtn}
+              onClick={handleConfirmResultsTimer}
+              disabled={pendingResultsTimerSeconds === null}
+            >
+              Set Time
+            </button>
+          </div>
+        </div>
+
         <div className={styles.actionSection}>
           {event.status === "lobby" && (
             <>
@@ -524,7 +642,7 @@ export default function AdminSettings() {
                 <QuestionDisplay
                   question={currentQuestion}
                   currentIndex={event?.currentQuestionIndex || 0}
-                  totalQuestions={event?.questions?.length || 0}
+                  totalQuestions={(event?.questions?.length || 0) + (event?.customQuestions?.length || 0)}
                   votes={voteCount}
                   totalParticipants={participants.length}
                   timeLeft={getTimeLeftDisplay()}
@@ -559,6 +677,9 @@ export default function AdminSettings() {
                 <>
                   <p className={styles.resultsText}>
                     Showing results for current question.
+                    {resultsTimeLeft > 0 && (
+                      <span> Auto-advancing in {getResultsTimeLeftDisplay()}</span>
+                    )}
                   </p>
                   <div className={styles.resultActions}>
                     <button

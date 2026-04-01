@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   position: absolute;
-  transition: left 0.3s ease, top 0.3s ease;
+  transition: left 2s ease, top 2s ease;
   gap: var(--user-card-gap);
 }
 

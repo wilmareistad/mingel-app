@@ -236,14 +236,25 @@ export async function resetParticipantsAnswered(eventId) {
 
 /**
  * Set whether we're showing results for just the current question without ending the game
+ * Also starts the results timer countdown
  * @param {string} eventId - Event ID
  * @param {boolean} showingResultsOnly - Whether showing results without ending game
  */
 export async function setShowingResultsOnly(eventId, showingResultsOnly) {
   const eventRef = doc(db, "events", eventId);
-  await updateDoc(eventRef, {
-    showingResultsOnly
-  });
+  
+  if (showingResultsOnly) {
+    // Starting results phase - set the phase timestamp
+    await updateDoc(eventRef, {
+      showingResultsOnly,
+      resultsPhaseStartedAt: serverTimestamp()
+    });
+  } else {
+    // Ending results phase
+    await updateDoc(eventRef, {
+      showingResultsOnly
+    });
+  }
 }
 
 /**
@@ -255,6 +266,18 @@ export async function updateTimerDuration(eventId, durationSeconds) {
   const eventRef = doc(db, "events", eventId);
   await updateDoc(eventRef, {
     questionTimerSeconds: durationSeconds
+  });
+}
+
+/**
+ * Update the timer duration for results display (in seconds)
+ * @param {string} eventId - Event ID
+ * @param {number} durationSeconds - Duration in seconds (default: 10 seconds)
+ */
+export async function updateResultsTimerDuration(eventId, durationSeconds = 10) {
+  const eventRef = doc(db, "events", eventId);
+  await updateDoc(eventRef, {
+    resultsTimerSeconds: durationSeconds
   });
 }
 
