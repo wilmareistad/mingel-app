@@ -14,21 +14,83 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Header from './components/Header';
 import { useTutorialVisited } from "./hooks/useTutorialVisited";
+import LoadingScreen from "./components/LoadingScreen";
 
-function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+function TutorialRedirect() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { checkTutorialVisited } = useTutorialVisited();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
+    if (!checkTutorialVisited() && location.pathname !== "/tutorial") {
+      navigate("/tutorial", { replace: true });
+    }
+  }, []);
+
+  return null;
+}
+
+function AppContent() {
+  const [user, setUser] = useState(null);
+  const [minLoadTimeElapsed, setMinLoadTimeElapsed] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Enforce minimum loading screen display time (0.8 seconds)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinLoadTimeElapsed(true);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show loading screen until minimum time has elapsed
+  if (!minLoadTimeElapsed) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <>
+      <TutorialRedirect />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/join" element={<Join />} />
+        <Route path="/create" element={<CreateEvent />} />
+        <Route path="/lobby/:eventId" element={<Lobby />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/tutorial" element={<Tutorial />} />
+        <Route
+          path="/admin"
+          element={user ? <AdminPanel /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/settings/:eventId"
+          element={user ? <AdminSettings /> : <Navigate to="/login" />}
+        />
+        <Route path="/game/:eventId" element={<Game />} />
+        <Route path="/results/:eventId" element={<Results />} />
+      </Routes>
+    </>
+  );
+}
+
+function App() {
+  const [firebaseLoaded, setFirebaseLoaded] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, () => {
+      setFirebaseLoaded(true);
     });
 
     return () => unsubscribe();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (!firebaseLoaded) return <LoadingScreen />;
 
   return (
     <>
@@ -43,44 +105,11 @@ function App() {
         </div>
         <Header />
         <main>
-          <TutorialRedirect />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/join" element={<Join />} />
-            <Route path="/create" element={<CreateEvent />} />
-            <Route path="/lobby/:eventId" element={<Lobby />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/tutorial" element={<Tutorial />} />
-            <Route
-              path="/admin"
-              element={user ? <AdminPanel /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/admin/settings/:eventId"
-              element={user ? <AdminSettings /> : <Navigate to="/login" />}
-            />
-            <Route path="/game/:eventId" element={<Game />} />
-            <Route path="/results/:eventId" element={<Results />} />
-          </Routes>
+          <AppContent />
         </main>
       </BrowserRouter>
     </>
   );
-}
-
-function TutorialRedirect() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { checkTutorialVisited } = useTutorialVisited();
-
-  useEffect(() => {
-    // If user hasn't visited tutorial and isn't already on tutorial page
-    if (!checkTutorialVisited() && location.pathname !== "/tutorial") {
-      navigate("/tutorial", { replace: true });
-    }
-  }, []);
-
-  return null;
 }
 
 export default App;

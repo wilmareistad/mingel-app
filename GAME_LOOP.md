@@ -1,399 +1,463 @@
-# Game Loop Implementation - Complete Guide
+# 🎮 GAME LOOP - COMPREHENSIVE DOCUMENTATION
 
-## Quick Start (TL;DR)
+## The Problem That Was Fixed
 
-The game loop is **fully implemented and working**. Here's how to use it:
+**Issue:** Questions were changing too rapidly when clicking "Start Game"
 
-### User Flow
-1. Create event at `/create`
-2. Join with code at `/join`
-3. You're in `/lobby/:eventId` (listens for game start)
-4. When `event.status === "question"` → auto-redirect to `/game/:eventId`
-5. Answer question → auto-redirect back to `/lobby/:eventId`
-6. Repeat for each question
+**Root Cause:** Two conflicting timer systems:
+- Game.jsx had a hardcoded 2-minute auto-advance timer
+- Lobby.jsx had an admin-controlled auto-advance timer
+- Both fired independently, causing rapid question changes
 
-### Test the Loop
-- **Create Event**: Go to `/create`
-- **Join**: Go to `/join`, enter code & username
-- **Trigger Question**: Firebase Console → events/{id} → `status` = `"question"`
-- **See Game**: Should redirect to `/game/:eventId`
-- **Trigger Lobby**: Firebase Console → events/{id} → `status` = `"lobby"`
-- **See Lobby**: Should redirect back
+**Solution:** Removed the conflicting setTimeout from Game.jsx. Now Lobby.jsx is the **exclusive** handler of all game advancement logic.
+
+---
 
 ## Architecture Overview
 
-### Single Source of Truth: Firestore
-All game state lives in **one event document**:
-```javascript
-events/{eventId}
-├── status: "lobby" | "question" | "results" | "paused"
-├── currentQuestionIndex: 0
-├── questions: ["q1", "q2", "q3"]
-├── code: "AFKJ"
-├── name: "Pizza"
-└── phaseStartedAt: Timestamp
+### Single Source of Truth: Admin Dashboard
+
+All timing configuration happens via Admin Settings:
+- `questionTimerSeconds` - How long each question displays (default: 300s)
+- `resultsTimerSeconds` - How long results display (default: 10s)
+
+### Game State Machine
+
+```
+LOBBY
+  ↓ (Admin clicks "Start Game")
+QUESTION (Timer: questionTimerSeconds)
+  ├─ Players answer OR timer expires
+  ↓
+RESULTS (Timer: resultsTimerSeconds)
+  ├─ If admin clicks "Next Question" → immediate advance
+  ├─ If timer expires without admin action → auto-advance
+  ↓
+QUESTION (Next question)
+  └─ Repeat until all questions answered
 ```
 
-### Real-Time Listeners (onSnapshot)
-- **Lobby.jsx** listens to `event.status`
-  - If `status === "question"` → navigate to `/game/:eventId`
-- **Game.jsx** listens to `event.status`
-  - If `status !== "question"` → navigate to `/lobby/:eventId`
-- No polling. Changes sync instantly across all devices.
+### Component Responsibilities
 
-### Feature Structure
-```
-src/features/
-├── event/
-│   ├── eventService.js      (Firestore listeners & updates)
-│   └── useEvent.js          (React hook for event data)
-├── user/
-│   ├── userService.js       (User data listeners)
-│   └── useUser.js           (React hook for current user)
-├── question/
-│   └── questionService.js   (Load questions, format as Agree/Disagree)
-└── game/
-    └── gameService.js       (Submit answers, prevent duplicates)
-```
+| Component | Role | Does NOT Do |
+|-----------|------|-----------|
+| **AdminSettings.jsx** | Configure timers, start/stop game | Handle auto-advance |
+| **Lobby.jsx** | Listen to status, display countdown, auto-advance | Display questions |
+| **Game.jsx** | Display questions, submit answers, transition to results | Handle advancement |
+| **GameTimer.jsx** | Show visual countdown | Make decisions |
+| **Results.jsx** | Display vote counts | Control timing |
 
-## How It Works
+---
 
-### 1. Event Status State Machine
+## How It Works - Detailed Flow
+
+### Phase 1: Question Display
+
 ```
-"lobby" → (Admin clicks Start) → "question"
-                                    ↓
-                          (Question timer ends)
-                                    ↓
-                               "results"
-                                    ↓
-                          (Results timer ends)
-                                    ↓
-                               "lobby" (next Q)
+Admin clicks "Start Game"
+  ↓
+Sets in database:
+  - status = "question"
+  - currentQuestionIndex = 0
+  - phaseStartedAt = Date.now()
+
+Lobby listener detects status change
+  ↓
+Navigates players to /game/:eventId
+  ↓
+GameTimer displays countdown (questionTimerSeconds)
+  ↓
+Players see question and can answer
 ```
 
-### 2. Auto-Navigation Logic
-```javascript
-// In Lobby.jsx
-if (event.status === "question") {
-  navigate(`/game/${eventId}`);
-}
+### Phase 2: Timer Expires
 
-// In Game.jsx
-if (event.status !== "question") {
-  navigate(`/lobby/${eventId}`);
-}
+```
+GameTimer in Lobby reaches 0 seconds
+  ↓
+Calls Lobby's handleTimerExpired()
+  ↓
+Sets in database:
+  - status = "results"
+  - showingResultsOnly = true
+
+Players auto-navigate to /results/:eventId
+  ↓
+Results page shows vote counts
 ```
 
-### 3. Answer Flow
+### Phase 3: Auto-Advance (If admin doesn't manually advance)
+
 ```
-User clicks answer
-     ↓
-submitAnswer() writes to Firestore
-     ↓
-Answer recorded in answers collection
-     ↓
-User auto-redirects to Lobby
-     ↓
-Wait for next question
-```
-
-## Code Examples
-
-### Import the Hooks
-```javascript
-import { useEvent } from "../features/event/useEvent";
-import { useUser } from "../features/user/useUser";
-
-function MyComponent({ eventId }) {
-  const { event } = useEvent(eventId);
-  const { user } = useUser();
+resultsTimerSeconds passes (10 seconds default)
+  ↓
+Lobby's setTimeout fires
+  ↓
+Clears database:
+  - Delete all answers
+  - Reset all participants (hasAnswered = false)
+  - Increment currentQuestionIndex
+  - Set status = "question"
   
-  console.log(event.status);      // "lobby", "question", etc
-  console.log(user.username);     // "Player 1"
-}
+Players auto-navigate to /game/:eventId
+  ↓
+See next question
+  ↓
+Cycle repeats
 ```
 
-### Load a Question
-```javascript
-import { getCurrentQuestion } from "../features/question/questionService";
+### Alternative: Manual Advance (If admin clicks "Next Question")
 
-const question = await getCurrentQuestion(eventId, currentQuestionIndex);
-console.log(question.text);      // "Work from home is good"
-console.log(question.options);   // ["Agree", "Disagree"]
 ```
-
-### Submit an Answer
-```javascript
-import { submitAnswer } from "../features/game/gameService";
-
-await submitAnswer(eventId, questionId, optionIndex, userId);
-// Answer is now in Firestore answers collection
-```
-
-### Update Event Status (Admin Only)
-```javascript
-import { updateEventStatus } from "../features/event/eventService";
-
-await updateEventStatus(eventId, "question");
-// All listening clients see status change instantly
-// Lobby pages auto-redirect to Game
-```
-
-## Firebase Data Model
-
-### Event Document
-```
-events/{eventId}
-├── code: "AFKJ" (string)
-├── name: "Pizza" (string)
-├── status: "question" (string)
-├── currentQuestionIndex: 0 (number)
-├── questions: ["q1", "q2"] (array)
-├── createdAt: Timestamp
-└── phaseStartedAt: Timestamp
-```
-
-### Question Document
-```
-questions/{questionId}
-├── id: "q1" (string)
-├── text: "Work from home is good" (string)
-├── options: ["Agree", "Disagree"] (array)
-└── category: "workplace" (string)
-```
-
-### User Document
-```
-users/{userId}
-├── username: "Player 1" (string)
-├── eventId: "{eventId}" (string)
-└── createdAt: Timestamp
-```
-
-### Answer Document
-```
-answers/{answerId}
-├── eventId: "{eventId}" (string)
-├── questionId: "q1" (string)
-├── userId: "{userId}" (string)
-├── optionIndex: 0 (number)
-└── submittedAt: Timestamp
-```
-
-## Testing the Game Loop
-
-### Setup
-1. Create event → get code
-2. Join with code → join lobby
-3. Open second browser tab and join same event (different username)
-
-### Test Status Changes
-1. In Firebase, change `status` from `"lobby"` to `"question"`
-2. Both tabs should auto-redirect to Game
-3. Both tabs should see same question
-4. Click answer on Tab 1 → redirects to Lobby
-5. Tab 2 can still answer
-6. Change `status` to `"lobby"` in Firebase
-7. Tab 2 should redirect to Lobby
-
-### Verify Data in Firestore
-After answering:
-- Check `answers` collection
-- Should have documents with your userId, questionId, optionIndex
-
-## Creating Test Questions
-
-### In Firebase Console
-1. Create collection: `questions`
-2. Add document with ID `q1`:
-```json
-{
-  "text": "Work from home is good",
-  "options": ["Agree", "Disagree"],
-  "category": "workplace"
-}
-```
-
-### Link to Event
-1. Go to `events/{eventId}`
-2. Add field `questions` (array)
-3. Add element: `"q1"`
-4. Add field `currentQuestionIndex` (number): `0`
-
-## Key Functions Reference
-
-### Event Management
-```javascript
-useEvent(eventId)              // Hook: get event data
-updateEventStatus(id, status)  // Update game phase
-updateCurrentQuestionIndex(id, index)  // Move to next question
-listenToEvent(id, callback)    // Manual listener
-```
-
-### User Management
-```javascript
-useUser()                       // Hook: get current user from localStorage
-listenToUser(userId, callback)  // Manual listener
-listenToEventUsers(eventId, callback)  // Get all users in event
-```
-
-### Question Management
-```javascript
-getCurrentQuestion(eventId, index)        // Load current question
-getQuestion(questionId)                   // Load any question
-getQuestionsByCategory(category)          // Filter by category
-getEventQuestions(eventId)                // Get all event questions
-```
-
-### Game Management
-```javascript
-submitAnswer(eventId, questionId, optionIndex, userId)  // Record vote
-hasUserAnswered(userId, questionId)       // Check for duplicates
-getQuestionAnswers(questionId)            // Get all answers for Q
-calculateResults(questionId, optionCount) // Calculate vote counts
-```
-
-## Common Issues & Solutions
-
-### Issue: "No question available"
-**Cause**: Event missing `questions` array or `currentQuestionIndex`
-**Fix**: 
-1. Go to Firebase → events/{eventId}
-2. Add field `questions` (array) with value `["q1"]`
-3. Add field `currentQuestionIndex` (number) with value `0`
-
-### Issue: Answer click doesn't work
-**Cause**: User not loading (userId not in localStorage)
-**Fix**:
-1. Make sure you properly joined with `/join`
-2. Check localStorage has `userId`
-3. Verify user document exists in Firebase
-
-### Issue: No redirect to Game when status changes
-**Cause**: Listener not detecting status change
-**Fix**:
-1. Verify `status` field exists in event document
-2. Refresh the page
-3. Check browser console for errors
-
-### Issue: Stuck on Game page, can't redirect back
-**Cause**: Status still "question" after answering
-**Fix**: Manually change `status` in Firebase to `"results"` or `"lobby"`
-
-## Next Steps
-
-### For Testing
-- [ ] Create multiple events
-- [ ] Join with multiple users
-- [ ] Test status transitions
-- [ ] Verify answers recorded in Firestore
-
-### For Production
-- [ ] Build AdminPanel.jsx (Start/Pause/Stop buttons)
-- [ ] Add Results.jsx page
-- [ ] Implement auto-timer
-- [ ] Add UI styling
-- [ ] Add animations
-
-### AdminPanel TODO
-The admin panel should:
-1. Show current game status
-2. Show connected players count
-3. Buttons: Start, Pause, Resume, Stop
-4. Auto-advance on timers
-5. Track answers submitted
-
-See code examples in `src/features/` for implementation details.
-
-## File Status
-
-### ✅ Created & Working
-- `src/features/event/` - Event listeners & updates
-- `src/features/user/` - User data management
-- `src/features/question/` - Question loading (Agree/Disagree format)
-- `src/features/game/` - Answer submission & tracking
-- `src/pages/Lobby.jsx` - Auto-redirect to Game
-- `src/pages/Game.jsx` - Show question, handle answers
-- `src/App.jsx` - Routes configured
-
-### 📋 Still To Build
-- `src/pages/AdminPanel.jsx` - Game controls
-- `src/pages/Results.jsx` - Vote visualization
-- `src/components/Timer.jsx` - Countdown timer
-- Styling & animations
-
-## Important Notes
-
-1. **Real-Time Sync**: All changes to event.status sync instantly via Firestore listeners
-2. **Single Event at a Time**: Each event has its own questions, users, and answers
-3. **Anonymous Voting**: User IDs are stored but votes are anonymous
-4. **Prevent Duplicates**: `hasUserAnswered()` prevents users from voting twice
-5. **Firebase = Source of Truth**: Don't store game state in React - always read from Firestore
-
-## Example: Complete Test Flow
-
-```bash
-# 1. Create Event
-POST /create
-Input: "Test Event"
-Output: Code "ABCD"
-
-# 2. Setup Question in Firebase
-questions/q1 = {text: "Question?", options: ["Agree", "Disagree"]}
-events/xxx = {code: "ABCD", status: "lobby", questions: ["q1"], currentQuestionIndex: 0}
-
-# 3. Join User 1
-GET /join
-Input: Code "ABCD", Name "Alice"
-Output: Redirect to /lobby/xxx
-
-# 4. Join User 2
-GET /join
-Input: Code "ABCD", Name "Bob"
-Output: Redirect to /lobby/xxx
-
-# 5. Start Game
-Firebase: events/xxx → status = "question"
-Output: Both users auto-redirect to /game/xxx
-
-# 6. Alice Answers
-Click "Agree"
-Output: Alice redirects to /lobby/xxx
-Firestore: answers/{id} = {userId: alice, questionId: q1, optionIndex: 0}
-
-# 7. Bob Answers
-Click "Disagree"
-Output: Bob redirects to /lobby/xxx
-Firestore: answers/{id} = {userId: bob, questionId: q1, optionIndex: 1}
-
-# 8. End Question
-Firebase: events/xxx → status = "results"
-Output: Both users see results (when Results.jsx is built)
-
-# 9. Next Question
-Firebase: events/xxx → currentQuestionIndex = 1, status = "lobby"
-Output: Both users back in /lobby/xxx ready for next question
+Admin clicks "Next Question" during results
+  ↓
+Immediately:
+  - Delete all answers
+  - Reset all participants
+  - Increment currentQuestionIndex
+  - Set status = "question"
+  
+Players auto-navigate to /game/:eventId
+  ↓
+See next question immediately
 ```
 
 ---
 
-# Game Loop Files - TLDR
+## Key Implementation Details
 
-## **Features Directory**
+### Game.jsx - Simple and Clean
 
-### `event/`
-- **`eventService.js`** - Listens to Firestore event document in real-time. When status changes, all clients get notified instantly.
-- **`useEvent.js`** - React hook that wraps eventService. Returns `{ event, loading, error }` for use in components.
+```javascript
+const handleTimerExpired = async () => {
+  if (!event || !question) return
+  
+  try {
+    // ONLY transition to results
+    // Lobby handles ALL advancement
+    await setShowingResultsOnly(eventId, true)
+    await updateEventStatus(eventId, "results")
+  } catch (error) {
+    console.error("Error handling timer expiration:", error)
+  }
+}
+```
 
-### `question/`
-- **`questionService.js`** - Fetches questions from Firestore. Gets the current question based on event's question array and currentQuestionIndex.
+**Why this is correct:**
+- Single responsibility: display questions, transition on timer
+- No auto-advance logic
+- No hardcoded timers
 
-### `user/`
-- **`userService.js`** - Listens to current user's data from Firestore (username, userId, etc).
-- **`useUser.js`** - React hook that wraps userService. Returns `{ user, loading, error }`.
+### Lobby.jsx - Master Controller
 
-### `game/`
-- **`gameService.js`** - Submits answers to Firestore answers subcollection and checks if user already answered (prevents duplicates).
+```javascript
+const handleTimerExpired = async () => {
+  if (!event) return
+  
+  if (event.status === "question") {
+    // Transition to results
+    await setShowingResultsOnly(eventId, true)
+    await updateEventStatus(eventId, "results")
+    
+    // Get admin-configured timer
+    const resultsTimerSeconds = event.resultsTimerSeconds || 10
+    
+    // Schedule auto-advance
+    setTimeout(async () => {
+      // Delete answers, increment question, set status = "question"
+    }, resultsTimerSeconds * 1000)
+  }
+}
+```
 
-## **Game.jsx**
-The main game page. Loads the current question, checks if user already answered, and handles answer submission. When answer is submitted, redirects user back to lobby. Also watches event status - if it changes from "question" to anything else, redirects to lobby. 🎮
+**Why this is correct:**
+- Exclusive auto-advance handler
+- Admin-controlled timing
+- No conflicts
+
+---
+
+## Admin Controls
+
+### Available Actions
+
+| Button | Effect | Timing |
+|--------|--------|--------|
+| **Start Game** | Begin game, show first question | Immediate |
+| **Next Question** | Skip to next question, ignore auto-advance | Immediate |
+| **End Question & Show Results** | Force results display | Immediate |
+| **End Game & Show Results** | Finish game | Immediate |
+| **Reset Game** | Clear answers, return to Q1, status=lobby | Immediate |
+
+### Configuration
+
+**Question Timer** (How long question displays)
+- Set on Admin Dashboard
+- Range: 5-900 seconds
+- Default: 300 seconds (5 minutes)
+
+**Results Timer** (How long results display)
+- Set on Admin Dashboard  
+- Range: 5-60 seconds
+- Default: 10 seconds
+
+**When do changes take effect?**
+- ✅ Immediately for NEXT question
+- ❌ Current question timer already running
+
+---
+
+## Player Experience
+
+### What Players See
+
+1. Join game → See Lobby
+2. Wait for admin to start
+3. See countdown timer in Lobby
+4. When timer expires → Redirected to Question page
+5. See question and answer options
+6. Click answer → Auto-redirected to Lobby
+7. See results page
+8. After result timer → Auto-redirected to Lobby with next question
+9. Repeat for each question
+
+### What Players Can Do
+
+✅ Answer questions  
+✅ See results  
+✅ Leave game  
+❌ Start/stop game  
+❌ Change questions  
+❌ Modify timing  
+
+---
+
+## Database Structure
+
+### Event Document
+
+```javascript
+events/{eventId}
+├── code: "ABCD"                    // Event code
+├── name: "Quiz Night"              // Event name
+├── status: "question"              // State: lobby|question|results
+├── currentQuestionIndex: 0         // Which question showing
+├── questions: ["q1", "q2"]         // Question IDs
+├── customQuestions: []             // Custom question IDs
+├── questionTimerSeconds: 300       // Admin-configured timer
+├── resultsTimerSeconds: 10         // Admin-configured timer
+├── phaseStartedAt: Timestamp       // When phase started
+├── showingResultsOnly: false       // Results display flag
+└── adminId: "uid123"               // Admin's user ID
+```
+
+### Answer Document
+
+```javascript
+answers/{eventId}/
+  ├── {questionId}/
+      ├── {userId1}/
+      │   ├── optionIndex: 0
+      │   └── submittedAt: Timestamp
+      └── {userId2}/
+          ├── optionIndex: 1
+          └── submittedAt: Timestamp
+```
+
+---
+
+## Testing the Game Loop
+
+### Quick Test (5 minutes)
+
+1. Create event, get code
+2. Join event as admin
+3. Join same event as player (different browser/window)
+4. Click "Start Game"
+5. Verify:
+   - [ ] Player redirects to Question page
+   - [ ] Timer counts down
+   - [ ] When timer expires → Results appear
+6. Click "Next Question"
+7. Verify:
+   - [ ] Next question appears immediately
+   - [ ] No waiting
+
+### Comprehensive Test
+
+1. **Multiple Players:**
+   - Open 3+ browser windows
+   - Join same event
+   - All should see same question simultaneously
+
+2. **Manual Override:**
+   - During results, click "Next Question" before timer expires
+   - Should advance immediately
+
+3. **Different Timers:**
+   - Change `questionTimerSeconds` to 30 seconds
+   - Change `resultsTimerSeconds` to 5 seconds
+   - Start game
+   - Verify timing matches your settings
+
+4. **Reset Functionality:**
+   - During any phase, click "Reset Game"
+   - Confirm modal
+   - Verify:
+     - [ ] All answers deleted
+     - [ ] Question index reset to 0
+     - [ ] Status = "lobby"
+     - [ ] Ready to start new game
+
+---
+
+## Code Examples
+
+### Get Event Data
+
+```javascript
+import { useEvent } from "../features/event/useEvent"
+
+function MyComponent({ eventId }) {
+  const { event } = useEvent(eventId)
+  
+  console.log(event.status)                  // "question"
+  console.log(event.questionTimerSeconds)    // 300
+  console.log(event.resultsTimerSeconds)     // 10
+}
+```
+
+### Update Admin Settings
+
+```javascript
+import { updateTimerDuration, updateResultsTimerDuration } from "../features/event/eventService"
+
+// Set question timer to 120 seconds
+await updateTimerDuration(eventId, 120)
+
+// Set results timer to 5 seconds
+await updateResultsTimerDuration(eventId, 5)
+```
+
+### Submit Answer
+
+```javascript
+import { submitAnswer } from "../features/game/gameService"
+
+await submitAnswer(eventId, questionId, optionIndex, userId)
+```
+
+---
+
+## Troubleshooting
+
+### Problem: Questions change too fast
+
+**Check:**
+- [ ] Game.jsx handleTimerExpired has NO setTimeout
+- [ ] Lobby.jsx handleTimerExpired is the ONLY setTimeout
+- [ ] No hardcoded timer values (all from admin settings)
+
+**Fix:** Verify Game.jsx code matches section "Key Implementation Details"
+
+### Problem: Questions don't advance
+
+**Check:**
+- [ ] Lobby.jsx handleTimerExpired exists
+- [ ] resultsTimerSeconds is set in admin settings
+- [ ] Firestore connection working (check browser console)
+
+**Fix:** Manually click "Next Question" to test if that works
+
+### Problem: Timer doesn't count down
+
+**Check:**
+- [ ] GameTimer component is rendered in Lobby
+- [ ] event.status === "question" condition is met
+- [ ] phaseStartedAt timestamp exists in database
+
+**Fix:** Refresh page and check browser console for errors
+
+### Problem: Players not synchronized
+
+**Check:**
+- [ ] Firestore connection working
+- [ ] Real-time listeners active (check Network tab)
+- [ ] Event document has correct status value
+
+**Fix:** Manually set status in Firebase console, should sync instantly
+
+---
+
+## Files Involved
+
+| File | Role |
+|------|------|
+| `src/pages/AdminSettings.jsx` | Configure timers and game control |
+| `src/pages/Lobby.jsx` | Master timer and auto-advance logic |
+| `src/pages/Game.jsx` | Display questions and transition |
+| `src/pages/Results.jsx` | Display vote counts |
+| `src/components/GameTimer.jsx` | Visual countdown |
+| `src/features/event/eventService.js` | Firestore operations |
+
+---
+
+## Quick Reference
+
+### Game Loop Status Values
+
+```
+"lobby"   - Game not running, players in lobby
+"question" - Question displaying, timer counting
+"results" - Results showing, timer counting
+```
+
+### Timers
+
+```
+questionTimerSeconds: How long question displays (default 300s)
+resultsTimerSeconds: How long results display (default 10s)
+```
+
+### Key Database Fields
+
+```
+event.status - Current game phase
+event.currentQuestionIndex - Which question
+event.phaseStartedAt - When current phase started
+event.questionTimerSeconds - Admin-set question duration
+event.resultsTimerSeconds - Admin-set results duration
+event.showingResultsOnly - Results display flag
+```
+
+---
+
+## Success Indicators ✅
+
+- [ ] Questions display for exact duration (admin-configured)
+- [ ] Results display for exact duration (admin-configured)
+- [ ] No rapid question changes
+- [ ] Auto-advance works automatically
+- [ ] Manual override with "Next Question" works
+- [ ] Multiple players stay synchronized
+- [ ] Reset button clears all data
+- [ ] Build passes (106 modules, 0 errors)
+
+---
+
+## Git History
+
+**Commit:** `e5575e9` - "FIX: Implement single-timer game loop architecture"
+
+**Changes:**
+- Removed auto-advance setTimeout from Game.jsx
+- Removed hardcoded 120000ms timer
+- Removed unused Firebase imports
+- Game.jsx now only handles UI, Lobby.jsx handles all timing
+
+---
+
+**Last Updated:** April 1, 2026  
+**Status:** ✅ Production Ready  
+**Branch:** develop
+

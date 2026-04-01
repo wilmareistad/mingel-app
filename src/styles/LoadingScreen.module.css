@@ -1,0 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Knewave&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;700&display=swap");
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  background-color: #ffffff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+
+.loadingContent {
+  text-align: center;
+}
+
+.pulse {
+  font-family: "Knewave", cursive;
+  font-size: 4.5rem;
+  font-weight: 400;
+  color: #001a52;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.by {
+  font-family: "Alte Haas Grotesk", sans-serif;
+  font-size: 1.5rem;
+  color: #000;
+  margin: 0.5rem 0 0 0;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+.yrgoLogo {
+  width: 180px;
+  height: auto;
+  margin-top: 0.8rem;
+  display: block;
+}
