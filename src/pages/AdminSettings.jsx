@@ -49,6 +49,7 @@ export default function AdminSettings() {
 
   // Track if timer expiration callback has already fired for this phase (prevents duplicate writes)
   const questionTimerExpiredRef = useRef(false);
+  const resultsTimerExpiredRef = useRef(false);
 
   // Check admin authentication
   useEffect(() => {
@@ -236,6 +237,8 @@ export default function AdminSettings() {
   // Auto-advance after results timer expires (AdminSettings is the source of truth for game loop timing)
   useEffect(() => {
     if (!event || !eventId || event.status !== "results" || !event.showingResultsOnly) {
+      // Reset the flag when we're not in results phase
+      resultsTimerExpiredRef.current = false;
       return;
     }
 
@@ -255,8 +258,10 @@ export default function AdminSettings() {
     // Update display
     setResultsTimeLeft(remaining);
 
-    // If time has expired, auto-advance (only once)
-    if (remaining === 0) {
+    // If time has expired, auto-advance (only once per phase)
+    if (remaining === 0 && !resultsTimerExpiredRef.current) {
+      resultsTimerExpiredRef.current = true;
+      
       const autoAdvance = async () => {
         try {
           // Clear results display first
@@ -297,7 +302,6 @@ export default function AdminSettings() {
         }
       };
 
-      // Only call once when remaining exactly equals 0
       autoAdvance();
     }
   }, [event?.resultsPhaseStartedAt, event?.status, event?.showingResultsOnly, event?.resultsTimerSeconds, eventId]);
