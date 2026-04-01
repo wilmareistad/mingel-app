@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
@@ -102,23 +101,10 @@ export default function Results() {
       <div className={styles.resultsFooter}>
         <p className={styles.resultsCount}>Total votes: {totalVotes}</p>
         
-        {/* TEMP: Return to lobby button - remove when timer implemented */}
-        <button 
-          onClick={async () => {
-            try {
-              // Change status back to lobby so the listener redirects
-              await updateDoc(doc(db, "events", eventId), {
-                status: "lobby"
-              });
-              navigate(`/lobby/${eventId}`);
-            } catch (error) {
-              console.error("Error returning to lobby:", error);
-            }
-          }}
-          className={styles.returnButton}
-        >
-          Return to Lobby
-        </button>
+        {/* Auto-advancing to next question - no manual button needed */}
+        <p style={{ fontSize: "0.9em", color: "#666", marginTop: "10px" }}>
+          Next question coming soon...
+        </p>
       </div>
     </div>
   );

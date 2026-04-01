@@ -29,6 +29,7 @@ export default function Lobby() {
   const [error, setError] = useState(null);
   const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
   const [isKicked, setIsKicked] = useState(false);
+  const [hasNavigatedToResults, setHasNavigatedToResults] = useState(false);
 
   const handleLeave = async () => {
     const userDocId = localStorage.getItem("userDocId");
@@ -125,8 +126,15 @@ export default function Lobby() {
         setError(null); // Clear error when event updates
 
         // GAME LOOP: If event status changes to "results" → show results
-        if (eventData.status === "results") {
+        // Only navigate the first time we see this status for this question
+        if (eventData.status === "results" && !hasNavigatedToResults) {
+          setHasNavigatedToResults(true);
           navigate(`/results/${eventId}`);
+        }
+
+        // Reset navigation flag when status changes away from results
+        if (eventData.status !== "results" && hasNavigatedToResults) {
+          setHasNavigatedToResults(false);
         }
 
         // GAME LOOP: If event status changes to "question" AND user hasn't answered yet
@@ -203,7 +211,7 @@ export default function Lobby() {
       unsubscribeEvent();
       unsubscribeParticipants();
     };
-  }, [eventId, navigate, lastQuestionIndex]);
+  }, [eventId, navigate, lastQuestionIndex, hasNavigatedToResults]);
 
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
