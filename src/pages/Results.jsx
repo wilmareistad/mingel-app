@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { db } from "../services/firebase";
 import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
@@ -101,10 +100,15 @@ export default function Results() {
       <div className={styles.resultsFooter}>
         <p className={styles.resultsCount}>Total votes: {totalVotes}</p>
         
-        {/* Auto-advancing to next question - no manual button needed */}
-        <p style={{ fontSize: "0.9em", color: "#666", marginTop: "10px" }}>
-          Next question coming soon...
-        </p>
+        {/* Navigate locally without changing game state */}
+        <button 
+          onClick={() => {
+            navigate(`/lobby/${eventId}`);
+          }}
+          className={styles.returnButton}
+        >
+          Back to Lobby
+        </button>
       </div>
     </div>
   );
