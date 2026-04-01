@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Tutorial from "./pages/Tutorial";
 import AdminPanel from "./pages/AdminPanel";
 import AdminSettings from "./pages/AdminSettings";
+import AdminDebug from "./pages/AdminDebug";
 import Game from "./pages/Game";
 import Results from "./pages/Results";
 import { onAuthStateChanged } from "firebase/auth";
@@ -71,6 +72,10 @@ function AppContent() {
         <Route
           path="/admin/settings/:eventId"
           element={user ? <AdminSettings /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/debug"
+          element={user ? <AdminDebug /> : <Navigate to="/login" />}
         />
         <Route path="/game/:eventId" element={<Game />} />
         <Route path="/results/:eventId" element={<Results />} />
