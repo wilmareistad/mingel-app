@@ -16,7 +16,6 @@ import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetPa
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
-import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
 import styles from "./Lobby.module.css";
 
@@ -60,59 +59,6 @@ export default function Lobby() {
     localStorage.removeItem("eventId");
     localStorage.removeItem("userDocId");
     navigate("/");
-  };
-
-  const handleTimerExpired = async () => {
-    if (!event) return;
-    
-    try {
-      // If we're in a question phase, transition to results
-      if (event.status === "question") {
-        await setShowingResultsOnly(eventId, true);
-        await updateEventStatus(eventId, "results");
-        
-        // Get results timer duration (default 10 seconds)
-        const resultsTimerSeconds = event.resultsTimerSeconds || 10;
-        
-        // Auto-advance after results timer expires
-        setTimeout(async () => {
-          try {
-            await setShowingResultsOnly(eventId, false);
-            
-            // Fetch the current event to get fresh data
-            const eventRef = doc(db, "events", eventId);
-            const eventSnap = await getDoc(eventRef);
-            const currentEvent = eventSnap.data();
-            
-            if (currentEvent) {
-              // Combine public and custom questions (just like in questionService)
-              const allQuestionIds = [
-                ...(currentEvent.questions || []),
-                ...(currentEvent.customQuestions || [])
-              ];
-              
-              // Move to next question or loop back to first
-              const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
-              if (allQuestionIds.length > 0) {
-                // Loop back to first question if we've reached the end
-                const loopedIndex = nextIndex % allQuestionIds.length;
-                await resetParticipantsAnswered(eventId);
-                await deleteAnswersForEvent(eventId);
-                await updateCurrentQuestionIndex(eventId, loopedIndex);
-                await updateEventStatus(eventId, "question");
-              } else {
-                // No questions - go back to lobby
-                await updateEventStatus(eventId, "lobby");
-              }
-            }
-          } catch (error) {
-            console.error("Error auto-advancing after results:", error);
-          }
-        }, resultsTimerSeconds * 1000); // Convert to milliseconds
-      }
-    } catch (error) {
-      console.error("Error handling timer expiration:", error);
-    }
   };
 
   useEffect(() => {
@@ -231,18 +177,6 @@ export default function Lobby() {
       )}
 
       <EventQRCodeDisplay eventCode={event.code} />
-
-      {/* Show timer when game is in question state */}
-      {event.status === "question" && (
-        <div className={styles.timerContainer}>
-          <GameTimer 
-            eventId={eventId}
-            event={event}
-            onTimeExpired={handleTimerExpired}
-            isActive={true}
-          />
-        </div>
-      )}
 
       <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar }))} />
       
