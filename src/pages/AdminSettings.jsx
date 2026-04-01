@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
@@ -46,6 +46,9 @@ export default function AdminSettings() {
     confirmText: "Confirm",
     confirmStyle: "default",
   });
+
+  // Track if timer expiration callback has already fired for this phase (prevents duplicate writes)
+  const questionTimerExpiredRef = useRef(false);
 
   // Check admin authentication
   useEffect(() => {
@@ -177,11 +180,15 @@ export default function AdminSettings() {
 
       setTimeLeft(remaining);
 
-      // When question timer expires, transition to results
-      if (remaining === 0 && event.status === "question") {
+      // When question timer expires, transition to results (only fire once)
+      if (remaining === 0 && event.status === "question" && !questionTimerExpiredRef.current) {
+        questionTimerExpiredRef.current = true;
         handleTimerExpired();
       }
     };
+
+    // Reset the callback flag when a new question phase starts
+    questionTimerExpiredRef.current = false;
 
     // Update immediately
     updateTimeLeft();
