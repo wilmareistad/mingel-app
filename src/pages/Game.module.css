@@ -8,6 +8,16 @@
   gap: 40px;
 }
 
+.questionCounter {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.timerWrapper {
+  margin-bottom: 20px;
+}
+
 .gameContainer h1 {
   text-align: center;
   max-width: 600px;

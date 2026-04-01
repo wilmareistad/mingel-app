@@ -38,10 +38,6 @@
   transition: all 0.3s ease;
 }
 
-.backBtn:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
 
 .error {
   color: var(--text);
@@ -82,10 +78,6 @@
   transition: all 0.3s ease;
 }
 
-.controls:hover {
-  border-color: var(--accent-border);
-  box-shadow: var(--shadow);
-}
 
 .statusSection {
   margin-bottom: 2rem;
@@ -151,10 +143,6 @@
   white-space: nowrap;
 }
 
-.setTimerBtn:hover:not(:disabled) {
-  background: rgba(102, 126, 234, 0.9);
-  transform: translateY(-2px);
-}
 
 .setTimerBtn:disabled {
   opacity: 0.5;
@@ -172,10 +160,6 @@
   transition: all 0.3s ease;
 }
 
-.timerBtn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
 
 .timerDisplay {
   font-size: 1.5rem;
@@ -287,26 +271,12 @@
   min-width: 120px;
 }
 
-.startBtn:hover,
-.nextBtn:hover,
-.endQuestionBtn:hover,
-.resetBtn:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(170, 59, 255, 0.2);
-  transform: translateY(-2px);
-}
 
 .endBtn {
   border-color: #dc3545;
   color: #dc3545;
 }
 
-.endBtn:hover {
-  background-color: rgba(220, 53, 69, 0.1);
-  border-color: #dc3545;
-  color: #dc3545;
-  transform: translateY(-2px);
-}
 
 .resultsSection {
   text-align: center;
@@ -342,10 +312,6 @@
   transition: all 0.3s ease;
 }
 
-.participantsSection:hover {
-  border-color: var(--accent-border);
-  box-shadow: var(--shadow);
-}
 
 .participantsSection h2 {
   margin: 0 0 1.5rem 0;
@@ -379,11 +345,6 @@
   text-align: center;
 }
 
-.participantCard:hover {
-  border-color: var(--accent-border);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
 
 .name {
   color: var(--text-h);
@@ -420,18 +381,11 @@
   white-space: nowrap;
 }
 
-.kickBtn:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
 
 .kickBtn.active {
   background: #dc3545;
 }
 
-.kickBtn.active:hover {
-  background: #c82333;
-}
 
 /* Kick Mode Styles */
 .participantCard.kickMode {
@@ -439,12 +393,6 @@
   position: relative;
 }
 
-.participantCard.kickMode:hover {
-  animation: shake 0.5s;
-  border-color: #dc3545;
-  background: rgba(220, 53, 69, 0.1);
-  transform: none;
-}
 
 @keyframes shake {
   0%, 100% {
@@ -480,45 +428,5 @@
   line-height: 1;
 }
 
-.deleteBtn:hover {
-  background: #c82333;
-  transform: scale(1.1);
-}
 
 /* Responsive design */
-@media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header h1 {
-    flex: none;
-    width: 100%;
-  }
-
-  .controls,
-  .participantsSection {
-    padding: 1.5rem;
-  }
-
-  .buttonGroup {
-    flex-direction: column;
-  }
-
-  .startBtn,
-  .nextBtn,
-  .endQuestionBtn,
-  .endBtn,
-  .resetBtn {
-    width: 100%;
-  }
-
-  .participantsList {
-    grid-template-columns: 1fr;
-  }
-}

@@ -1,29 +1,68 @@
 .avatarCreator {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-lg);
   align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.avatarControlsWrapper {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: 600px;
+}
+
+.leftControls,
+.rightControls {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  justify-content: space-between;
+  flex: 0 0 auto;
 }
 
 .avatarView {
-  width: 300px;
-  height: 300px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.avatarRow {
+  flex: 0 0 auto;
+  width: 280px;
+  height: 280px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 16px;
+  align-items: center;
 }
 
-.avatarRow p {
-  min-width: 80px;
-  text-align: center;
-  font-weight: 500;
-  margin: 0;
+.randomizeButton {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--btn-primary-bg);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: var(--spacing-sm);
+}
+
+.randomizeButton:hover {
+  background-color: var(--btn-primary-hover);
+}
+
+.randomizeButton:active {
+  transform: scale(0.98);
+}
+
+/* Mobile - small screens */
+@media (max-width: 480px) {
+  .avatarView {
+    width: 220px;
+    height: 220px;
+  }
+
+  .avatarControlsWrapper {
+    gap: var(--spacing-sm);
+  }
 }
 

@@ -53,14 +53,29 @@ export async function updateCurrentQuestionIndex(eventId, questionIndex) {
  * @param {string} userId - User ID
  * @param {string} username - User's display name
  */
-export async function addParticipant(eventId, userId, username) {
+export async function addParticipant(eventId, userId, username, avatar = null) {
   const participantRef = doc(db, "events", eventId, "participants", userId);
   console.log("addParticipant called:", { eventId, userId, username });
-  await setDoc(participantRef, {
+  
+  const participantData = {
     name: username,
     joinedAt: serverTimestamp(),
     hasAnswered: false
-  }, { merge: false }); // Don't merge - ensure clean creation
+  };
+  
+  // Add avatar configuration if provided
+  if (avatar) {
+    participantData.avatar = {
+      baseIndex: avatar.baseIndex || 0,
+      hairIndex: avatar.hairIndex || 0,
+      eyeIndex: avatar.eyeIndex || 0,
+      noseIndex: avatar.noseIndex || 0,
+      mouthIndex: avatar.mouthIndex || 0,
+      clothesIndex: avatar.clothesIndex || 0,
+    };
+  }
+  
+  await setDoc(participantRef, participantData, { merge: false }); // Don't merge - ensure clean creation
   console.log("addParticipant completed:", { eventId, userId });
 }
 
@@ -221,14 +236,25 @@ export async function resetParticipantsAnswered(eventId) {
 
 /**
  * Set whether we're showing results for just the current question without ending the game
+ * Also starts the results timer countdown
  * @param {string} eventId - Event ID
  * @param {boolean} showingResultsOnly - Whether showing results without ending game
  */
 export async function setShowingResultsOnly(eventId, showingResultsOnly) {
   const eventRef = doc(db, "events", eventId);
-  await updateDoc(eventRef, {
-    showingResultsOnly
-  });
+  
+  if (showingResultsOnly) {
+    // Starting results phase - set the phase timestamp
+    await updateDoc(eventRef, {
+      showingResultsOnly,
+      resultsPhaseStartedAt: serverTimestamp()
+    });
+  } else {
+    // Ending results phase
+    await updateDoc(eventRef, {
+      showingResultsOnly
+    });
+  }
 }
 
 /**
@@ -240,6 +266,18 @@ export async function updateTimerDuration(eventId, durationSeconds) {
   const eventRef = doc(db, "events", eventId);
   await updateDoc(eventRef, {
     questionTimerSeconds: durationSeconds
+  });
+}
+
+/**
+ * Update the timer duration for results display (in seconds)
+ * @param {string} eventId - Event ID
+ * @param {number} durationSeconds - Duration in seconds (default: 10 seconds)
+ */
+export async function updateResultsTimerDuration(eventId, durationSeconds = 10) {
+  const eventRef = doc(db, "events", eventId);
+  await updateDoc(eventRef, {
+    resultsTimerSeconds: durationSeconds
   });
 }
 

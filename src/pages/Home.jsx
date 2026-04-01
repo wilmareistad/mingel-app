@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import styles from "./Home.module.css"
 
 export default function Home() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <div className={styles.homeContainer}>
       <h1>Pulse</h1>
 
       <div className="button-container">

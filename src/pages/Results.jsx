@@ -6,7 +6,7 @@ import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { getQuestionAnswers } from "../features/game/gameService";
-import styles from "../styles/Results.module.css";
+import styles from "./Results.module.css";
 
 export default function Results() {
   const navigate = useNavigate();
@@ -115,7 +115,7 @@ export default function Results() {
               console.error("Error returning to lobby:", error);
             }
           }}
-          style={{marginTop: "20px"}}
+          className={styles.returnButton}
         >
           Return to Lobby
         </button>

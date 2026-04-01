@@ -172,13 +172,13 @@ export default function Game() {
 
   return (
     <div className={styles.gameContainer}>
-      <div style={{fontSize: "14px", color: "#666", marginBottom: "10px"}}>
+      <div className={styles.questionCounter}>
         Question {(question.currentIndex || 0) + 1} of {question.totalQuestions || '?'}
       </div>
 
       {/* Timer */}
       {event && (
-        <div style={{marginBottom: "20px"}}>
+        <div className={styles.timerWrapper}>
           <GameTimer 
             eventId={eventId}
             event={event}

@@ -45,53 +45,21 @@
   color: var(--text-h);
 }
 
-.button:hover {
-  transform: translateY(-2px);
-}
-
 .cancel {
   border-color: var(--border);
   color: var(--text-h);
 }
 
-.cancel:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(170, 59, 255, 0.2);
-}
 
 .confirm {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.confirm:hover {
-  border-color: var(--accent);
-  background: var(--accent-bg);
-  box-shadow: 0 0 10px rgba(170, 59, 255, 0.2);
-}
 
 .danger {
   border-color: #dc3545;
   color: #dc3545;
 }
 
-.danger:hover {
-  border-color: #dc3545;
-  background: rgba(220, 53, 69, 0.1);
-  box-shadow: 0 0 10px rgba(220, 53, 69, 0.2);
-}
 
-@media (max-width: 480px) {
-  .modal {
-    padding: 20px;
-    max-width: 90vw;
-  }
-
-  .actions {
-    flex-direction: column;
-  }
-
-  .button {
-    width: 100%;
-  }
-}

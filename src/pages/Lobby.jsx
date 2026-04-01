@@ -11,12 +11,14 @@ import {
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
+import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetParticipantsAnswered, updateCurrentQuestionIndex } from "../features/event/eventService";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
+import styles from "./Lobby.module.css";
 
 export default function Lobby() {
   const { eventId } = useParams();
@@ -63,35 +65,50 @@ export default function Lobby() {
     if (!event) return;
     
     try {
-      await setShowingResultsOnly(eventId, true);
-      await updateEventStatus(eventId, "results");
-      
-      // Set a timer to auto-advance after 2 minutes (120 seconds)
-      setTimeout(async () => {
-        try {
-          await setShowingResultsOnly(eventId, false);
-          
-          // Fetch the current event to get fresh data
-          const eventRef = doc(db, "events", eventId);
-          const eventSnap = await getDoc(eventRef);
-          const currentEvent = eventSnap.data();
-          
-          if (currentEvent) {
-            // Move to next question or end game
-            const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
-            if (currentEvent.questions && nextIndex < currentEvent.questions.length) {
-              await resetParticipantsAnswered(eventId);
-              await updateCurrentQuestionIndex(eventId, nextIndex);
-              await updateEventStatus(eventId, "question");
-            } else {
-              // Game ended - stay in lobby
-              await updateEventStatus(eventId, "lobby");
+      // If we're in a question phase, transition to results
+      if (event.status === "question") {
+        await setShowingResultsOnly(eventId, true);
+        await updateEventStatus(eventId, "results");
+        
+        // Get results timer duration (default 10 seconds)
+        const resultsTimerSeconds = event.resultsTimerSeconds || 10;
+        
+        // Auto-advance after results timer expires
+        setTimeout(async () => {
+          try {
+            await setShowingResultsOnly(eventId, false);
+            
+            // Fetch the current event to get fresh data
+            const eventRef = doc(db, "events", eventId);
+            const eventSnap = await getDoc(eventRef);
+            const currentEvent = eventSnap.data();
+            
+            if (currentEvent) {
+              // Combine public and custom questions (just like in questionService)
+              const allQuestionIds = [
+                ...(currentEvent.questions || []),
+                ...(currentEvent.customQuestions || [])
+              ];
+              
+              // Move to next question or loop back to first
+              const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
+              if (allQuestionIds.length > 0) {
+                // Loop back to first question if we've reached the end
+                const loopedIndex = nextIndex % allQuestionIds.length;
+                await resetParticipantsAnswered(eventId);
+                await deleteAnswersForEvent(eventId);
+                await updateCurrentQuestionIndex(eventId, loopedIndex);
+                await updateEventStatus(eventId, "question");
+              } else {
+                // No questions - go back to lobby
+                await updateEventStatus(eventId, "lobby");
+              }
             }
+          } catch (error) {
+            console.error("Error auto-advancing after results:", error);
           }
-        } catch (error) {
-          console.error("Error auto-advancing after results:", error);
-        }
-      }, 120000); // 2 minutes
+        }, resultsTimerSeconds * 1000); // Convert to milliseconds
+      }
     } catch (error) {
       console.error("Error handling timer expiration:", error);
     }
@@ -186,7 +203,7 @@ export default function Lobby() {
       unsubscribeEvent();
       unsubscribeParticipants();
     };
-  }, [eventId, navigate]);
+  }, [eventId, navigate, lastQuestionIndex]);
 
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
@@ -200,14 +217,7 @@ export default function Lobby() {
       <p><strong>Status:</strong> {event.status}</p>
 
       {error && (
-        <div style={{
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
-          padding: "12px",
-          borderRadius: "4px",
-          marginTop: "20px",
-          border: "1px solid #f5c6cb"
-        }}>
+        <div className={styles.errorMessage}>
           <strong>Error:</strong> {error}
         </div>
       )}
@@ -216,7 +226,7 @@ export default function Lobby() {
 
       {/* Show timer when game is in question state */}
       {event.status === "question" && (
-        <div style={{marginTop: "20px", marginBottom: "20px"}}>
+        <div className={styles.timerContainer}>
           <GameTimer 
             eventId={eventId}
             event={event}
@@ -226,12 +236,12 @@ export default function Lobby() {
         </div>
       )}
 
-      <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username }))} />
+      <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar }))} />
       
       {/* Show answer progress when game is in question state */}
       {event.status === "question" && (
-        <div style={{marginTop: "20px", padding: "12px", backgroundColor: "#e7f3ff", borderRadius: "6px"}}>
-          <p style={{margin: "0"}}>
+        <div className={styles.answerProgress}>
+          <p className={styles.answerProgressText}>
             <strong>Answers:</strong> {players.filter(p => p.hasAnswered).length} / {players.length} participants
           </p>
         </div>

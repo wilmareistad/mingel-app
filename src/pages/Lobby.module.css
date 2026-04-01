@@ -1,0 +1,24 @@
+.errorMessage {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 20px;
+  border: 1px solid #f5c6cb;
+}
+
+.timerContainer {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.answerProgress {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #e7f3ff;
+  border-radius: 6px;
+}
+
+.answerProgressText {
+  margin: 0;
+}

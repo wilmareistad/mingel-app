@@ -1,7 +1,7 @@
 .toggleButton {
   background: none !important;
   border: none !important;
-  padding: 4px !important;
+  padding: var(--spacing-xs) !important;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -32,4 +32,9 @@
   width: 40px;
   height: 40px;
   display: block;
+}
+
+.toggleButton.small img {
+  width: 28px;
+  height: 28px;
 }
