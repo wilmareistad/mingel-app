@@ -340,10 +340,13 @@ export default function AdminSettings() {
   const handleResetGame = async () => {
     openConfirmModal(
       "Reset Game",
-      "Are you sure you want to reset the game? All answers will be cleared.",
+      "Are you sure you want to reset the game? All answers will be cleared, and the game will return to the lobby.",
       async () => {
         closeModal();
         try {
+          // Deactivate timers by setting showingResultsOnly to false
+          await setShowingResultsOnly(eventId, false);
+
           // Clear all answers from previous round
           await deleteAnswersForEvent(eventId);
 
@@ -358,7 +361,7 @@ export default function AdminSettings() {
           setMessage("Error resetting game");
         }
       },
-      "Reset",
+      "Reset Game",
       "danger",
     );
   };
@@ -670,6 +673,12 @@ export default function AdminSettings() {
                 >
                   End Game & Show Results
                 </button>
+                <button
+                  className={`${styles.resetBtn} adminButton`}
+                  onClick={handleResetGame}
+                >
+                  Reset Game
+                </button>
               </div>
             </>
           )}
@@ -696,6 +705,12 @@ export default function AdminSettings() {
                       onClick={handleEndGame}
                     >
                       End Game & Show Results
+                    </button>
+                    <button
+                      className={`${styles.resetBtn} adminButton`}
+                      onClick={handleResetGame}
+                    >
+                      Reset Game
                     </button>
                   </div>
                 </>

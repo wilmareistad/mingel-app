@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from "firebase/firestore";
-import { db } from "../services/firebase";
 import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
@@ -25,41 +23,17 @@ export default function Game() {
   const [participants, setParticipants] = useState([]);
   const [isKicked, setIsKicked] = useState(false);
 
-  // Handle timer expiration: auto-transition to results
+  // Handle timer expiration: transition to results
+  // DO NOT auto-advance here - let Lobby handle all advancement
+  // This ensures single source of truth: Admin Dashboard
   const handleTimerExpired = async () => {
     if (!event || !question) return;
     
     try {
-      // Set showing results only flag and transition to results state
+      // Transition to results state
+      // The Lobby component will handle auto-advancing based on resultsTimerSeconds
       await setShowingResultsOnly(eventId, true);
       await updateEventStatus(eventId, "results");
-      
-      // Set a timer to auto-advance after 2 minutes (120 seconds)
-      setTimeout(async () => {
-        try {
-          await setShowingResultsOnly(eventId, false);
-          
-          // Fetch the current event to get fresh data
-          const eventRef = doc(db, "events", eventId);
-          const eventSnap = await getDoc(eventRef);
-          const currentEvent = eventSnap.data();
-          
-          if (currentEvent) {
-            // Move to next question or end game
-            const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
-            if (currentEvent.questions && nextIndex < currentEvent.questions.length) {
-              await resetParticipantsAnswered(eventId);
-              await updateCurrentQuestionIndex(eventId, nextIndex);
-              await updateEventStatus(eventId, "question");
-            } else {
-              // Game ended - go back to lobby
-              await updateEventStatus(eventId, "lobby");
-            }
-          }
-        } catch (error) {
-          console.error("Error auto-advancing after results:", error);
-        }
-      }, 120000); // 2 minutes
     } catch (error) {
       console.error("Error handling timer expiration:", error);
     }
