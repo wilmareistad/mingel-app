@@ -203,7 +203,7 @@ export default function Lobby() {
       unsubscribeEvent();
       unsubscribeParticipants();
     };
-  }, [eventId, navigate]);
+  }, [eventId, navigate, lastQuestionIndex]);
 
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;

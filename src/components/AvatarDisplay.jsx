@@ -20,6 +20,9 @@ export default function AvatarDisplay({
     fetch(AvatarSVG)
       .then((res) => res.text())
       .then((svgText) => {
+        // Guard against ref becoming null
+        if (!svgContainerRef.current) return;
+
         // Get background color from CSS variable
         const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--avatar-background-color').trim() || "#980c50";
         
@@ -74,10 +77,12 @@ export default function AvatarDisplay({
         );
 
         // Clear previous SVG but preserve container classes
-        while (svgContainerRef.current.firstChild) {
-          svgContainerRef.current.removeChild(svgContainerRef.current.firstChild);
+        if (svgContainerRef.current) {
+          while (svgContainerRef.current.firstChild) {
+            svgContainerRef.current.removeChild(svgContainerRef.current.firstChild);
+          }
+          svgContainerRef.current.appendChild(svgElement);
         }
-        svgContainerRef.current.appendChild(svgElement);
       });
   }, [baseIndex, hairIndex, eyeIndex, noseIndex, mouthIndex, clothesIndex]);
 

@@ -250,6 +250,9 @@ export default function AdminSettings() {
       // Reset all participants answered status before starting
       await resetParticipantsAnswered(eventId);
 
+      // Reset question index to start from first question
+      await updateCurrentQuestionIndex(eventId, 0);
+
       // Then transition to question status
       await updateEventStatus(eventId, "question");
       setMessage("Game started! First question displayed.");
@@ -366,7 +369,7 @@ export default function AdminSettings() {
 
   // Timer options in seconds (0.5 to 15 minutes with 30-second increments)
   const timerOptions = [
-    10, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720,
+    5, 10, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720,
     810, 900,
   ];
 
