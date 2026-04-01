@@ -15,37 +15,41 @@
 
 ## Architecture Overview
 
-### Single Source of Truth: Admin Dashboard
+### Single Source of Truth: Admin Settings
 
-All timing configuration happens via Admin Settings:
-- `questionTimerSeconds` - How long each question displays (default: 300s)
-- `resultsTimerSeconds` - How long results display (default: 10s)
+**CRITICAL:** AdminSettings.jsx is the authoritative source for BOTH:
+1. **Timer Configuration** (questionTimerSeconds, resultsTimerSeconds)
+2. **Game Loop Advancement** (auto-advance after timers expire)
+
+This ensures that when an admin adjusts the question timer, it applies to:
+- The currently running question
+- All future questions in the game
 
 ### Game State Machine
 
 ```
 LOBBY
   ↓ (Admin clicks "Start Game")
-QUESTION (Timer: questionTimerSeconds)
+QUESTION (Timer: questionTimerSeconds from AdminSettings)
   ├─ Players answer OR timer expires
-  ↓
-RESULTS (Timer: resultsTimerSeconds)
+  ↓ (When timer expires OR admin clicks "End Question")
+RESULTS (Timer: resultsTimerSeconds from AdminSettings)
   ├─ If admin clicks "Next Question" → immediate advance
-  ├─ If timer expires without admin action → auto-advance
+  ├─ If timer expires without admin action → AdminSettings auto-advances
   ↓
 QUESTION (Next question)
-  └─ Repeat until all questions answered
+  └─ Repeat until all questions answered or admin ends game
 ```
 
 ### Component Responsibilities
 
-| Component | Role | Does NOT Do |
-|-----------|------|-----------|
-| **AdminSettings.jsx** | Configure timers, start/stop game | Handle auto-advance |
-| **Lobby.jsx** | Listen to status, display countdown, auto-advance | Display questions |
-| **Game.jsx** | Display questions, submit answers, transition to results | Handle advancement |
-| **GameTimer.jsx** | Show visual countdown | Make decisions |
-| **Results.jsx** | Display vote counts | Control timing |
+| Component | Role | Controls | Does NOT Do |
+|-----------|------|----------|-----------|
+| **AdminSettings.jsx** | Single source of truth | Game state, timers, auto-advance logic | Display questions to players |
+| **Lobby.jsx** | Player-side controller | Navigation, question validation | Make game decisions |
+| **Game.jsx** | Question display | Display UI, collect answers | Handle advancement |
+| **GameTimer.jsx** | Visual countdown | Display timer, trigger expiration callback | Make decisions |
+| **Results.jsx** | Results display | Show vote counts | Control timing |
 
 ---
 
@@ -93,18 +97,33 @@ resultsTimerSeconds passes (10 seconds default)
   ↓
 Lobby's setTimeout fires
   ↓
-Clears database:
+### Phase 3: Auto-Advance (AdminSettings Controls This)
+
+```
+resultsTimerSeconds passes (10 seconds default)
+  ↓ (AdminSettings effect detects resultsTimeLeft === 0)
+  ↓
+AdminSettings calls:
+  - setShowingResultsOnly(false)
   - Delete all answers
   - Reset all participants (hasAnswered = false)
   - Increment currentQuestionIndex
   - Set status = "question"
   
+Lobby listener detects status change
+  ↓
 Players auto-navigate to /game/:eventId
   ↓
 See next question
   ↓
-Cycle repeats
+Cycle repeats with current timer settings
 ```
+
+**Why AdminSettings handles auto-advance:**
+- Admin might change timer during results display
+- AdminSettings monitors the resultsPhaseStartedAt timestamp
+- When timer reaches 0, AdminSettings auto-advances with current settings
+- This ensures admin changes take effect immediately
 
 ### Alternative: Manual Advance (If admin clicks "Next Question")
 
@@ -133,10 +152,10 @@ const handleTimerExpired = async () => {
   if (!event || !question) return
   
   try {
-    // ONLY transition to results
-    // Lobby handles ALL advancement
+    // ONLY notify that question timer expired
+    // setShowingResultsOnly(true) sets resultsPhaseStartedAt
+    // AdminSettings and Lobby handle everything else
     await setShowingResultsOnly(eventId, true)
-    await updateEventStatus(eventId, "results")
   } catch (error) {
     console.error("Error handling timer expiration:", error)
   }
@@ -144,36 +163,75 @@ const handleTimerExpired = async () => {
 ```
 
 **Why this is correct:**
-- Single responsibility: display questions, transition on timer
-- No auto-advance logic
-- No hardcoded timers
+- ✅ Single responsibility: display questions, signal timer expiration
+- ✅ No auto-advance logic (prevents conflicts)
+- ✅ No hardcoded timers
+- ✅ Respects admin timer changes
 
-### Lobby.jsx - Master Controller
+### Lobby.jsx - Player Navigation Controller
 
 ```javascript
 const handleTimerExpired = async () => {
   if (!event) return
   
   if (event.status === "question") {
-    // Transition to results
+    // Signal that question timer expired
+    // AdminSettings and Game will handle results transition
     await setShowingResultsOnly(eventId, true)
-    await updateEventStatus(eventId, "results")
-    
-    // Get admin-configured timer
-    const resultsTimerSeconds = event.resultsTimerSeconds || 10
-    
-    // Schedule auto-advance
-    setTimeout(async () => {
-      // Delete answers, increment question, set status = "question"
-    }, resultsTimerSeconds * 1000)
   }
 }
+
+// Listen to game state changes and navigate players accordingly
+useEffect(() => {
+  onSnapshot(eventRef, async (docSnap) => {
+    const eventData = docSnap.data()
+    
+    // When showingResultsOnly becomes true → update status
+    if (eventData.showingResultsOnly && eventData.status !== "results") {
+      await updateEventStatus(eventId, "results")
+      navigate(`/results/${eventId}`)
+    }
+    
+    // When status becomes "question" → navigate to game
+    if (eventData.status === "question") {
+      navigate(`/game/${eventId}`)
+    }
+  })
+})
 ```
 
 **Why this is correct:**
-- Exclusive auto-advance handler
-- Admin-controlled timing
-- No conflicts
+- ✅ Only manages player navigation
+- ✅ Responds to state changes set by AdminSettings
+- ✅ Does NOT control auto-advance timing
+- ✅ Works with any timer configuration
+
+### AdminSettings.jsx - Game Loop Master
+
+```javascript
+// Monitor results timer and auto-advance when it expires
+useEffect(() => {
+  if (event.status !== "results" || !event.showingResultsOnly) return
+  
+  const durationSeconds = event.resultsTimerSeconds || 10
+  const elapsed = (Date.now() - event.resultsPhaseStartedAt) / 1000
+  const remaining = Math.max(0, durationSeconds - elapsed)
+  
+  // When remaining time reaches 0, auto-advance
+  if (remaining === 0) {
+    setShowingResultsOnly(false)
+    deleteAnswersForEvent(eventId)
+    updateCurrentQuestionIndex(eventId, nextIndex)
+    updateEventStatus(eventId, "question")
+  }
+}, [event])
+```
+
+**Why this is correct:**
+- ✅ AdminSettings is SINGLE SOURCE OF TRUTH
+- ✅ Controls both timer config AND auto-advance logic
+- ✅ Respects admin timer changes immediately
+- ✅ All game loop decisions flow from AdminSettings
 
 ---
 
@@ -192,18 +250,21 @@ const handleTimerExpired = async () => {
 ### Configuration
 
 **Question Timer** (How long question displays)
-- Set on Admin Dashboard
+- Set on Admin Dashboard (AdminSettings.jsx)
 - Range: 5-900 seconds
 - Default: 300 seconds (5 minutes)
+- **Change takes effect immediately for current/next question**
 
 **Results Timer** (How long results display)
-- Set on Admin Dashboard  
+- Set on Admin Dashboard (AdminSettings.jsx)
 - Range: 5-60 seconds
 - Default: 10 seconds
+- **Change takes effect immediately for current results display**
 
 **When do changes take effect?**
-- ✅ Immediately for NEXT question
-- ❌ Current question timer already running
+- ✅ Immediately when changed (affects current timer if still running)
+- ✅ Next timer cycle uses new value
+- ✅ Admin sees real-time countdown update
 
 ---
 
@@ -227,7 +288,7 @@ const handleTimerExpired = async () => {
 ✅ See results  
 ✅ Leave game  
 ❌ Start/stop game  
-❌ Change questions  
+❌ Change questions
 ❌ Modify timing  
 
 ---

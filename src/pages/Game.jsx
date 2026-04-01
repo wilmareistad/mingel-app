@@ -4,7 +4,7 @@ import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
-import { listenToParticipants, setShowingResultsOnly, updateEventStatus, resetParticipantsAnswered, updateCurrentQuestionIndex } from "../features/event/eventService";
+import { listenToParticipants, setShowingResultsOnly } from "../features/event/eventService";
 import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
 import styles from "./Game.module.css";
@@ -31,9 +31,9 @@ export default function Game() {
     
     try {
       // Transition to results state
-      // The Lobby component will handle auto-advancing based on resultsTimerSeconds
+      // setShowingResultsOnly(true) will set resultsPhaseStartedAt for results timing
+      // The Lobby component will handle updating status and auto-advancing
       await setShowingResultsOnly(eventId, true);
-      await updateEventStatus(eventId, "results");
     } catch (error) {
       console.error("Error handling timer expiration:", error);
     }

@@ -176,6 +176,11 @@ export default function AdminSettings() {
       const remaining = Math.max(0, durationSeconds - elapsedSeconds);
 
       setTimeLeft(remaining);
+
+      // When question timer expires, transition to results
+      if (remaining === 0 && event.status === "question") {
+        handleTimerExpired();
+      }
     };
 
     // Update immediately
@@ -220,6 +225,89 @@ export default function AdminSettings() {
 
     return () => clearInterval(interval);
   }, [event]);
+
+  // Auto-advance after results timer expires (AdminSettings is the source of truth for game loop timing)
+  useEffect(() => {
+    if (!event || !eventId || event.status !== "results" || !event.showingResultsOnly) {
+      return;
+    }
+
+    const durationSeconds = event.resultsTimerSeconds || 10;
+    const phaseStartedAt =
+      event.resultsPhaseStartedAt?.toMillis?.() || event.resultsPhaseStartedAt;
+
+    if (!phaseStartedAt) {
+      return;
+    }
+
+    const now = Date.now();
+    const elapsedMs = now - phaseStartedAt;
+    const elapsedSeconds = Math.floor(elapsedMs / 1000);
+    const remaining = Math.max(0, durationSeconds - elapsedSeconds);
+
+    // Update display
+    setResultsTimeLeft(remaining);
+
+    // If time has expired, auto-advance (only once)
+    if (remaining === 0) {
+      const autoAdvance = async () => {
+        try {
+          // Clear results display first
+          await setShowingResultsOnly(eventId, false);
+
+          // Fetch the current event to get fresh data
+          const eventRef = doc(db, "events", eventId);
+          const eventSnap = await getDoc(eventRef);
+          const currentEvent = eventSnap.data();
+
+          if (currentEvent) {
+            // Combine public and custom questions
+            const allQuestionIds = [
+              ...(currentEvent.questions || []),
+              ...(currentEvent.customQuestions || [])
+            ];
+
+            if (allQuestionIds.length > 0) {
+              // Move to next question or loop back to first
+              const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
+              const loopedIndex = nextIndex % allQuestionIds.length;
+              
+              // Clear old answers and reset participants
+              await deleteAnswersForEvent(eventId);
+              await resetParticipantsAnswered(eventId);
+              
+              // Update to next question
+              await updateCurrentQuestionIndex(eventId, loopedIndex);
+              // This sets phaseStartedAt to now
+              await updateEventStatus(eventId, "question");
+            } else {
+              // No questions - go back to lobby
+              await updateEventStatus(eventId, "lobby");
+            }
+          }
+        } catch (error) {
+          console.error("Error auto-advancing after results:", error);
+        }
+      };
+
+      // Only call once when remaining exactly equals 0
+      autoAdvance();
+    }
+  }, [event?.resultsPhaseStartedAt, event?.status, event?.showingResultsOnly, event?.resultsTimerSeconds, eventId]);
+
+  // Handle question timer expiration - transition to results
+  const handleTimerExpired = async () => {
+    if (!event || event.status !== "question") return;
+    
+    try {
+      // Signal results phase start (sets resultsPhaseStartedAt)
+      await setShowingResultsOnly(eventId, true);
+      // Update status to results (triggers Lobby to navigate players)
+      await updateEventStatus(eventId, "results");
+    } catch (error) {
+      console.error("Error handling timer expiration:", error);
+    }
+  };
 
   const openConfirmModal = (
     title,

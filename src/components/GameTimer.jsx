@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./GameTimer.module.css";
 
 export default function Timer({ 
@@ -8,13 +8,18 @@ export default function Timer({
   isActive = true 
 }) {
   const [timeLeft, setTimeLeft] = useState(0);
+  const hasExpiredRef = useRef(false);
 
   // Main effect: Calculate time whenever event changes
   useEffect(() => {
     if (!event || !isActive || event.status !== "question") {
       setTimeLeft(0);
+      hasExpiredRef.current = false;
       return;
     }
+
+    // Reset expiration flag when a new question starts
+    hasExpiredRef.current = false;
 
     // Get question timer duration (default 5 minutes = 300 seconds)
     const durationSeconds = event.questionTimerSeconds || 300;
@@ -33,8 +38,9 @@ export default function Timer({
 
     setTimeLeft(remaining);
 
-    // If time expired and we have a callback, call it
-    if (remaining === 0 && onTimeExpired) {
+    // If time expired and we haven't called callback yet, call it once
+    if (remaining === 0 && onTimeExpired && !hasExpiredRef.current) {
+      hasExpiredRef.current = true;
       onTimeExpired();
     }
   }, [event, isActive, onTimeExpired]);
@@ -56,7 +62,9 @@ export default function Timer({
 
       setTimeLeft(remaining);
 
-      if (remaining === 0 && onTimeExpired) {
+      // Only call callback once when timer reaches exactly 0
+      if (remaining === 0 && onTimeExpired && !hasExpiredRef.current) {
+        hasExpiredRef.current = true;
         onTimeExpired();
       }
     }, 100); // Update every 100ms for smooth real-time display
