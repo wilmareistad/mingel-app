@@ -95,46 +95,16 @@ export default function Lobby() {
           navigate(`/results/${eventId}`);
         }
 
-        // GAME LOOP: If event status changes to "question" AND user hasn't answered yet
-        // redirect to game (but first validate the question exists)
+        // GAME LOOP: If event status changes to "question" → mark for validation
+        // But DON'T validate here - validation happens in a separate effect
+        // This prevents expensive read operations in the listener
         if (eventData.status === "question") {
-          const userId = localStorage.getItem("userId");
           const currentQuestionIndex = eventData.currentQuestionIndex;
+          console.log("Question status detected. Index:", currentQuestionIndex, "Last index:", lastQuestionIndex);
           
-          console.log("Question status detected. Index:", currentQuestionIndex, "User:", userId, "Last index:", lastQuestionIndex);
-          
-          // Validate question exists before navigating
-          if (userId && currentQuestionIndex !== undefined) {
-            try {
-              const question = await getCurrentEventQuestion(eventId, currentQuestionIndex);
-              
-              console.log("Question loaded:", question);
-              
-              if (!question) {
-                // Question not found - show error on lobby
-                setError(`Question not found (index: ${currentQuestionIndex}). Make sure the question ID exists in the database.`);
-                console.log("Question is null, showing error");
-                return;
-              }
-
-              // Check if user already answered this question
-              const alreadyAnswered = await hasUserAnswered(eventId, userId, question.id);
-              console.log("Already answered:", alreadyAnswered);
-              
-              if (!alreadyAnswered) {
-                console.log("Navigating to game");
-                // Track that we're processing this question
-                setLastQuestionIndex(currentQuestionIndex);
-                navigate(`/game/${eventId}`);
-              } else {
-                console.log("User already answered, staying on lobby");
-                // Track that we're processing this question
-                setLastQuestionIndex(currentQuestionIndex);
-              }
-            } catch (err) {
-              console.error("Error validating question:", err);
-              setError("Error loading question. Please check the database.");
-            }
+          // Only trigger re-check if question index changed
+          if (currentQuestionIndex !== lastQuestionIndex) {
+            setLastQuestionIndex(currentQuestionIndex);
           }
         }
       } else {
@@ -169,7 +139,49 @@ export default function Lobby() {
       unsubscribeEvent();
       unsubscribeParticipants();
     };
-  }, [eventId, navigate, lastQuestionIndex]);
+  }, [eventId, navigate]);
+
+  // Separate effect for question validation - only runs when question index changes
+  // This prevents expensive reads from firing on every event update
+  useEffect(() => {
+    if (!event || event.status !== "question" || lastQuestionIndex === null) {
+      return;
+    }
+
+    const validateAndNavigate = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) return;
+
+        const question = await getCurrentEventQuestion(eventId, lastQuestionIndex);
+        
+        console.log("Question loaded:", question);
+        
+        if (!question) {
+          // Question not found - show error on lobby
+          setError(`Question not found (index: ${lastQuestionIndex}). Make sure the question ID exists in the database.`);
+          console.log("Question is null, showing error");
+          return;
+        }
+
+        // Check if user already answered this question
+        const alreadyAnswered = await hasUserAnswered(eventId, userId, question.id);
+        console.log("Already answered:", alreadyAnswered);
+        
+        if (!alreadyAnswered) {
+          console.log("Navigating to game");
+          navigate(`/game/${eventId}`);
+        } else {
+          console.log("User already answered, staying on lobby");
+        }
+      } catch (err) {
+        console.error("Error validating question:", err);
+        setError("Error loading question. Please check the database.");
+      }
+    };
+
+    validateAndNavigate();
+  }, [event?.status, lastQuestionIndex, eventId, navigate]);
 
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
