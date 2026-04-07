@@ -51,6 +51,7 @@ export default function AdminSettings() {
   const questionTimerExpiredRef = useRef(false);
   const resultsTimerExpiredRef = useRef(false);
   const resultsPhaseIdRef = useRef(null); // Track which results phase we're in
+  const questionPhaseIdRef = useRef(null); // Track which question phase we're in
 
   // Check admin authentication
   useEffect(() => {
@@ -165,16 +166,26 @@ export default function AdminSettings() {
       return;
     }
 
+    const durationSeconds = event.questionTimerSeconds || 300;
+    const phaseStartedAt =
+      event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
+
+    if (!phaseStartedAt) {
+      setTimeLeft(durationSeconds);
+      return;
+    }
+
+    // Create a unique ID for this question phase
+    const currentPhaseId = `${event.currentQuestionIndex}-${phaseStartedAt}`;
+    
+    // IMPORTANT: Only reset the flag when we FIRST enter a NEW question phase
+    if (questionPhaseIdRef.current !== currentPhaseId) {
+      console.log(`🟡 Entering new question phase: ${currentPhaseId}`);
+      questionPhaseIdRef.current = currentPhaseId;
+      questionTimerExpiredRef.current = false;
+    }
+
     const updateTimeLeft = () => {
-      const durationSeconds = event.questionTimerSeconds || 300;
-      const phaseStartedAt =
-        event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
-
-      if (!phaseStartedAt) {
-        setTimeLeft(durationSeconds);
-        return;
-      }
-
       const now = Date.now();
       const elapsedMs = now - phaseStartedAt;
       const elapsedSeconds = Math.floor(elapsedMs / 1000);
@@ -182,15 +193,13 @@ export default function AdminSettings() {
 
       setTimeLeft(remaining);
 
-      // When question timer expires, transition to results (only fire once)
+      // When question timer expires, transition to results (only fire once per phase)
       if (remaining === 0 && event.status === "question" && !questionTimerExpiredRef.current) {
         questionTimerExpiredRef.current = true;
+        console.log(`🔴 Question timer EXPIRED! Transitioning to results...`);
         handleTimerExpired();
       }
     };
-
-    // Reset the callback flag when a new question phase starts
-    questionTimerExpiredRef.current = false;
 
     // Update immediately
     updateTimeLeft();
@@ -199,7 +208,7 @@ export default function AdminSettings() {
     const interval = setInterval(updateTimeLeft, 100);
 
     return () => clearInterval(interval);
-  }, [event]);
+  }, [event?.phaseStartedAt, event?.status, event?.questionTimerSeconds, event?.currentQuestionIndex]);
 
   // Calculate time remaining for the results phase
   useEffect(() => {
