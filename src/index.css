@@ -161,8 +161,8 @@ p {
 
 input,
 textarea {
-  background: var(--bg);
-  color: var(--text-h);
+  background: var(--input-bg, var(--bg));
+  color: var(--input-text, var(--text-h));
   border: 2px solid var(--border);
   padding: 10px 15px;
   border-radius: 6px;
@@ -185,7 +185,7 @@ textarea:focus {
 
 button {
   background: var(--accent);
-  color: #fff;
+  color: var(--btn-primary-text, #fff);
   border: none;
   padding: 14px 32px;
   border-radius: 6px;
@@ -200,6 +200,10 @@ button {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+}
+
+button:hover:not(:disabled) {
+  color: var(--btn-primary-hover-text, #fff);
 }
 
 button:active {

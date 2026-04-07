@@ -9,7 +9,7 @@
 
 .toggleBtn {
   background: var(--accent);
-  color: white;
+  color: var(--btn-primary-text, white);
   border: none;
   padding: 16px 20px;
   border-radius: 14px;
@@ -53,8 +53,8 @@
   border-radius: 12px;
   font-size: 15px;
   font-family: inherit;
-  background: rgba(255, 255, 255, 0.85);
-  color: var(--text-h);
+  background: var(--input-bg, rgba(255, 255, 255, 0.85));
+  color: var(--input-text, var(--text-h));
 }
 
 .formGroup input:focus,
@@ -81,7 +81,7 @@
 .removeBtn {
   padding: 10px 14px;
   background: rgba(255, 60, 60, 0.85);
-  color: white;
+  color: var(--btn-primary-text, white);
   border: none;
   border-radius: 10px;
   font-weight: 600;
@@ -125,7 +125,7 @@
 
 .submitBtn {
   background: var(--accent);
-  color: white;
+  color: var(--btn-primary-text, white);
 }
 
 .submitBtn:disabled {
@@ -180,7 +180,7 @@
 .newCategoryBtn {
   padding: 10px 14px;
   background: var(--accent);
-  color: white;
+  color: var(--btn-primary-text, white);
   border: none;
   border-radius: 10px;
   font-weight: 700;
@@ -196,7 +196,7 @@
 .cancelCategoryBtn {
   padding: 10px 14px;
   background: rgba(255, 60, 60, 0.85);
-  color: white;
+  color: var(--btn-primary-text, white);
   border: none;
   border-radius: 10px;
   font-weight: 700;

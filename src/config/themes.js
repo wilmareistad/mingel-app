@@ -36,8 +36,14 @@ export const themes = [
       accentBorder: "rgba(0, 255, 65, 0.3)",
       buttonPrimaryBg: "#00AA33",
       buttonPrimaryHover: "#00FF41",
+      buttonPrimaryText: "#000000",
+      buttonPrimaryHoverText: "#000000",
       buttonSecondaryBg: "#006633",
       buttonSecondaryHover: "#00CC33",
+      buttonSecondaryText: "#000000",
+      buttonSecondaryHoverText: "#000000",
+      inputText: "#000000",
+      inputBg: "#00FF41",
     },
   },
 ];
@@ -75,8 +81,14 @@ export function applyTheme(themeValue) {
   root.style.setProperty("--accent-border", colors.accentBorder);
   root.style.setProperty("--btn-primary-bg", colors.buttonPrimaryBg);
   root.style.setProperty("--btn-primary-hover", colors.buttonPrimaryHover);
+  root.style.setProperty("--btn-primary-text", colors.buttonPrimaryText || colors.text);
+  root.style.setProperty("--btn-primary-hover-text", colors.buttonPrimaryHoverText || colors.text);
   root.style.setProperty("--btn-secondary-bg", colors.buttonSecondaryBg);
   root.style.setProperty("--btn-secondary-hover", colors.buttonSecondaryHover);
+  root.style.setProperty("--btn-secondary-text", colors.buttonSecondaryText || colors.text);
+  root.style.setProperty("--btn-secondary-hover-text", colors.buttonSecondaryHoverText || colors.text);
+  root.style.setProperty("--input-text", colors.inputText || colors.text);
+  root.style.setProperty("--input-bg", colors.inputBg || colors.background);
 
   // Apply background for Matrix
   if (themeValue === "matrix") {

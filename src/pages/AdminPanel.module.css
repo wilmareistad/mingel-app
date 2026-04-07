@@ -27,7 +27,7 @@
 .logoutBtn {
   padding: 10px 20px;
   background: var(--accent);
-  color: white;
+  color: var(--btn-primary-text, white);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
