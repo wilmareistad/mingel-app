@@ -383,7 +383,15 @@ export default function AdminSettings() {
 
   const handleNextQuestion = async () => {
     try {
-      if (!event) return;
+      if (!eventId) return;
+
+      // CRITICAL: Fetch fresh event data from Firestore instead of using stale state
+      // This ensures we always get the correct currentQuestionIndex
+      const eventRef = doc(db, "events", eventId);
+      const eventSnap = await getDoc(eventRef);
+      const currentEvent = eventSnap.data();
+
+      if (!currentEvent) return;
 
       // Clear the "showing results only" flag
       await setShowingResultsOnly(eventId, false);
@@ -395,9 +403,10 @@ export default function AdminSettings() {
       await resetParticipantsAnswered(eventId);
       
       // Calculate total questions (public + custom)
-      const totalQuestions = (event.questions?.length || 0) + (event.customQuestions?.length || 0);
+      const totalQuestions = (currentEvent.questions?.length || 0) + (currentEvent.customQuestions?.length || 0);
       
-      const nextIndex = (event.currentQuestionIndex || 0) + 1;
+      // Use the FRESH currentQuestionIndex from Firestore, not stale state
+      const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
       
       // Check if we've reached the end of all questions
       if (nextIndex >= totalQuestions) {
