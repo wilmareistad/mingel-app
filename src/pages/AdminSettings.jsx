@@ -50,6 +50,7 @@ export default function AdminSettings() {
   // Track if timer expiration callback has already fired for this phase (prevents duplicate writes)
   const questionTimerExpiredRef = useRef(false);
   const resultsTimerExpiredRef = useRef(false);
+  const resultsPhaseIdRef = useRef(null); // Track which results phase we're in
 
   // Check admin authentication
   useEffect(() => {
@@ -239,6 +240,7 @@ export default function AdminSettings() {
     if (!event || !eventId || event.status !== "results" || !event.showingResultsOnly) {
       // Reset the flag when we're not in results phase
       resultsTimerExpiredRef.current = false;
+      resultsPhaseIdRef.current = null;
       return;
     }
 
@@ -250,9 +252,16 @@ export default function AdminSettings() {
       return;
     }
 
-    // IMPORTANT: Reset the flag when we enter a new results phase
-    // This ensures we can advance multiple times through the game
-    resultsTimerExpiredRef.current = false;
+    // Create a unique ID for this results phase
+    const currentPhaseId = `${event.currentQuestionIndex}-${phaseStartedAt}`;
+    
+    // IMPORTANT: Only reset the flag when we FIRST enter a NEW results phase
+    // This ensures we advance exactly once per results phase
+    if (resultsPhaseIdRef.current !== currentPhaseId) {
+      console.log(`🆕 Entering new results phase: ${currentPhaseId}`);
+      resultsPhaseIdRef.current = currentPhaseId;
+      resultsTimerExpiredRef.current = false;
+    }
 
     // Check if timer has expired and auto-advance
     const checkAndAdvance = async () => {
@@ -261,15 +270,25 @@ export default function AdminSettings() {
       const elapsedSeconds = Math.floor(elapsedMs / 1000);
       const remaining = Math.max(0, durationSeconds - elapsedSeconds);
 
+      console.log(`🔵 Results auto-advance check: remaining=${remaining}s, flagSet=${resultsTimerExpiredRef.current}`);
+
       // If time has expired, auto-advance (only once per phase)
       if (remaining <= 0 && !resultsTimerExpiredRef.current) {
         resultsTimerExpiredRef.current = true;
+        console.log(`🟢 Results timer EXPIRED! Starting auto-advance...`);
         
         try {
           // Fetch the current event to get fresh data
           const eventRef = doc(db, "events", eventId);
           const eventSnap = await getDoc(eventRef);
           const currentEvent = eventSnap.data();
+
+          console.log(`📊 Current event from Firestore:`, {
+            currentQuestionIndex: currentEvent?.currentQuestionIndex,
+            status: currentEvent?.status,
+            questions: currentEvent?.questions?.length,
+            customQuestions: currentEvent?.customQuestions?.length
+          });
 
           if (currentEvent) {
             // Combine public and custom questions
@@ -282,8 +301,11 @@ export default function AdminSettings() {
               // Move to next question
               const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
               
+              console.log(`📈 Question progression: ${currentEvent.currentQuestionIndex} → ${nextIndex} (total: ${allQuestionIds.length})`);
+              
               // Check if we've reached the end of all questions
               if (nextIndex >= allQuestionIds.length) {
+                console.log(`🏁 All questions completed!`);
                 // All questions done - show final results
                 // Clear results display to show final results screen
                 await setShowingResultsOnly(eventId, false);
@@ -291,6 +313,7 @@ export default function AdminSettings() {
                 // This triggers the "Game has finished" UI
                 // Admin can now reset to play again
               } else {
+                console.log(`⏭️  Auto-advancing to question ${nextIndex}...`);
                 // More questions to go - auto-advance to next question
                 // Clear old answers and reset participants
                 await deleteAnswersForEvent(eventId);
@@ -298,12 +321,16 @@ export default function AdminSettings() {
                 
                 // Update to next question
                 await updateCurrentQuestionIndex(eventId, nextIndex);
+                console.log(`✅ Updated currentQuestionIndex to ${nextIndex}`);
+                
                 // This sets phaseStartedAt to now
                 await updateEventStatus(eventId, "question");
+                console.log(`✅ Updated status to 'question'`);
                 
                 // IMPORTANT: Only clear showingResultsOnly after status changes to "question"
                 // This prevents the effect from exiting prematurely
                 await setShowingResultsOnly(eventId, false);
+                console.log(`✅ Cleared showingResultsOnly flag`);
               }
             } else {
               // No questions - go back to lobby
@@ -311,7 +338,7 @@ export default function AdminSettings() {
             }
           }
         } catch (error) {
-          console.error("Error auto-advancing after results:", error);
+          console.error("❌ Error auto-advancing after results:", error);
         }
       }
     };
@@ -323,19 +350,24 @@ export default function AdminSettings() {
     const interval = setInterval(checkAndAdvance, 100);
 
     return () => clearInterval(interval);
-  }, [event?.resultsPhaseStartedAt, event?.status, event?.showingResultsOnly, event?.resultsTimerSeconds, eventId]);
+  }, [event?.resultsPhaseStartedAt, event?.status, event?.showingResultsOnly, event?.resultsTimerSeconds, event?.currentQuestionIndex, eventId]);
 
   // Handle question timer expiration - transition to results
   const handleTimerExpired = async () => {
     if (!event || event.status !== "question") return;
     
+    console.log(`🔴 Question timer EXPIRED! Transitioning to results...`);
+    
     try {
       // Signal results phase start (sets resultsPhaseStartedAt)
       await setShowingResultsOnly(eventId, true);
+      console.log(`✅ Set showingResultsOnly=true`);
+      
       // Update status to results (triggers Lobby to navigate players)
       await updateEventStatus(eventId, "results");
+      console.log(`✅ Updated status to 'results'`);
     } catch (error) {
-      console.error("Error handling timer expiration:", error);
+      console.error("❌ Error handling timer expiration:", error);
     }
   };
 
