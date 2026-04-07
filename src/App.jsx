@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Tutorial from "./pages/Tutorial";
 import AdminPanel from "./pages/AdminPanel";
 import AdminSettings from "./pages/AdminSettings";
+import AdminLobby from "./pages/AdminLobby";
 import AdminDebug from "./pages/AdminDebug";
 import Game from "./pages/Game";
 import Results from "./pages/Results";
@@ -23,7 +24,11 @@ function TutorialRedirect() {
   const { checkTutorialVisited } = useTutorialVisited();
 
   useEffect(() => {
-    if (!checkTutorialVisited() && location.pathname !== "/tutorial") {
+    // Skip tutorial redirect if user has a code parameter (from QR code)
+    const params = new URLSearchParams(location.search);
+    const hasCode = params.has("code");
+
+    if (!checkTutorialVisited() && location.pathname !== "/tutorial" && !hasCode) {
       navigate("/tutorial", { replace: true });
     }
   }, []);
@@ -72,6 +77,10 @@ function AppContent() {
         <Route
           path="/admin/settings/:eventId"
           element={user ? <AdminSettings /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/lobby/:eventId"
+          element={user ? <AdminLobby /> : <Navigate to="/login" />}
         />
         <Route
           path="/admin/debug"

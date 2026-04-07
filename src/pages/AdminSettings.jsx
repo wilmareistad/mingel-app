@@ -512,6 +512,10 @@ export default function AdminSettings() {
       <button className={styles.backBtn} onClick={() => navigate("/admin")}>
         ← Back
       </button>
+      
+      <button className={styles.backBtn} onClick={() => navigate(`/admin/lobby/${eventId}`)}>
+        View Lobby
+      </button>
 
       {message && <div className={styles.message}>{message}</div>}
 
