@@ -513,13 +513,15 @@ export default function AdminSettings() {
 
   return (
     <div className={styles.page}>
-      <button className={styles.backBtn} onClick={() => navigate("/admin")}>
-        ← Back
-      </button>
-      
-      <button className={styles.backBtn} onClick={() => navigate(`/admin/lobby/${eventId}`)}>
-        View Lobby
-      </button>
+      <div className={styles.navButtonsRow}>
+        <button className={styles.backBtn} onClick={() => navigate("/admin")}>
+          ← Back
+        </button>
+        
+        <button className={styles.viewLobbyBtn} onClick={() => navigate(`/admin/lobby/${eventId}`)}>
+          View Lobby
+        </button>
+      </div>
 
       {message && <div className={styles.message}>{message}</div>}
 

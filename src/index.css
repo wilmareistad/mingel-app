@@ -22,7 +22,6 @@ body {
 
 #root {
   width: 100%;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,7 +37,6 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: calc(100vh - 80px);
   flex: 1;
 }
 
@@ -201,10 +199,6 @@ button {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-}
-
-button:hover:not(:disabled) {
-  color: var(--btn-primary-hover-text);
 }
 
 button:active {

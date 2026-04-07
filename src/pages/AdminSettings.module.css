@@ -3,21 +3,32 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
   width: 100%;
-  max-width: 860px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 24px 20px 40px;
+  padding: 12px 6px 40px;
   gap: 12px;
-  padding-top: 200px;
+  padding-top: 100px;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.navButtonsRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  width: 100%;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
 }
 
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
   gap: 20px;
+  padding-top: 100px;
 }
 
 .loading {
@@ -30,14 +41,33 @@
   background: none;
   border: none;
   color: var(--text-h);
-  padding: 0;
+  padding: 8px 0;
   display: flex;
-  justify-content: start;
-  width: 100%;
+  justify-content: center;
+  flex: 1;
   opacity: 0.7;
   transition: opacity 0.2s;
+  font-size: 0.9rem;
+  text-align: center;
 }
+
 .backBtn:hover { opacity: 1; }
+
+.viewLobbyBtn {
+  background: none;
+  border: none;
+  color: var(--text-h);
+  padding: 8px 0;
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.viewLobbyBtn:hover { opacity: 1; }
 
 /* Name display & edit */
 .editNameBtn {
@@ -56,7 +86,7 @@
 .nameRow {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
   margin-bottom: 0;
   width: 100%;
 }
@@ -289,9 +319,11 @@
   flex: 1;
   min-width: 140px;
 }
+
 .deleteEventBtn:hover {
   background: #fff0f0;
   border-color: #c0392b;
+  color: #c0392b;
 }
 
 /* ── Message ── */
@@ -315,24 +347,27 @@
 /* ── Card ── */
 .card {
   border: 2px solid var(--border, #e0e4f0);
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 12px;
+  padding: 12px;
   width: 100%;
+  max-width: calc(100vw - 12px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   box-shadow: 0 2px 12px rgba(59, 91, 219, 0.06);
+  box-sizing: border-box;
 }
 
 /* ── Sections ── */
 .timersRow {
   display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 16px;
 }
+
 .timersRow .section { 
   flex: 1; 
-  min-width: 200px;
+  min-width: 120px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -347,7 +382,7 @@
 
 .sectionLabel {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -370,10 +405,10 @@
   background: var(--accent-bg, #eef2ff);
   border: 1px solid var(--accent-border, #c5d0f0);
   border-radius: 8px;
-  padding: 0 16px;
-  height: 38px;
-  min-width: 90px;
-  font-size: 1rem;
+  padding: 0 12px;
+  height: 36px;
+  min-width: 70px;
+  font-size: 0.9rem;
   font-weight: 800;
   color: var(--accent, #3b5bdb);
   display: flex;
@@ -381,28 +416,42 @@
   justify-content: center;
 }
 
+@media (min-width: 640px) {
+  .timerDisplay {
+    padding: 0 16px;
+    height: 38px;
+    min-width: 90px;
+    font-size: 1rem;
+  }
+}
+
 .setBtn {
-  padding: 0 16px;
-  height: 38px;
+  padding: 0 12px;
+  height: 36px;
+  width: auto;
+  flex: none;
+  min-width: unset;
   background: var(--accent, #3b5bdb);
   color: var(--btn-primary-text);
   border: none;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: opacity 0.2s;
   white-space: nowrap;
 }
+
+@media (min-width: 640px) {
+  .setBtn {
+    padding: 0 16px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+}
+
 .setBtn:disabled { opacity: 0.35; cursor: not-allowed; }
 .setBtn:not(:disabled):hover { opacity: 0.85; }
-
-/* ── Questions list (lobby) ── */
-.questionsHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
 .questionsList {
   list-style: none;
@@ -419,12 +468,15 @@
   justify-content: space-between;
   background: white;
   border: 1.5px solid var(--border, #e0e4f0);
-  border-radius: 10px;
-  padding: 12px 16px;
-  gap: 12px;
+  border-radius: 8px;
+  padding: 12px;
+  gap: 8px;
   transition: border-color 0.2s;
 }
-.questionItem:hover { border-color: var(--accent-border, #c5d0f0); }
+
+.questionItem:hover {
+  border-color: var(--accent-border, #c5d0f0);
+}
 
 .questionText {
   color: var(--text-h);
@@ -558,4 +610,92 @@
 
 .eventNameText:hover {
   border-bottom-color: currentColor;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MEDIA QUERIES
+   ============================================ */
+
+/* ── Tablet & Up (min-width: 640px) ── */
+@media (min-width: 640px) {
+  .page {
+    padding: 16px 8px 40px;
+    padding-top: 100px;
+  }
+
+  .navButtonsRow {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .backBtn {
+    justify-content: flex-start;
+    flex: 1;
+    padding: 0;
+    font-size: 1rem;
+  }
+
+  .viewLobbyBtn {
+    justify-content: flex-end;
+    flex: 1;
+    padding: 0;
+    font-size: 1rem;
+  }
+
+  .nameRow {
+    gap: 20px;
+  }
+
+  .card {
+    border-radius: 16px;
+    padding: 24px;
+    gap: 20px;
+    max-width: calc(100vw - 16px);
+  }
+
+  .timersRow {
+    flex-direction: row;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .sectionLabel {
+    font-size: 0.78rem;
+  }
+
+  .timerDisplay {
+    padding: 0 16px;
+    height: 38px;
+    min-width: 90px;
+    font-size: 1rem;
+  }
+
+  .setBtn {
+    padding: 0 16px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+
+  .questionsHeader {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .questionItem {
+    border-radius: 10px;
+    padding: 14px;
+    gap: 10px;
+  }
+}
+
+/* ── Desktop & Up (min-width: 1024px) ── */
+@media (min-width: 1024px) {
+  .page {
+    padding: 24px 20px 40px;
+    padding-top: 200px;
+  }
 }
