@@ -250,6 +250,10 @@ export default function AdminSettings() {
       return;
     }
 
+    // IMPORTANT: Reset the flag when we enter a new results phase
+    // This ensures we can advance multiple times through the game
+    resultsTimerExpiredRef.current = false;
+
     // Check if timer has expired and auto-advance
     const checkAndAdvance = async () => {
       const now = Date.now();
