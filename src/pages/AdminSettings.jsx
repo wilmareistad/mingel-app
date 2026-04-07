@@ -264,12 +264,8 @@ export default function AdminSettings() {
       // If time has expired, auto-advance (only once per phase)
       if (remaining <= 0 && !resultsTimerExpiredRef.current) {
         resultsTimerExpiredRef.current = true;
-        console.log("Results timer expired, auto-advancing to next question");
         
         try {
-          // Clear results display first
-          await setShowingResultsOnly(eventId, false);
-
           // Fetch the current event to get fresh data
           const eventRef = doc(db, "events", eventId);
           const eventSnap = await getDoc(eventRef);
@@ -289,8 +285,9 @@ export default function AdminSettings() {
               // Check if we've reached the end of all questions
               if (nextIndex >= allQuestionIds.length) {
                 // All questions done - show final results
-                console.log("All questions completed. Showing final results.");
-                // Keep status as "results" but set showingResultsOnly to false
+                // Clear results display to show final results screen
+                await setShowingResultsOnly(eventId, false);
+                // Keep status as "results"
                 // This triggers the "Game has finished" UI
                 // Admin can now reset to play again
               } else {
@@ -304,7 +301,9 @@ export default function AdminSettings() {
                 // This sets phaseStartedAt to now
                 await updateEventStatus(eventId, "question");
                 
-                console.log("Auto-advanced to question index:", nextIndex);
+                // IMPORTANT: Only clear showingResultsOnly after status changes to "question"
+                // This prevents the effect from exiting prematurely
+                await setShowingResultsOnly(eventId, false);
               }
             } else {
               // No questions - go back to lobby
@@ -404,7 +403,6 @@ export default function AdminSettings() {
       if (nextIndex >= totalQuestions) {
         // All questions done - show final results
         setMessage("All questions completed! Game finished.");
-        console.log("All questions completed. Game finished.");
       } else {
         // More questions to go - proceed to next question
         // Update question index FIRST before changing status
