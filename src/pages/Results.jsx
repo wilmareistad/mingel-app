@@ -6,6 +6,7 @@ import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { getQuestionAnswers } from "../features/game/gameService";
+import { useTheme } from "../hooks/useTheme";
 import styles from "./Results.module.css";
 
 export default function Results() {
@@ -14,6 +15,9 @@ export default function Results() {
 
   const { event } = useEvent(eventId);
   const { user } = useUser();
+
+  // Apply theme based on event
+  useTheme(event?.theme);
 
   const [question, setQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);

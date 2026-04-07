@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firebase";
 import { listenToAdminEvents } from "../features/event/eventService";
+import { useTheme } from "../hooks/useTheme";
 import EventCard from "../components/EventCard";
 import styles from "./AdminPanel.module.css";
 
@@ -11,6 +12,9 @@ export default function AdminPanel() {
   const [adminEmail, setAdminEmail] = useState("");
   const [adminEvents, setAdminEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Apply default theme for admin panel
+  useTheme("yrgo");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {

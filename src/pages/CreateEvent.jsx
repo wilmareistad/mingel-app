@@ -5,12 +5,9 @@ import { db, auth } from "../services/firebase";
 import { nanoid } from "nanoid";
 import { createCustomQuestion } from "../features/customQuestion/customQuestionService";
 import AddCustomQuestion from "../components/AddCustomQuestion";
+import { themes, applyTheme, resetTheme } from "../config/themes";
+import { useTheme } from "../hooks/useTheme";
 import styles from "./CreateEvent.module.css";
-
-const themes = [
-  { value: "yrgo", label: "YRGO Mode" },
-  { value: "wedding", label: "Wedding Mode" },
-];
 
 const timerOptions = [
   30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720,
@@ -33,6 +30,14 @@ export default function CreateEvent() {
   const [questionCategory, setQuestionCategory] = useState("");
   const [questionTimerSeconds, setQuestionTimerSeconds] = useState(300);
   const [resultTimerSeconds, setResultTimerSeconds] = useState(60);
+
+  // Apply default theme on mount, reset on unmount
+  useEffect(() => {
+    applyTheme("yrgo");
+    return () => {
+      resetTheme();
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -63,6 +68,14 @@ export default function CreateEvent() {
     setSelectedCustomQuestions((prev) =>
       prev.includes(id) ? prev.filter((qid) => qid !== id) : [...prev, id],
     );
+  };
+
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme);
+    // Apply theme immediately for preview
+    if (newTheme) {
+      applyTheme(newTheme);
+    }
   };
 
   const handleAddCustomQuestion = async (questionData) => {
@@ -191,7 +204,7 @@ export default function CreateEvent() {
 
       <div className={styles.inputContainer}>
         <label>Theme:</label>
-        <select value={theme} onChange={(e) => setTheme(e.target.value)}>
+        <select value={theme} onChange={(e) => handleThemeChange(e.target.value)}>
           <option value="">Select a theme</option>
           {themes.map((t) => (
             <option key={t.value} value={t.value}>
