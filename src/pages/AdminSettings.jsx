@@ -250,19 +250,18 @@ export default function AdminSettings() {
       return;
     }
 
-    const now = Date.now();
-    const elapsedMs = now - phaseStartedAt;
-    const elapsedSeconds = Math.floor(elapsedMs / 1000);
-    const remaining = Math.max(0, durationSeconds - elapsedSeconds);
+    // Check if timer has expired and auto-advance
+    const checkAndAdvance = async () => {
+      const now = Date.now();
+      const elapsedMs = now - phaseStartedAt;
+      const elapsedSeconds = Math.floor(elapsedMs / 1000);
+      const remaining = Math.max(0, durationSeconds - elapsedSeconds);
 
-    // Update display
-    setResultsTimeLeft(remaining);
-
-    // If time has expired, auto-advance (only once per phase)
-    if (remaining === 0 && !resultsTimerExpiredRef.current) {
-      resultsTimerExpiredRef.current = true;
-      
-      const autoAdvance = async () => {
+      // If time has expired, auto-advance (only once per phase)
+      if (remaining <= 0 && !resultsTimerExpiredRef.current) {
+        resultsTimerExpiredRef.current = true;
+        console.log("Results timer expired, auto-advancing to next question");
+        
         try {
           // Clear results display first
           await setShowingResultsOnly(eventId, false);
@@ -292,6 +291,8 @@ export default function AdminSettings() {
               await updateCurrentQuestionIndex(eventId, loopedIndex);
               // This sets phaseStartedAt to now
               await updateEventStatus(eventId, "question");
+              
+              console.log("Auto-advanced to question index:", loopedIndex);
             } else {
               // No questions - go back to lobby
               await updateEventStatus(eventId, "lobby");
@@ -300,10 +301,16 @@ export default function AdminSettings() {
         } catch (error) {
           console.error("Error auto-advancing after results:", error);
         }
-      };
+      }
+    };
 
-      autoAdvance();
-    }
+    // Check immediately
+    checkAndAdvance();
+
+    // Then check every 100ms to catch the moment timer expires
+    const interval = setInterval(checkAndAdvance, 100);
+
+    return () => clearInterval(interval);
   }, [event?.resultsPhaseStartedAt, event?.status, event?.showingResultsOnly, event?.resultsTimerSeconds, eventId]);
 
   // Handle question timer expiration - transition to results
