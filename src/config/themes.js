@@ -18,8 +18,12 @@ export const themes = [
       accentBorder: "rgba(170, 59, 255, 0.5)",
       buttonPrimaryBg: "#001A52",
       buttonPrimaryHover: "#003399",
+      buttonPrimaryText: "#FFFFFF",
+      buttonPrimaryHoverText: "#FFFFFF",
       buttonSecondaryBg: "#FFB6D9",
       buttonSecondaryHover: "#FF9AC5",
+      buttonSecondaryText: "#FFFFFF",
+      buttonSecondaryHoverText: "#FFFFFF",
     },
   },
   {

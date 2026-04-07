@@ -27,6 +27,7 @@ h1 {
   padding: 16px 20px;
   border: 1px solid var(--accent);
   border-radius: 14px;
+  background: white;
 }
 
 .questionItem {

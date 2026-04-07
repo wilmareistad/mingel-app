@@ -1,22 +1,17 @@
-.container {
+/* .container {
   margin: 20px 0;
   padding: 20px;
   background: rgba(255, 255, 255, 0.18);
   border: 1.5px solid rgba(255, 255, 255, 0.5);
   border-radius: 16px;
   max-width: 90%;
-}
+} */
 
 .toggleBtn {
-  background: var(--accent);
-  color: var(--btn-primary-text, white);
-  border: none;
-  padding: 16px 20px;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  margin: 1rem;
 }
 
 .form {
@@ -81,7 +76,7 @@
 .removeBtn {
   padding: 10px 14px;
   background: rgba(255, 60, 60, 0.85);
-  color: var(--btn-primary-text, white);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 10px;
   font-weight: 600;
@@ -125,7 +120,7 @@
 
 .submitBtn {
   background: var(--accent);
-  color: var(--btn-primary-text, white);
+  color: var(--btn-primary-text);
 }
 
 .submitBtn:disabled {
@@ -180,7 +175,7 @@
 .newCategoryBtn {
   padding: 10px 14px;
   background: var(--accent);
-  color: var(--btn-primary-text, white);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 10px;
   font-weight: 700;
@@ -196,7 +191,7 @@
 .cancelCategoryBtn {
   padding: 10px 14px;
   background: rgba(255, 60, 60, 0.85);
-  color: var(--btn-primary-text, white);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 10px;
   font-weight: 700;
