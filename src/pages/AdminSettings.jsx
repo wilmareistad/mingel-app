@@ -13,6 +13,7 @@ import {
 import {
   updateEventStatus,
   updateCurrentQuestionIndex,
+  updateToQuestionPhase,
 } from "../features/event/eventService";
 import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { getQuestionAnswers } from "../features/game/gameService";
@@ -328,16 +329,13 @@ export default function AdminSettings() {
                 await deleteAnswersForEvent(eventId);
                 await resetParticipantsAnswered(eventId);
                 
-                // Update to next question
-                await updateCurrentQuestionIndex(eventId, nextIndex);
-                console.log(`✅ Updated currentQuestionIndex to ${nextIndex}`);
+                // CRITICAL: Use updateToQuestionPhase to set index AND status in a single operation
+                // This ensures phaseStartedAt is set at the exact same time as currentQuestionIndex
+                // preventing race conditions where the question effect sees an old timestamp
+                await updateToQuestionPhase(eventId, nextIndex);
+                console.log(`✅ Updated to question phase ${nextIndex} with fresh phaseStartedAt`);
                 
-                // This sets phaseStartedAt to now
-                await updateEventStatus(eventId, "question");
-                console.log(`✅ Updated status to 'question'`);
-                
-                // IMPORTANT: Only clear showingResultsOnly after status changes to "question"
-                // This prevents the effect from exiting prematurely
+                // Clear showingResultsOnly after the question phase is fully set up
                 await setShowingResultsOnly(eventId, false);
                 console.log(`✅ Cleared showingResultsOnly flag`);
               }

@@ -36,6 +36,22 @@ export async function updateEventStatus(eventId, status) {
 }
 
 /**
+ * Update current question index AND transition to question status in a single operation
+ * CRITICAL: This must be a single write so that phaseStartedAt is set at the same time
+ * as currentQuestionIndex, preventing race conditions
+ * @param {string} eventId - Event ID
+ * @param {number} questionIndex - Index of current question
+ */
+export async function updateToQuestionPhase(eventId, questionIndex) {
+  const eventRef = doc(db, "events", eventId);
+  await updateDoc(eventRef, {
+    currentQuestionIndex: questionIndex,
+    status: "question",
+    phaseStartedAt: serverTimestamp()
+  });
+}
+
+/**
  * Update current question index
  * @param {string} eventId - Event ID
  * @param {number} questionIndex - Index of current question
