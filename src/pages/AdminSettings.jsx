@@ -24,6 +24,7 @@ import {
 } from "../features/event/eventService";
 import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { getQuestionAnswers } from "../features/game/gameService";
+import { useTheme } from "../hooks/useTheme";
 import ConfirmModal from "../components/ConfirmModal";
 import ParticipantsPanel from "../components/ParticipantsPanel";
 import ToggleButton from "../components/ToggleButton";
@@ -62,6 +63,9 @@ export default function AdminSettings() {
     confirmText: "Confirm",
     confirmStyle: "default",
   });
+
+  // Apply theme based on event
+  useTheme(event?.theme);
 
   // Track if timer expiration callback has already fired for this phase (prevents duplicate writes)
   const questionTimerExpiredRef = useRef(false);

@@ -14,6 +14,7 @@ import { hasUserAnswered } from "../features/game/gameService";
 import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { listenToParticipants, setShowingResultsOnly } from "../features/event/eventService";
 import { getCurrentEventQuestion } from "../features/question/questionService";
+import { useTheme } from "../hooks/useTheme";
 import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import KickedModal from "../components/KickedModal";
@@ -28,6 +29,9 @@ export default function Lobby() {
   const [error, setError] = useState(null);
   const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
   const [isKicked, setIsKicked] = useState(false);
+
+  // Apply theme based on event
+  useTheme(event?.theme);
 
   const handleLeave = async () => {
     const userDocId = localStorage.getItem("userDocId");

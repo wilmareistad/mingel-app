@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { useTheme } from "../hooks/useTheme";
 import styles from "./Home.module.css"
 
 export default function Home() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Apply default theme for home page
+  useTheme("yrgo");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

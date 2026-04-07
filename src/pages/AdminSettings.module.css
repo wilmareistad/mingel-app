@@ -221,7 +221,7 @@
 
 .saveNameBtn {
   background: var(--accent, #3b5bdb);
-  color: white;
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 8px;
   padding: 8px 18px;
@@ -385,7 +385,7 @@
   padding: 0 16px;
   height: 38px;
   background: var(--accent, #3b5bdb);
-  color: white;
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 8px;
   font-weight: 700;
@@ -475,7 +475,7 @@
   min-width: 140px;
   padding: 12px 20px;
   background: var(--text-h, #0d1b4b);
-  color: white;
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 10px;
   font-size: 0.95rem;

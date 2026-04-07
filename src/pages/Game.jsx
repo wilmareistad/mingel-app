@@ -7,6 +7,7 @@ import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
 import { listenToParticipants, setShowingResultsOnly } from "../features/event/eventService";
 import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
+import { useTheme } from "../hooks/useTheme";
 import styles from "./Game.module.css";
 
 export default function Game() {
@@ -15,6 +16,9 @@ export default function Game() {
 
   const { event } = useEvent(eventId);
   const { user } = useUser();
+
+  // Apply theme based on event
+  useTheme(event?.theme);
 
   const [question, setQuestion] = useState(null);
   const [answered, setAnswered] = useState(false);
