@@ -22,3 +22,41 @@
 .answerProgressText {
   margin: 0;
 }
+
+.statusMessage {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: #f0f7ff;
+  border-radius: 8px;
+  border-left: 4px solid #0066cc;
+  text-align: center;
+}
+
+.statusMessage p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.userAnsweredMessage {
+  color: #28a745 !important;
+  font-weight: bold;
+  font-size: 18px !important;
+}
+
+.waitingMessage {
+  color: #ff6600 !important;
+  font-weight: 500;
+  font-size: 16px !important;
+}
+
+.timerText {
+  margin-top: 12px !important;
+  font-size: 18px !important;
+  color: #333 !important;
+}
+
+.timer {
+  font-weight: bold;
+  color: #0066cc;
+  font-size: 24px;
+}

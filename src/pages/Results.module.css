@@ -113,6 +113,28 @@
   margin-bottom: 20px;
 }
 
+.autoAdvanceTimer {
+  margin: 20px 0;
+  padding: 16px;
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.timerMessage {
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.timerValue {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1565c0;
+}
+
 .returnButton {
   margin-top: 20px;
 }

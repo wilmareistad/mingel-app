@@ -28,6 +28,7 @@ export default function Lobby() {
   const [error, setError] = useState(null);
   const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
   const [isKicked, setIsKicked] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   const handleLeave = async () => {
     const userDocId = localStorage.getItem("userDocId");
@@ -183,8 +184,45 @@ export default function Lobby() {
     validateAndNavigate();
   }, [event?.status, lastQuestionIndex, eventId, navigate]);
 
+  // Calculate time remaining for question phase (shown in lobby while waiting for results)
+  useEffect(() => {
+    if (!event || event.status !== "question") {
+      setTimeLeft(0);
+      return;
+    }
+
+    const updateTimeLeft = () => {
+      const durationSeconds = event.questionTimerSeconds || 30;
+      const phaseStartedAt =
+        event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
+
+      if (!phaseStartedAt) {
+        setTimeLeft(durationSeconds);
+        return;
+      }
+
+      const now = Date.now();
+      const elapsedMs = now - phaseStartedAt;
+      const elapsedSeconds = Math.floor(elapsedMs / 1000);
+      const remaining = Math.max(0, durationSeconds - elapsedSeconds);
+
+      setTimeLeft(remaining);
+    };
+
+    // Update immediately
+    updateTimeLeft();
+
+    // Then update every 100ms for smooth display
+    const interval = setInterval(updateTimeLeft, 100);
+
+    return () => clearInterval(interval);
+  }, [event?.status, event?.phaseStartedAt, event?.questionTimerSeconds]);
+
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
+
+  const userId = localStorage.getItem("userId");
+  const userHasAnswered = players.find(p => p.id === userId)?.answered || false;
 
   return (
     <div>
@@ -200,6 +238,33 @@ export default function Lobby() {
         </div>
       )}
 
+      {/* Show appropriate message based on game state */}
+      {event.status === "lobby" && (
+        <div className={styles.statusMessage}>
+          <p>Waiting for the admin to start the game...</p>
+        </div>
+      )}
+
+      {event.status === "question" && (
+        <div className={styles.statusMessage}>
+          <p>Question in progress...</p>
+          {userHasAnswered ? (
+            <>
+              <p className={styles.userAnsweredMessage}>✓ You have answered!</p>
+              <p className={styles.timerText}>Results in: <span className={styles.timer}>{timeLeft}s</span></p>
+            </>
+          ) : (
+            <p className={styles.waitingMessage}>Waiting for you to answer...</p>
+          )}
+        </div>
+      )}
+
+      {event.status === "results" && (
+        <div className={styles.statusMessage}>
+          <p>Results are being displayed...</p>
+        </div>
+      )}
+
       <EventQRCodeDisplay eventCode={event.code} />
 
       <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar }))} />
@@ -208,7 +273,7 @@ export default function Lobby() {
       {event.status === "question" && (
         <div className={styles.answerProgress}>
           <p className={styles.answerProgressText}>
-            <strong>Answers:</strong> {players.filter(p => p.hasAnswered).length} / {players.length} participants
+            <strong>Answers:</strong> {players.filter(p => p.answered).length} / {players.length} participants
           </p>
         </div>
       )}
