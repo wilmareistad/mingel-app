@@ -78,7 +78,7 @@ export function applyTheme(themeValue) {
   root.style.setProperty("--btn-secondary-bg", colors.buttonSecondaryBg);
   root.style.setProperty("--btn-secondary-hover", colors.buttonSecondaryHover);
 
-  // Apply background color to body and html for Matrix theme
+  // Apply background for Matrix
   if (themeValue === "matrix") {
     document.documentElement.style.backgroundColor = colors.background;
     document.body.style.backgroundColor = colors.background;

@@ -4,6 +4,7 @@ import { db } from "../services/firebase";
 import { nanoid } from "nanoid";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { addParticipant } from "../features/event/eventService";
+import { useTheme } from "../hooks/useTheme";
 import ToggleButton from "../components/ToggleButton";
 import AvatarViewer from "../components/AvatarViewer";
 import AvatarSVG from "../assets/Avatar.svg";
@@ -21,8 +22,12 @@ export default function Join() {
   const [mouthIndex, setMouthIndex] = useState(0);
   const [clothesIndex, setClothesIndex] = useState(0);
   const [layerCounts, setLayerCounts] = useState({});
+  const [eventTheme, setEventTheme] = useState(null);
 
   const navigate = useNavigate();
+
+  // Apply event theme when code is provided
+  useTheme(eventTheme);
 
   // Function to dynamically count layers from Avatar.svg
   const countLayersFromSVG = async () => {
@@ -64,6 +69,11 @@ export default function Join() {
     };
     
     initializeAvatar();
+
+    // Reset theme to YRGO when leaving Join page
+    return () => {
+      setEventTheme(null);
+    };
   }, []);
 
   // Function to randomize all avatar layers
@@ -140,6 +150,12 @@ export default function Join() {
 
       const eventDoc = snapshot.docs[0];
       const eventId = eventDoc.id;
+      const eventData = eventDoc.data();
+
+      // Apply event theme to the guest's device
+      if (eventData.theme) {
+        setEventTheme(eventData.theme);
+      }
 
       const userId = nanoid();
 
