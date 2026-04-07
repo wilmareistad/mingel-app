@@ -283,20 +283,29 @@ export default function AdminSettings() {
             ];
 
             if (allQuestionIds.length > 0) {
-              // Move to next question or loop back to first
+              // Move to next question
               const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
-              const loopedIndex = nextIndex % allQuestionIds.length;
               
-              // Clear old answers and reset participants
-              await deleteAnswersForEvent(eventId);
-              await resetParticipantsAnswered(eventId);
-              
-              // Update to next question
-              await updateCurrentQuestionIndex(eventId, loopedIndex);
-              // This sets phaseStartedAt to now
-              await updateEventStatus(eventId, "question");
-              
-              console.log("Auto-advanced to question index:", loopedIndex);
+              // Check if we've reached the end of all questions
+              if (nextIndex >= allQuestionIds.length) {
+                // All questions done - show final results
+                console.log("All questions completed. Showing final results.");
+                // Keep status as "results" but set showingResultsOnly to false
+                // This triggers the "Game has finished" UI
+                // Admin can now reset to play again
+              } else {
+                // More questions to go - auto-advance to next question
+                // Clear old answers and reset participants
+                await deleteAnswersForEvent(eventId);
+                await resetParticipantsAnswered(eventId);
+                
+                // Update to next question
+                await updateCurrentQuestionIndex(eventId, nextIndex);
+                // This sets phaseStartedAt to now
+                await updateEventStatus(eventId, "question");
+                
+                console.log("Auto-advanced to question index:", nextIndex);
+              }
             } else {
               // No questions - go back to lobby
               await updateEventStatus(eventId, "lobby");
@@ -390,19 +399,20 @@ export default function AdminSettings() {
       const totalQuestions = (event.questions?.length || 0) + (event.customQuestions?.length || 0);
       
       const nextIndex = (event.currentQuestionIndex || 0) + 1;
-      // Loop back to first question if we've reached the end
-      const loopedIndex = nextIndex % totalQuestions;
       
-      // Update question index FIRST before changing status
-      await updateCurrentQuestionIndex(eventId, loopedIndex);
-
-      // Then transition to question status (this also sets phaseStartedAt)
-      await updateEventStatus(eventId, "question");
-
-      if (loopedIndex === 0 && nextIndex > 0) {
-        // We've looped back to the start - reset all answers for a fresh game
-        setMessage("Looping back to first question. Game reset for new round!");
+      // Check if we've reached the end of all questions
+      if (nextIndex >= totalQuestions) {
+        // All questions done - show final results
+        setMessage("All questions completed! Game finished.");
+        console.log("All questions completed. Game finished.");
       } else {
+        // More questions to go - proceed to next question
+        // Update question index FIRST before changing status
+        await updateCurrentQuestionIndex(eventId, nextIndex);
+
+        // Then transition to question status (this also sets phaseStartedAt)
+        await updateEventStatus(eventId, "question");
+        
         setMessage("Next question displayed.");
       }
       setTimeout(() => setMessage(""), 3000);
