@@ -198,52 +198,41 @@ export function listenToAdminEvents(adminId, callback) {
 }
 
 /**
- * Ensure all participants have hasAnswered field initialized
- * This prevents race conditions where documents might not have the field
- * @param {string} eventId - Event ID
+ * ✅ REMOVED: ensureParticipantsInitialized()
+ * 
+ * This function is no longer needed because:
+ * 1. addParticipant() already initializes hasAnswered: false
+ * 2. It was making unnecessary getEventParticipants() read
+ * 3. Saves 1 read per question phase
+ * 
+ * If you need to reinitialize participants, use resetParticipantsAnswered() instead.
  */
-export async function ensureParticipantsInitialized(eventId) {
-  try {
-    console.log("ensureParticipantsInitialized START:", { eventId });
-    const participants = await getEventParticipants(eventId);
-    
-    const initPromises = participants.map(participant => {
-      if (participant.hasAnswered === undefined || participant.hasAnswered === null) {
-        console.log("Initializing hasAnswered for participant:", participant.id);
-        return updateParticipantAnswered(eventId, participant.id, false);
-      }
-      return Promise.resolve();
-    });
-    
-    await Promise.all(initPromises);
-    console.log("ensureParticipantsInitialized COMPLETE");
-  } catch (error) {
-    console.error("ensureParticipantsInitialized ERROR:", error);
-    throw error;
-  }
-}
 
 /**
  * Reset all participants' answered status (when starting new question)
+ * Uses real-time listener data to avoid extra reads
  * @param {string} eventId - Event ID
+ * @param {array} participants - Array of participants from real-time listener
  */
-export async function resetParticipantsAnswered(eventId) {
+export async function resetParticipantsAnswered(eventId, participants = null) {
   try {
-    console.log("resetParticipantsAnswered START:", { eventId });
+    console.log("resetParticipantsAnswered START:", { eventId, participantCount: participants?.length || "fetching" });
     
-    // First ensure all participants are initialized
-    await ensureParticipantsInitialized(eventId);
+    // If participants not provided, fetch them (fallback for backward compatibility)
+    let participantsList = participants;
+    if (!participants) {
+      participantsList = await getEventParticipants(eventId);
+    }
     
-    const participants = await getEventParticipants(eventId);
-    console.log("resetParticipantsAnswered found participants:", participants.length, participants.map(p => p.id));
+    console.log("resetParticipantsAnswered resetting:", participantsList.length, participantsList.map(p => p.id));
     
-    const updatePromises = participants.map(participant => {
+    const updatePromises = participantsList.map(participant => {
       console.log("Resetting participant:", participant.id);
       return updateParticipantAnswered(eventId, participant.id, false);
     });
     
     await Promise.all(updatePromises);
-    console.log("resetParticipantsAnswered COMPLETE:", { eventId, participantCount: participants.length });
+    console.log("resetParticipantsAnswered COMPLETE:", { eventId, participantCount: participantsList.length });
   } catch (error) {
     console.error("resetParticipantsAnswered ERROR:", error);
     throw error;

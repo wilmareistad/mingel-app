@@ -15,10 +15,10 @@
 2. [Game Loop - Admin Flow](#game-loop---admin-flow)
 3. [Game Loop - Participant Flow](#game-loop---participant-flow)
 4. [Timer System](#timer-system)
-5. [Anti-Pattern Rules](#anti-pattern-rules)
-6. [Data Models](#data-models)
-7. [Key Components](#key-components)
-8. [Testing Checklist](#testing-checklist)
+5. [Data Models](#data-models)
+6. [Key Components](#key-components)
+7. [Testing Checklist](#testing-checklist)
+8. [Development Standards](#development-standards)
 
 ---
 
@@ -427,197 +427,17 @@ resultTimerSeconds = 10      // How long results display
 
 ---
 
-## Anti-Pattern Rules
+## Development Standards
 
-### 🚨 CRITICAL: Prevent Infinite Loops
+See **DEVELOPMENT_RULES.md** for:
+- ✅ Anti-pattern rules and what NOT to do
+- ✅ React/Effect best practices
+- ✅ Firestore dos and don'ts
+- ✅ Quota management guidelines
+- ✅ Code quality standards
+- ✅ Commit message formats
 
-**These patterns caused 49K reads in 2 hours. NEVER use them:**
-
-#### ❌ BAD: Listener that Updates Itself
-
-```javascript
-// DON'T DO THIS:
-useEffect(() => {
-  onSnapshot(eventRef, (docSnap) => {
-    const data = docSnap.data();
-    // ❌ This triggers the listener again!
-    updateDoc(eventRef, { lastSeen: Date.now() });
-  });
-}, []);
-
-// Result: Event updates → Listener fires → Update written → Event updates again
-// INFINITE LOOP → 50K reads per hour
-```
-
-#### ❌ BAD: Multiple Listeners Without Cleanup
-
-```javascript
-// DON'T DO THIS:
-useEffect(() => {
-  items.forEach(item => {
-    // ❌ New listener added every render
-    onSnapshot(doc(db, "items", item.id), (doc) => {
-      setData(doc.data());
-    });
-  });
-  // ❌ Missing cleanup - old listeners stack up
-}, [items]); // ❌ Runs every time items changes
-
-// Result: 28 listeners × 10 renders = 280 active connections
-// QUOTA EXHAUSTED in minutes
-```
-
-#### ❌ BAD: Expensive Operations Inside Listeners
-
-```javascript
-// DON'T DO THIS (from our bug):
-useEffect(() => {
-  onSnapshot(eventRef, (docSnap) => {
-    // ❌ Each listener fire = 2 reads
-    const question = getCurrentEventQuestion(); // READ #1
-    const answered = hasUserAnswered();         // READ #2 (with query)
-  });
-}, []); // Event updates every 100ms (timers)
-
-// Result: 100ms × 2 reads = 20 reads per second
-// 20 × 60 × 60 = 72K reads per hour
-// YOUR QUOTA GONE IN 1 HOUR
-```
-
-#### ❌ BAD: Missing Dependency Arrays
-
-```javascript
-// DON'T DO THIS:
-useEffect(() => {
-  addDoc(collection(db, "items"), { data: "test" });
-  // ❌ No dependency array - runs EVERY RENDER
-  // ❌ Creates new document on every component update
-});
-
-// Result: 1000 writes in 1 minute
-// QUOTA DESTROYED
-```
-
----
-
-### ✅ GOOD: Safe Patterns
-
-#### ✅ GOOD: Listener with Cleanup
-
-```javascript
-useEffect(() => {
-  // Single listener, properly cleaned up
-  const unsub = onSnapshot(eventRef, (docSnap) => {
-    setEvent(docSnap.data());
-    // ✅ Just read and update state
-    // ❌ DON'T write back to Firestore here
-  });
-
-  return () => unsub(); // ✅ Cleanup on unmount
-}, [eventId]); // ✅ Dependency array
-```
-
-#### ✅ GOOD: Separate Listener and Action
-
-```javascript
-// Listener - just reads
-useEffect(() => {
-  const unsub = onSnapshot(eventRef, (docSnap) => {
-    setEvent(docSnap.data());
-  });
-  return () => unsub();
-}, [eventId]);
-
-// Separate effect - only when something changes
-useEffect(() => {
-  if (!event) return;
-  // ✅ This effect is independent
-  // ✅ Only runs when event actually changes
-  // ✅ Safe to do expensive operations here
-  handleEventChange();
-}, [event?.status]); // ✅ Only depend on what matters
-```
-
-#### ✅ GOOD: Debounce/Throttle Updates
-
-```javascript
-// If you must update frequently, use debounce
-useEffect(() => {
-  const timer = setTimeout(() => {
-    // ✅ Only write once per 500ms, not 100 times
-    updateUserProgress(progress);
-  }, 500);
-
-  return () => clearTimeout(timer); // ✅ Cleanup
-}, [progress]);
-```
-
-#### ✅ GOOD: Guard Against Multiple Fires
-
-```javascript
-// Use ref to fire callback only once
-const callbackFiredRef = useRef(false);
-
-useEffect(() => {
-  const unsub = onSnapshot(docRef, (docSnap) => {
-    // ❌ OLD: Could fire multiple times
-    // ✅ NEW: Only fires once
-    if (docSnap.data().status === "complete" && !callbackFiredRef.current) {
-      callbackFiredRef.current = true;
-      handleCompletion(); // ✅ Called exactly once
-    }
-  });
-
-  return () => unsub();
-}, []);
-
-// Reset guard when status changes
-useEffect(() => {
-  callbackFiredRef.current = false;
-}, [event?.status]);
-```
-
----
-
-### Rules to Follow
-
-1. **One Listener = One Purpose**
-   - Listeners should ONLY update state
-   - Don't write back to Firestore from a listener
-   - Don't call expensive functions in listeners
-
-2. **Always Cleanup**
-   ```javascript
-   useEffect(() => {
-     const unsub = onSnapshot(...);
-     return () => unsub(); // ✅ REQUIRED
-   }, [deps]);
-   ```
-
-3. **Use Dependency Arrays**
-   ```javascript
-   useEffect(() => {
-     // Always specify what triggers this effect
-   }, [specificDeps]); // ✅ REQUIRED
-   ```
-
-4. **Separate Concerns**
-   - Effect 1: Listen to data
-   - Effect 2: React to changes
-   - Effect 3: Update other things
-   - (Not all in one effect)
-
-5. **Document Assumptions**
-   ```javascript
-   // ✅ Good: explain what this listener does
-   // Listen for event updates and show results when status changes
-   useEffect(() => {
-     const unsub = onSnapshot(eventRef, (doc) => {
-       setEvent(doc.data()); // Update state only
-     });
-     return () => unsub();
-   }, [eventId]);
-   ```
+**Key Rule:** Every developer must read `DEVELOPMENT_RULES.md` before contributing.
 
 ---
 
