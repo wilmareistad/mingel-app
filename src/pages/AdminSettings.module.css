@@ -8,7 +8,7 @@
   margin: 0 auto;
   padding: 12px 6px 40px;
   gap: 12px;
-  padding-top: 100px;
+  padding-top: 20px;
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -696,6 +696,5 @@
 @media (min-width: 1024px) {
   .page {
     padding: 24px 20px 40px;
-    padding-top: 200px;
   }
 }
