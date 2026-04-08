@@ -10,6 +10,7 @@
 .modal {
   animation: slideDown 0.3s ease;
   overflow: hidden;
+  padding: 1rem;
 }
 
 .title {
