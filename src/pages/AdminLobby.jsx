@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { listenToParticipants } from "../features/event/eventService";
+import { useTheme } from "../hooks/useTheme";
 import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import styles from "./Lobby.module.css";
@@ -22,6 +23,9 @@ export default function AdminLobby() {
     });
     return unsubscribe;
   }, [eventId]);
+
+  // Apply theme based on event
+  useTheme(event?.theme);
 
   // Fetch participants
   useEffect(() => {
