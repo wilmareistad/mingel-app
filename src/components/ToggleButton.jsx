@@ -2,11 +2,10 @@ import caretLeft from "../assets/caret-left.svg";
 import caretRight from "../assets/caret-right.svg";
 import styles from "../styles/ToggleButton.module.css";
 
-export default function ToggleButton({ direction = "right", onClick, label, disabled = false, size = "default", isMatrixMode = false }) {
+export default function ToggleButton({ direction = "right", onClick, label, disabled = false, size = "default" }) {
   const iconSrc = direction === "left" ? caretRight : caretLeft;
   const altText = direction === "left" ? "Previous" : "Next";
-  const baseClassName = size === "small" ? `${styles.toggleButton} ${styles.small}` : styles.toggleButton;
-  const className = isMatrixMode ? `${baseClassName} ${styles.matrixMode}` : baseClassName;
+  const className = size === "small" ? `${styles.toggleButton} ${styles.small}` : styles.toggleButton;
 
   return (
     <button
