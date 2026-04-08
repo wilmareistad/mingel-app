@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, onSnapshot, getDoc, collection, query, where, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
@@ -36,7 +36,6 @@ export default function AdminSettings() {
   const [pendingResultsTimerSeconds, setPendingResultsTimerSeconds] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [voteCount, setVoteCount] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(0);
   const [resultsTimeLeft, setResultsTimeLeft] = useState(0);
   const [isKickMode, setIsKickMode] = useState(false);
@@ -54,6 +53,71 @@ export default function AdminSettings() {
   const resultsTimerExpiredRef = useRef(false);
   const resultsPhaseIdRef = useRef(null); // Track which results phase we're in
   const questionPhaseIdRef = useRef(null); // Track which question phase we're in
+
+  // ✅ CRITICAL: Define handleNextQuestion BEFORE effects that use it (to avoid ReferenceError)
+  const handleNextQuestion = useCallback(async () => {
+    try {
+      if (!eventId) return;
+
+      console.log(`📋 handleNextQuestion CALLED for event: ${eventId}, timestamp=${new Date().toISOString()}`);
+
+      // CRITICAL: Fetch fresh event data from Firestore instead of using stale state
+      // This ensures we always get the correct currentQuestionIndex
+      const eventRef = doc(db, "events", eventId);
+      const eventSnap = await getDoc(eventRef);
+      const currentEvent = eventSnap.data();
+
+      if (!currentEvent) {
+        console.log(`📋 handleNextQuestion: Event not found!`);
+        return;
+      }
+
+      console.log(`📋 handleNextQuestion: Current question index in DB: ${currentEvent.currentQuestionIndex}, Total questions: ${(currentEvent.questions?.length || 0) + (currentEvent.customQuestions?.length || 0)}`);
+      console.log(`📋 handleNextQuestion: Current event state: status=${currentEvent.status}, showingResultsOnly=${currentEvent.showingResultsOnly}`);
+
+      // Clear the "showing results only" flag
+      console.log(`📋 handleNextQuestion: Calling setShowingResultsOnly(false)...`);
+      await setShowingResultsOnly(eventId, false);
+
+      // DELETE answers from previous question to prevent phantom votes
+      console.log(`📋 handleNextQuestion: Deleting answers...`);
+      await deleteAnswersForEvent(eventId);
+
+      // Reset all participants answered status before showing next question
+      // ✅ Pass participants array if available to avoid extra read
+      console.log(`📋 handleNextQuestion: Resetting participants...`);
+      await resetParticipantsAnswered(eventId, participants.length > 0 ? participants : null);
+      
+      // Calculate total questions (public + custom)
+      const totalQuestions = (currentEvent.questions?.length || 0) + (currentEvent.customQuestions?.length || 0);
+      
+      // Use the FRESH currentQuestionIndex from Firestore, not stale state
+      const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
+      
+      console.log(`📋 handleNextQuestion: Next index will be: ${nextIndex}, Total questions: ${totalQuestions}`);
+      
+      // Check if we've reached the end of all questions
+      if (nextIndex >= totalQuestions) {
+        // All questions done - show final results
+        console.log(`🏁 All questions completed! Game finished.`);
+        setMessage("All questions completed! Game finished.");
+      } else {
+        // More questions to go - proceed to next question
+        // ✅ ATOMIC WRITE: Update index AND status together to prevent race conditions
+        // This ensures listener fires with both currentQuestionIndex and status="question" at the same time
+        console.log(`📋 handleNextQuestion: Advancing from index ${currentEvent.currentQuestionIndex} to ${nextIndex}...`);
+        console.log(`📋 handleNextQuestion: Calling updateToQuestionPhase(${eventId}, ${nextIndex})...`);
+        await updateToQuestionPhase(eventId, nextIndex);
+        console.log(`📋 handleNextQuestion: updateToQuestionPhase completed!`);
+        
+        setMessage("Next question displayed.");
+      }
+      setTimeout(() => setMessage(""), 3000);
+    } catch (error) {
+      console.error("❌ Error moving to next question:", error);
+      setMessage("Error moving to next question");
+    }
+  }, [eventId, participants]);
 
   // Check admin authentication
   useEffect(() => {
@@ -186,11 +250,11 @@ export default function AdminSettings() {
         console.log(`🔴 Question timer FIRED (remaining=${remaining}, duration=${durationSeconds})! Auto-advancing to results...`);
         
         // Atomic write: transition to results phase
-        // ✅ Set both status AND showingResultsOnly so participants navigate to results
+        // ✅ Set status and resultsPhaseStartedAt - DON'T set showingResultsOnly yet
+        // showingResultsOnly will be set by a separate effect once phaseStartedAt is available
         const eventRef = doc(db, "events", eventId);
         updateDoc(eventRef, {
           status: "results",
-          showingResultsOnly: true,
           resultsPhaseStartedAt: serverTimestamp(),
         }).catch(error => {
           console.error(`❌ Error transitioning to results:`, error);
@@ -287,7 +351,7 @@ export default function AdminSettings() {
       console.log(`⏱️ Results timer effect cleanup: clearing interval`);
       clearInterval(interval);
     };
-  }, [event?.status, event?.showingResultsOnly, event?.resultsPhaseStartedAt, event?.resultsTimerSeconds, eventId]);
+  }, [event?.status, event?.showingResultsOnly, event?.resultsPhaseStartedAt, event?.resultsTimerSeconds, eventId, handleNextQuestion]);
 
   // Reset ref when entering a NEW results phase (question index changed)
   // CRITICAL: Only reset when we're in a new results phase, not on every timestamp update
@@ -302,6 +366,15 @@ export default function AdminSettings() {
       }
     }
   }, [event?.status, event?.showingResultsOnly, event?.currentQuestionIndex]);
+
+  // ✅ Set showingResultsOnly when we enter results phase with valid timestamp
+  // This ensures resultsPhaseStartedAt is available before results timer effect uses it
+  useEffect(() => {
+    if (event?.status === "results" && !event?.showingResultsOnly && event?.resultsPhaseStartedAt) {
+      console.log(`⏱️ Setting showingResultsOnly=true for Q${event?.currentQuestionIndex} with timestamp`);
+      setShowingResultsOnly(eventId, true);
+    }
+  }, [event?.status, event?.currentQuestionIndex, event?.resultsPhaseStartedAt, eventId]);
 
   const openConfirmModal = (
     title,
@@ -343,70 +416,6 @@ export default function AdminSettings() {
     } catch (error) {
       console.error("Error starting game:", error);
       setMessage("Error starting game");
-    }
-  };
-
-  const handleNextQuestion = async () => {
-    try {
-      if (!eventId) return;
-
-      console.log(`📋 handleNextQuestion CALLED for event: ${eventId}, timestamp=${new Date().toISOString()}`);
-
-      // CRITICAL: Fetch fresh event data from Firestore instead of using stale state
-      // This ensures we always get the correct currentQuestionIndex
-      const eventRef = doc(db, "events", eventId);
-      const eventSnap = await getDoc(eventRef);
-      const currentEvent = eventSnap.data();
-
-      if (!currentEvent) {
-        console.log(`📋 handleNextQuestion: Event not found!`);
-        return;
-      }
-
-      console.log(`📋 handleNextQuestion: Current question index in DB: ${currentEvent.currentQuestionIndex}, Total questions: ${(currentEvent.questions?.length || 0) + (currentEvent.customQuestions?.length || 0)}`);
-      console.log(`📋 handleNextQuestion: Current event state: status=${currentEvent.status}, showingResultsOnly=${currentEvent.showingResultsOnly}`);
-
-      // Clear the "showing results only" flag
-      console.log(`📋 handleNextQuestion: Calling setShowingResultsOnly(false)...`);
-      await setShowingResultsOnly(eventId, false);
-
-      // DELETE answers from previous question to prevent phantom votes
-      console.log(`📋 handleNextQuestion: Deleting answers...`);
-      await deleteAnswersForEvent(eventId);
-
-      // Reset all participants answered status before showing next question
-      // ✅ Pass participants array if available to avoid extra read
-      console.log(`📋 handleNextQuestion: Resetting participants...`);
-      await resetParticipantsAnswered(eventId, participants.length > 0 ? participants : null);
-      
-      // Calculate total questions (public + custom)
-      const totalQuestions = (currentEvent.questions?.length || 0) + (currentEvent.customQuestions?.length || 0);
-      
-      // Use the FRESH currentQuestionIndex from Firestore, not stale state
-      const nextIndex = (currentEvent.currentQuestionIndex || 0) + 1;
-      
-      console.log(`📋 handleNextQuestion: Next index will be: ${nextIndex}, Total questions: ${totalQuestions}`);
-      
-      // Check if we've reached the end of all questions
-      if (nextIndex >= totalQuestions) {
-        // All questions done - show final results
-        console.log(`🏁 All questions completed! Game finished.`);
-        setMessage("All questions completed! Game finished.");
-      } else {
-        // More questions to go - proceed to next question
-        // ✅ ATOMIC WRITE: Update index AND status together to prevent race conditions
-        // This ensures listener fires with both currentQuestionIndex and status="question" at the same time
-        console.log(`📋 handleNextQuestion: Advancing from index ${currentEvent.currentQuestionIndex} to ${nextIndex}...`);
-        console.log(`📋 handleNextQuestion: Calling updateToQuestionPhase(${eventId}, ${nextIndex})...`);
-        await updateToQuestionPhase(eventId, nextIndex);
-        console.log(`📋 handleNextQuestion: updateToQuestionPhase completed!`);
-        
-        setMessage("Next question displayed.");
-      }
-      setTimeout(() => setMessage(""), 3000);
-    } catch (error) {
-      console.error("❌ Error moving to next question:", error);
-      setMessage("Error moving to next question");
     }
   };
 
@@ -622,8 +631,8 @@ export default function AdminSettings() {
   };
 
   const getTimeLeftDisplay = () => {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
+    const minutes = Math.floor(questionTimeLeft / 60);
+    const seconds = questionTimeLeft % 60;
 
     if (minutes === 0) {
       return `${seconds}s`;

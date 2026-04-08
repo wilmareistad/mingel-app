@@ -85,14 +85,8 @@ export default function Lobby() {
         setEvent(eventData);
         setError(null); // Clear error when event updates
 
-        // GAME LOOP: If showingResultsOnly just became true, navigate to results
-        // AdminSettings handles the status update
-        if (eventData.showingResultsOnly && eventData.status === "results") {
-          navigate(`/results/${eventId}`);
-        }
-
-        // GAME LOOP: If event status changes to "results" → show results
-        if (eventData.status === "results" && !eventData.showingResultsOnly) {
+        // GAME LOOP: If event status changes to "results" → navigate to results page
+        if (eventData.status === "results") {
           navigate(`/results/${eventId}`);
         }
 
