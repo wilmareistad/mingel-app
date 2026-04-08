@@ -261,12 +261,11 @@ export default function AdminSettings() {
         console.log(`🔴 Question timer FIRED (remaining=${remaining}, duration=${durationSeconds})! Auto-advancing to results...`);
         
         // Atomic write: transition to results phase
-        // ✅ Set status and resultsPhaseStartedAt - DON'T set showingResultsOnly yet
-        // showingResultsOnly will be set by a separate effect once phaseStartedAt is available
+        // ✅ Set ONLY status here - DON'T set resultsPhaseStartedAt yet!
+        // resultsPhaseStartedAt will be set by setShowingResultsOnly() once phaseStartedAt resolves
         const eventRef = doc(db, "events", eventId);
         updateDoc(eventRef, {
-          status: "results",
-          resultsPhaseStartedAt: serverTimestamp(),
+          status: "results"
         }).catch(error => {
           console.error(`❌ Error transitioning to results:`, error);
           questionTimerExpiredRef.current = false; // Reset on error
