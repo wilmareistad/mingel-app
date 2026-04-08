@@ -585,7 +585,6 @@ export default function AdminSettings() {
                 direction="left"
                 onClick={handleTimerDecrement}
                 label="Decrease time"
-                isMatrixMode={event?.theme === "matrix"}
               />
               <div className={styles.timerDisplay}>
                 {getCurrentTimerLabel()}
@@ -594,7 +593,6 @@ export default function AdminSettings() {
                 direction="right"
                 onClick={handleTimerIncrement}
                 label="Increase time"
-                isMatrixMode={event?.theme === "matrix"}
               />
               <button
                 className={styles.setBtn}
@@ -613,7 +611,6 @@ export default function AdminSettings() {
                 direction="left"
                 onClick={handleResultsTimerDecrement}
                 label="Decrease time"
-                isMatrixMode={event?.theme === "matrix"}
               />
               <div className={styles.timerDisplay}>
                 {getCurrentResultsTimerLabel()}
@@ -622,7 +619,6 @@ export default function AdminSettings() {
                 direction="right"
                 onClick={handleResultsTimerIncrement}
                 label="Increase time"
-                isMatrixMode={event?.theme === "matrix"}
               />
               <button
                 className={styles.setBtn}
