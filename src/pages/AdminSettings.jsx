@@ -261,11 +261,12 @@ export default function AdminSettings() {
         console.log(`🔴 Question timer FIRED (remaining=${remaining}, duration=${durationSeconds})! Auto-advancing to results...`);
         
         // Atomic write: transition to results phase
-        // ✅ Set ONLY status here - DON'T set resultsPhaseStartedAt yet!
-        // resultsPhaseStartedAt will be set by setShowingResultsOnly() once phaseStartedAt resolves
+        // ✅ Set status and resultsPhaseStartedAt together
+        // resultsPhaseStartedAt will be used by the results timer countdown
         const eventRef = doc(db, "events", eventId);
         updateDoc(eventRef, {
-          status: "results"
+          status: "results",
+          resultsPhaseStartedAt: serverTimestamp()
         }).catch(error => {
           console.error(`❌ Error transitioning to results:`, error);
           questionTimerExpiredRef.current = false; // Reset on error
@@ -377,14 +378,14 @@ export default function AdminSettings() {
     }
   }, [event?.status, event?.showingResultsOnly, event?.currentQuestionIndex]);
 
-  // ✅ Set showingResultsOnly when we enter results phase with valid timestamp
-  // This ensures resultsPhaseStartedAt is available before results timer effect uses it
+  // ✅ Set showingResultsOnly when we enter results phase
+  // This flag signals that we should display the results screen to participants
   useEffect(() => {
-    if (event?.status === "results" && !event?.showingResultsOnly && event?.resultsPhaseStartedAt) {
-      console.log(`⏱️ Setting showingResultsOnly=true for Q${event?.currentQuestionIndex} with timestamp`);
+    if (event?.status === "results" && !event?.showingResultsOnly) {
+      console.log(`⏱️ Setting showingResultsOnly=true for Q${event?.currentQuestionIndex}`);
       setShowingResultsOnly(eventId, true);
     }
-  }, [event?.status, event?.currentQuestionIndex, event?.resultsPhaseStartedAt, eventId]);
+  }, [event?.status, event?.currentQuestionIndex, eventId]);
 
   const openConfirmModal = (
     title,
