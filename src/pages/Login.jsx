@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "../services/firebase";
 import { useNavigate } from "react-router-dom";
+import style from "./Login.module.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -40,7 +44,7 @@ export default function Login() {
   };
 
   return (
-    <div>
+    <div className={style.logindiv}>
       <h1>Admin Login</h1>
 
       <input
@@ -57,8 +61,12 @@ export default function Login() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button onClick={handleLogin}>Login</button>
-      <button onClick={handleRegister}>Register</button>
+      <button className={style.loginBtn} onClick={handleLogin}>
+        Login
+      </button>
+      <button className={style.loginBtn} onClick={handleRegister}>
+        Register
+      </button>
 
       {message && <p>{message}</p>}
     </div>

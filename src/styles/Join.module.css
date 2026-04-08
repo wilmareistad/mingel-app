@@ -13,6 +13,7 @@
   gap: var(--spacing-md);
   width: 100%;
   max-width: 600px;
+  margin-top: 2rem;
 }
 
 .leftControls,
