@@ -59,14 +59,28 @@ export default function Game() {
       navigate(`/lobby/${eventId}`);
       return;
     }
+  }, [event?.status, eventId, navigate]);
+
+  // Load question ONLY when currentQuestionIndex changes, not on every event update
+  useEffect(() => {
+    if (!event || event.status !== "question") {
+      setQuestion(null);
+      return;
+    }
 
     // Load current question
     async function loadQuestion() {
       try {
+        console.log("Loading question for event:", eventId);
+        console.log("Current question index:", event.currentQuestionIndex);
+        console.log("Event data:", event);
+        
         const q = await getCurrentEventQuestion(
           event.id,
           event.currentQuestionIndex
         );
+        
+        console.log("Loaded question:", q);
         setQuestion(q);
 
         // If question not found, redirect back to lobby
@@ -91,8 +105,12 @@ export default function Game() {
     }
 
     loadQuestion();
+  }, [event?.status, event?.currentQuestionIndex, eventId, user, navigate]);
 
-    // Listen to participants (new structure for checking who answered)
+  // Listen to participants for kick detection
+  useEffect(() => {
+    if (!eventId) return;
+
     const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
       const userId = localStorage.getItem("userId");
       
@@ -114,7 +132,7 @@ export default function Game() {
     return () => {
       unsubscribeParticipants();
     };
-  }, [event, user, eventId, navigate]);
+  }, [eventId]);
 
   async function handleAnswer(optionIndex) {
     if (answered || !question || !user || !event) return;
@@ -146,7 +164,28 @@ export default function Game() {
   }
 
   if (loading) return <div>Loading question...</div>;
-  if (!question) return <div>No question available</div>;
+  if (!question) {
+    return (
+      <div className={styles.gameContainer}>
+        <div className={styles.errorContainer}>
+          <h2>⚠️ Question Not Found</h2>
+          <p>Unable to load the current question.</p>
+          {event && (
+            <>
+              <p><strong>Debug Info:</strong></p>
+              <p>Event ID: {eventId}</p>
+              <p>Current Question Index: {event.currentQuestionIndex}</p>
+              <p>Status: {event.status}</p>
+              <p>Total Questions: {event.questions?.length || 0} public + {event.customQuestions?.length || 0} custom</p>
+            </>
+          )}
+          <button onClick={() => navigate(`/lobby/${eventId}`)}>
+            Return to Lobby
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.gameContainer}>
