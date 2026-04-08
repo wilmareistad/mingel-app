@@ -38,3 +38,7 @@
   width: 28px;
   height: 28px;
 }
+
+.matrixMode img {
+  filter: brightness(1.2) invert(1) sepia(0.5) saturate(20) hue-rotate(85deg) brightness(1.5);
+}
