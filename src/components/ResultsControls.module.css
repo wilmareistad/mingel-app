@@ -1,0 +1,65 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.resultsText {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0.5rem 0;
+  font-weight: 500;
+}
+
+.resultsText span {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.btnGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.primaryBtn,
+.dangerBtn,
+.ghostBtn {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primaryBtn {
+  color: white;
+  background-color: var(--primary);
+}
+
+.primaryBtn:hover {
+  background-color: var(--primary-dark);
+}
+
+.dangerBtn {
+  color: white;
+  background-color: var(--danger);
+}
+
+.dangerBtn:hover {
+  background-color: var(--danger-dark);
+}
+
+.ghostBtn {
+  color: var(--text-primary);
+  background-color: transparent;
+  border: 2px solid var(--border-color);
+}
+
+.ghostBtn:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--text-primary);
+}
