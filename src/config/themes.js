@@ -33,7 +33,7 @@ export const themes = [
       primary: "#00FF41",
       secondary: "#00CC33",
       background: "#000000",
-      text: "#000000",
+      text: "#00FF41",
       textMuted: "#00AA33",
       accent: "#00FF41",
       accentBg: "rgba(0, 255, 65, 0.1)",
