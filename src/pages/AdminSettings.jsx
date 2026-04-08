@@ -621,6 +621,35 @@ export default function AdminSettings() {
     const minutes = Math.floor(questionTimeLeft / 60);
     const seconds = questionTimeLeft % 60;
 
+    if (minutes === 0) {
+      return `${seconds}s`;
+    } else if (seconds === 0) {
+      return `${minutes}min`;
+    } else {
+      return `${minutes}min ${seconds}s`;
+    }
+  };
+
+  const getResultsTimeLeftDisplay = () => {
+    return `${resultsTimeLeft}s`;
+  };
+
+  const getCurrentTimerLabel = () => {
+    const seconds =
+      pendingTimerSeconds !== null
+        ? pendingTimerSeconds
+        : event?.questionTimerSeconds || 300;
+    return formatSeconds(seconds);
+  };
+
+  const getCurrentResultsTimerLabel = () => {
+    const seconds =
+      pendingResultsTimerSeconds !== null
+        ? pendingResultsTimerSeconds
+        : event?.resultsTimerSeconds || 10;
+    return `${seconds}s`;
+  };
+
   if (loading) return <p className={styles.loading}>Loading...</p>;
 
   if (!event) {
