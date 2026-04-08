@@ -65,7 +65,7 @@ export default function Login() {
         Login
       </button>
       <button className={style.loginBtn} onClick={handleRegister}>
-        Register
+        Create account
       </button>
 
       {message && <p>{message}</p>}
