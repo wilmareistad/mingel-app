@@ -55,6 +55,14 @@ export default function Game() {
       navigate(`/lobby/${eventId}`);
       return;
     }
+  }, [event?.status, eventId, navigate]);
+
+  // Load question ONLY when currentQuestionIndex changes, not on every event update
+  useEffect(() => {
+    if (!event || event.status !== "question") {
+      setQuestion(null);
+      return;
+    }
 
     // Load current question
     async function loadQuestion() {
@@ -93,8 +101,12 @@ export default function Game() {
     }
 
     loadQuestion();
+  }, [event?.status, event?.currentQuestionIndex, eventId, user, navigate]);
 
-    // Listen to participants (new structure for checking who answered)
+  // Listen to participants for kick detection
+  useEffect(() => {
+    if (!eventId) return;
+
     const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
       const userId = localStorage.getItem("userId");
       
@@ -116,7 +128,7 @@ export default function Game() {
     return () => {
       unsubscribeParticipants();
     };
-  }, [event, user, eventId, navigate]);
+  }, [eventId]);
 
   async function handleAnswer(optionIndex) {
     if (answered || !question || !user || !event) return;

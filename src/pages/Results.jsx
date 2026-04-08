@@ -20,12 +20,21 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(0);
 
+  // Effect 1: Handle navigation away from results status
   useEffect(() => {
     if (!event) return;
 
     // If game is no longer in results state AND we're not showing results for just this question → go back to lobby
     if (event.status !== "results" && !event.showingResultsOnly) {
       navigate(`/lobby/${eventId}`);
+      return;
+    }
+  }, [event?.status, event?.showingResultsOnly, eventId, navigate]);
+
+  // Effect 2: Load question and answers ONLY when currentQuestionIndex changes
+  // Separate from navigation effect to prevent excessive reruns during timer updates
+  useEffect(() => {
+    if (!event || event.status !== "results" || !event.showingResultsOnly) {
       return;
     }
 
@@ -50,7 +59,7 @@ export default function Results() {
     }
 
     loadData();
-  }, [event, eventId, navigate]);
+  }, [event?.status, event?.currentQuestionIndex, event?.showingResultsOnly, eventId]);
 
   // Calculate time remaining for results phase
   useEffect(() => {

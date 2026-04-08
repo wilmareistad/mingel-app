@@ -1,7 +1,7 @@
 # Mingel App - Development Rules & Standards
 
 **Last Updated:** April 8, 2026  
-**Version:** 1.2
+**Version:** 1.4
 
 This document defines the rules and standards for developing Mingel. All developers must follow these rules to maintain code quality, prevent quota exhaustion, and avoid infinite loops.
 
@@ -19,6 +19,8 @@ This document defines the rules and standards for developing Mingel. All develop
    - [Write Standards](#-write-standards)
    - [Cleanup Standards](#-cleanup-standards)
    - [Answer Tracking Pattern](#-answer-tracking-pattern-answer-count--answered-users)
+   - [Question Timer Pattern](#-question-timer-pattern-auto-transition-to-results)
+   - [Auto-Advance Pattern](#-auto-advance-pattern-results-timer)
 6. [Code Quality Rules](#code-quality-rules)
 
 ---
@@ -768,6 +770,296 @@ await resetParticipantsAnswered(eventId, participants); // No extra read!
 - Old: 1 read per question advance × 10 questions = 10 reads
 - New: 0 reads (uses real-time listener data)
 - **Savings: 10 reads per event**
+
+#### ⏱️ Question Timer Pattern (Auto-Transition to Results)
+
+**Problem:** Need to auto-transition from question phase to results phase when timer expires, but can't use polling loop with getDoc (Rule #6 violation).
+
+**Solution:** Calculate time locally using 100ms interval + useRef guard + atomic Firestore write.
+
+```javascript
+// ✅ CORRECT: Local time calculation + atomic state transition
+useEffect(() => {
+  if (!event || event.status !== "question") {
+    setQuestionTimeLeft(0);
+    questionTimerExpiredRef.current = false;
+    return;
+  }
+
+  const updateQuestionTimeLeft = () => {
+    const durationSeconds = event.questionTimerSeconds || 30;
+    const questionPhaseStartedAt = event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
+
+    if (!questionPhaseStartedAt) {
+      setQuestionTimeLeft(durationSeconds);
+      return;
+    }
+
+    const now = Date.now();
+    const elapsedMs = now - questionPhaseStartedAt;
+    const elapsedSeconds = Math.floor(elapsedMs / 1000);
+    const remaining = Math.max(0, durationSeconds - elapsedSeconds);
+
+    setQuestionTimeLeft(remaining);
+
+    // ✅ SAFE: useRef guard prevents duplicate fires
+    if (remaining === 0 && !questionTimerExpiredRef.current) {
+      questionTimerExpiredRef.current = true;
+      console.log(`⏱️ Question timer expired! Auto-advancing to results...`);
+
+      // ✅ ATOMIC WRITE: Single updateDoc call
+      const eventRef = doc(db, "events", eventId);
+      updateDoc(eventRef, {
+        status: "results",
+        resultsPhaseStartedAt: serverTimestamp(),
+      }).catch(error => {
+        console.error("❌ Failed to auto-advance to results:", error);
+        questionTimerExpiredRef.current = false;
+      });
+    }
+  };
+
+  // Update every 100ms (local calculation, no DB reads)
+  updateQuestionTimeLeft();
+  const interval = setInterval(updateQuestionTimeLeft, 100);
+
+  return () => clearInterval(interval);
+}, [event?.status, event?.phaseStartedAt, event?.questionTimerSeconds, eventId]);
+
+// Reset guard when entering new question phase
+useEffect(() => {
+  if (event?.status === "question") {
+    questionTimerExpiredRef.current = false;
+  }
+}, [event?.status, event?.phaseStartedAt]);
+```
+
+**Cost Analysis:**
+- Loop runs: 100 times per 30-second question = 100 iterations
+- Database reads per iteration: **0** (uses event data from listener)
+- Total reads: **0** ✅
+- Total writes: 1 (single atomic updateDoc call)
+
+**Why this is safe:**
+1. ✅ No Firestore reads in loop (uses event listener data)
+2. ✅ useRef guard prevents duplicate callback fires
+3. ✅ Atomic write prevents race conditions
+4. ✅ serverTimestamp ensures synchronized timing
+5. ✅ Specific dependencies (only when phase/time changes)
+6. ✅ Cleanup function clears interval
+
+**Integration with Results Timer:**
+After this effect transitions to results phase, the Results Timer pattern takes over:
+```
+Question Phase → [Timer Expires] → Atomic write status="results"
+                                        ↓
+Results appear (listener fires instantly) → Results Timer Pattern takes over
+Results Phase → [Timer Expires] → handleNextQuestion() calls updateToQuestionPhase()
+                                        ↓
+Atomic write: {status:"question", currentQuestionIndex, phaseStartedAt}
+                                        ↓
+Question fetching effect triggers (has both status && index)
+                                        ↓
+Next Question loads → Back to Question Phase
+```
+
+**🚨 CRITICAL: Race Condition Prevention in handleNextQuestion()**
+
+When advancing to the next question, MUST use `updateToQuestionPhase()` which combines both writes atomically:
+
+```javascript
+// ❌ WRONG: Two separate writes = race condition
+await updateCurrentQuestionIndex(eventId, nextIndex);  // Listener fires with index but status still "results"
+await updateEventStatus(eventId, "question");          // Listener fires again with status but index already changed
+
+// ✅ CORRECT: Single atomic write
+await updateToQuestionPhase(eventId, nextIndex);  // Both currentQuestionIndex and status update together
+```
+
+**Why this matters:**
+- If you split the writes, listener fires TWICE with inconsistent state
+- Question fetching effect depends on `event?.status` AND `event?.currentQuestionIndex`
+- If listener fires with mismatched values, effect might not trigger correctly
+- Result: Game gets stuck between question/results phase
+
+---
+
+#### 🎯 Effect Separation Pattern (Prevent Excessive Re-runs)
+
+**Problem:** When multiple concerns are in one effect, changing ANY dependency re-runs the ENTIRE effect, causing expensive operations (like `getCurrentEventQuestion()`) to execute excessively.
+
+**Wrong Approach:** One bloated effect with all dependencies
+```javascript
+// ❌ WRONG: Reruns loadQuestion() whenever ANY of these change
+useEffect(() => {
+  if (event?.status !== "question") {
+    navigate(`/lobby/${eventId}`);
+    return;
+  }
+
+  async function loadQuestion() {
+    const q = await getCurrentEventQuestion(event.id, event.currentQuestionIndex);
+    setQuestion(q);
+  }
+
+  loadQuestion();
+  
+  const unsub = listenToParticipants(eventId, (participants) => {
+    setParticipants(participants);
+  });
+
+  return () => unsub();
+}, [event, user, eventId, navigate]); // ❌ Runs on ANY event change!
+```
+
+**Result:** When `event.phaseStartedAt` updates (100ms timer loop), entire effect reruns, `loadQuestion()` fires 60+ times for the SAME question!
+
+**Solution:** Separate by concern into THREE focused effects
+
+```javascript
+// Effect 1: Handle navigation away from question status
+useEffect(() => {
+  if (!event) return;
+
+  if (event.status !== "question") {
+    navigate(`/lobby/${eventId}`);
+    return;
+  }
+}, [event?.status, eventId, navigate]); // ✅ Only runs when status changes
+
+// Effect 2: Load question ONLY when currentQuestionIndex changes
+useEffect(() => {
+  if (!event || event.status !== "question") {
+    setQuestion(null);
+    return;
+  }
+
+  async function loadQuestion() {
+    const q = await getCurrentEventQuestion(event.id, event.currentQuestionIndex);
+    setQuestion(q);
+  }
+
+  loadQuestion();
+}, [event?.status, event?.currentQuestionIndex, eventId, user, navigate]); // ✅ Specific to question loading
+
+// Effect 3: Listen to participants for state changes (independent concern)
+useEffect(() => {
+  if (!eventId) return;
+
+  const unsub = listenToParticipants(eventId, (participants) => {
+    setParticipants(participants);
+  });
+
+  return () => unsub();
+}, [eventId]); // ✅ Only reruns when eventId changes
+```
+
+**Why this works:**
+- Effect 1: Only responds to actual status changes (question → results)
+- Effect 2: Only loads new question when index actually changes
+- Effect 3: Participants listener is independent, doesn't affect question loading
+- Result: Each operation runs only when truly necessary ✅
+
+**Problem:** Timer expiration guards (`useRef`) need to reset when entering a **new** phase, but NOT when just updating within the same phase.
+
+**Wrong Approach:** Reset guard on every status change
+```javascript
+// ❌ WRONG: Resets on every timestamp update
+useEffect(() => {
+  if (event?.status === "results") {
+    resultsTimerExpiredRef.current = false; // Fires on every resultsPhaseStartedAt change!
+  }
+}, [event?.status, event?.resultsPhaseStartedAt]); // ❌ Timestamp dependency
+```
+
+**Solution:** Track which phase you're currently in using `currentQuestionIndex + timestamp combo`
+
+```javascript
+// ✅ CORRECT: Only reset when entering a truly NEW phase
+const resultsPhaseIdRef = useRef(null);
+
+useEffect(() => {
+  if (event?.status === "results") {
+    // Create unique identifier for this phase
+    const currentPhaseId = `${event?.currentQuestionIndex}_${event?.resultsPhaseStartedAt}`;
+    
+    // Only reset if it's a different phase
+    if (currentPhaseId !== resultsPhaseIdRef.current) {
+      console.log(`🔵 Entering NEW results phase, resetting guard`);
+      resultsPhaseIdRef.current = currentPhaseId;
+      resultsTimerExpiredRef.current = false; // ✅ Reset once per new phase
+    }
+  }
+}, [event?.status, event?.currentQuestionIndex, event?.resultsPhaseStartedAt]);
+```
+
+**Why this matters:**
+- Without phase tracking: Guard resets multiple times during same phase → callback fires multiple times
+- Result: `handleNextQuestion()` executes multiple times → questions skip
+- With phase tracking: Guard resets exactly once when entering new phase → callback fires exactly once
+- Result: Each question advances normally
+
+
+#### 🤖 Auto-Advance Pattern (Results Timer)
+
+**Problem:** Need to auto-advance to next question when results timer expires, but can't use polling loop with getDoc (Rule #6 violation).
+
+**Solution:** Calculate time locally using 100ms interval + useRef guard + event listener data.
+
+```javascript
+// ✅ CORRECT: Local time calculation + auto-advance
+useEffect(() => {
+  if (!event || event.status !== "results") return;
+
+  const updateResultsTimeLeft = () => {
+    const durationSeconds = event.resultsTimerSeconds || 10;
+    const resultsPhaseStartedAt = event.resultsPhaseStartedAt?.toMillis?.() || event.resultsPhaseStartedAt;
+
+    if (!resultsPhaseStartedAt) {
+      setResultsTimeLeft(durationSeconds);
+      return;
+    }
+
+    const now = Date.now();
+    const elapsedMs = now - resultsPhaseStartedAt;
+    const elapsedSeconds = Math.floor(elapsedMs / 1000);
+    const remaining = Math.max(0, durationSeconds - elapsedSeconds);
+
+    setResultsTimeLeft(remaining);
+
+    // ✅ SAFE: useRef guard prevents duplicate fires
+    if (remaining === 0 && !resultsTimerExpiredRef.current) {
+      resultsTimerExpiredRef.current = true;
+      handleNextQuestion(); // Advance to next question
+    }
+  };
+
+  // Update every 100ms (local calculation, no DB reads)
+  updateResultsTimeLeft();
+  const interval = setInterval(updateResultsTimeLeft, 100);
+
+  return () => clearInterval(interval);
+}, [event?.status, event?.resultsPhaseStartedAt, event?.resultsTimerSeconds]);
+
+// Reset guard when entering new results phase
+useEffect(() => {
+  if (event?.status === "results") {
+    resultsTimerExpiredRef.current = false;
+  }
+}, [event?.status, event?.resultsPhaseStartedAt]);
+```
+
+**Cost Analysis:**
+- Loop runs: 100 times per 10-second results = 100 iterations
+- Database reads per iteration: **0** (uses event data from listener)
+- Total reads: **0** ✅
+- Total writes: 1 (auto-advance call makes 1 write)
+
+**Why this is safe:**
+1. ✅ No Firestore reads in loop (uses event listener data)
+2. ✅ useRef guard prevents duplicate callback fires
+3. ✅ Specific dependencies (only when phase/time changes)
+4. ✅ Cleanup function clears interval
 
 ---
 

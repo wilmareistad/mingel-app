@@ -47,7 +47,9 @@ export async function updateToQuestionPhase(eventId, questionIndex) {
   await updateDoc(eventRef, {
     currentQuestionIndex: questionIndex,
     status: "question",
-    phaseStartedAt: serverTimestamp()
+    phaseStartedAt: serverTimestamp(),
+    resultsPhaseStartedAt: null,  // ✅ Clear old results phase timestamp
+    showingResultsOnly: false      // ✅ Ensure results flag is clear
   });
 }
 
@@ -255,7 +257,9 @@ export async function setShowingResultsOnly(eventId, showingResultsOnly) {
       resultsPhaseStartedAt: serverTimestamp()
     });
   } else {
-    // Ending results phase
+    // Ending results phase - just clear the flag
+    // ✅ Keep resultsPhaseStartedAt so timer can complete its final check
+    // It will be cleared when we transition to next question phase
     await updateDoc(eventRef, {
       showingResultsOnly
     });
