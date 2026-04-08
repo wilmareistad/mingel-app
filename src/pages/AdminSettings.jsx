@@ -33,12 +33,6 @@ export default function AdminSettings() {
 
   const [participants, setParticipants] = useState([]);
   const { currentQuestion, voteCount, setVoteCount } = useCurrentQuestion(event);
-  const { timeLeft: questionTimeLeft } = useQuestionTimer(event, eventId);
-  const { timeLeft: resultsTimeLeft } = useResultsTimer(
-    event,
-    eventId,
-    handleResultsTimerExpired
-  );
 
   const {
     handleNextQuestion,
@@ -48,6 +42,18 @@ export default function AdminSettings() {
     handleResetGame,
     showMessage,
   } = useGameControls(eventId, participants, setMessage);
+
+  // Define callback before using it in useResultsTimer
+  const handleResultsTimerExpired = useCallback(() => {
+    handleNextQuestion();
+  }, [handleNextQuestion]);
+
+  const { timeLeft: questionTimeLeft } = useQuestionTimer(event, eventId);
+  const { timeLeft: resultsTimeLeft } = useResultsTimer(
+    event,
+    eventId,
+    handleResultsTimerExpired
+  );
 
   // Apply theme based on event
   useTheme(event?.theme);
@@ -222,10 +228,6 @@ export default function AdminSettings() {
       setPendingResultsTimerSeconds(null);
     }
   };
-
-  const handleResultsTimerExpired = useCallback(() => {
-    handleNextQuestion();
-  }, [handleNextQuestion]);
 
   const handleKickPlayer = (participant) => {
     setModalState({
