@@ -61,10 +61,10 @@ export default function Login() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button className={style.loginBtn} onClick={handleLogin}>
+      <button className={style.loginBtn} onClick={handleLogin} style={{ color: "white" }}>
         Login
       </button>
-      <button className={style.loginBtn} onClick={handleRegister}>
+      <button className={style.loginBtn} onClick={handleRegister} style={{ color: "white" }}>
         Create account
       </button>
 
