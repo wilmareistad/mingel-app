@@ -77,26 +77,28 @@ export default function AdminSettings() {
   });
 
   // ── Participants Listener ──────────────────────────────────────────
+  // ✅ OPTIMIZED: Separate effects for listener and vote counting
+  // This prevents listener recreation when currentQuestion changes
   useEffect(() => {
     if (!eventId) return;
 
     const unsubscribeParticipants = listenToParticipants(
       eventId,
-      (updatedParticipants) => {
-        setParticipants(updatedParticipants);
-
-        // Count participants who have answered the current question
-        if (event?.status === "question" && currentQuestion) {
-          const answeredCount = updatedParticipants.filter(
-            (p) => p.hasAnswered
-          ).length;
-          setVoteCount(answeredCount);
-        }
-      }
+      setParticipants
     );
 
     return () => unsubscribeParticipants();
-  }, [eventId, event?.status, currentQuestion?.id, setVoteCount]);
+  }, [eventId]);
+
+  // ✅ SEPARATE: Vote counting logic (depends on participants and status)
+  useEffect(() => {
+    if (event?.status === "question" && currentQuestion && participants.length > 0) {
+      const answeredCount = participants.filter((p) => p.hasAnswered).length;
+      setVoteCount(answeredCount);
+    } else {
+      setVoteCount(0);
+    }
+  }, [participants, event?.status, currentQuestion?.id, setVoteCount]);
 
   // ── Modal Helpers ──────────────────────────────────────────────────
   const openConfirmModal = (

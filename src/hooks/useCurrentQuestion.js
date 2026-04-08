@@ -49,7 +49,10 @@ export function useCurrentQuestion(event) {
     };
 
     fetchCurrentQuestion();
-  }, [event?.status, event?.currentQuestionIndex, event?.questions, event?.customQuestions]);
+    // ✅ OPTIMIZED: Only depend on status and index changes
+    // Removed event.questions and event.customQuestions to prevent re-fetches
+    // when other event fields (timer, etc) change
+  }, [event?.status, event?.currentQuestionIndex]);
 
   // Update vote count from participants (passed separately via listener)
   return { currentQuestion, voteCount, setVoteCount };
