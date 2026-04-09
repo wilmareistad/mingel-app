@@ -4,7 +4,7 @@ import { useEvent } from "../features/event/useEvent";
 import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
-import { listenToParticipants, updateEventStatus } from "../features/event/eventService";
+import { listenToParticipants, setShowingResultsOnly, updateEventStatus } from "../features/event/eventService";
 import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
 import { useTheme } from "../hooks/useTheme";
@@ -36,8 +36,9 @@ export default function Game() {
     try {
       console.log("⏰ GAME TIMER EXPIRED - Transitioning to results");
       // Transition to results status
-      // Admin sets the timer duration, that's it
       await updateEventStatus(eventId, "results");
+      // CRITICAL: Also enable results display so Results page will render
+      await setShowingResultsOnly(eventId, true);
     } catch (error) {
       console.error("Error handling timer expiration:", error);
     }
