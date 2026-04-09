@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import styles from "./LobbyControls.module.css";
+import { getEventQuestions } from "../features/question/questionService";
 
 /**
  * Lobby phase controls
@@ -11,8 +13,37 @@ export default function LobbyControls({
   onStartGame,
   onDeleteEvent,
 }) {
+  const [loadedQuestions, setLoadedQuestions] = useState([]);
+
   const totalQuestions =
     (event.questions?.length || 0) + (event.customQuestions?.length || 0);
+
+  // Load full question data from event IDs
+  useEffect(() => {
+    if (!event?.id || totalQuestions === 0) {
+      setLoadedQuestions([]);
+      return;
+    }
+
+    const loadQuestions = async () => {
+      try {
+        const questions = await getEventQuestions(event.id);
+        // Mark each question with its source (preset or custom)
+        const questionsWithSource = questions.map((q) => ({
+          ...q,
+          source: event.customQuestions?.includes(q.id) ? 'custom' : 'preset',
+        }));
+        setLoadedQuestions(questionsWithSource);
+      } catch (error) {
+        console.error("Error loading questions:", error);
+        setLoadedQuestions([]);
+      }
+    };
+
+    loadQuestions();
+  }, [event?.id, event?.customQuestions, totalQuestions]);
+
+  const questionsToDisplay = loadedQuestions;
 
   return (
     <div className={styles.section}>
@@ -22,11 +53,11 @@ export default function LobbyControls({
         </p>
       </div>
 
-      {allQuestions.length === 0 ? (
+      {questionsToDisplay.length === 0 ? (
         <p className={styles.empty}>No questions selected.</p>
       ) : (
         <ol className={styles.questionsList}>
-          {allQuestions.map((q) => (
+          {questionsToDisplay.map((q) => (
             <li key={q.id} className={styles.questionItem}>
               <span className={styles.questionText}>
                 {q.text || q.id}

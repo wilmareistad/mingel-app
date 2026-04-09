@@ -19,6 +19,7 @@ import TimerControl from "../components/TimerControl";
 import LobbyControls from "../components/LobbyControls";
 import GameControls from "../components/GameControls";
 import ResultsControls from "../components/ResultsControls";
+import { QUESTION_TIMER_OPTIONS, RESULTS_TIMER_OPTIONS } from "../config/gameConfig";
 import styles from "./AdminSettings.module.css";
 
 export default function AdminSettings() {
@@ -199,23 +200,18 @@ export default function AdminSettings() {
   };
 
   // ── Timer Management ───────────────────────────────────────────────
-  const timerOptions = [
-    5, 10, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540,
-    630, 720, 810, 900,
-  ];
-  const resultsTimerOptions = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
 
   const handleTimerIncrement = () => {
     const cur = pendingTimerSeconds ?? event?.questionTimerSeconds ?? 300;
-    const idx = timerOptions.indexOf(cur);
-    if (idx < timerOptions.length - 1)
-      setPendingTimerSeconds(timerOptions[idx + 1]);
+    const idx = QUESTION_TIMER_OPTIONS.indexOf(cur);
+    if (idx < QUESTION_TIMER_OPTIONS.length - 1)
+      setPendingTimerSeconds(QUESTION_TIMER_OPTIONS[idx + 1]);
   };
 
   const handleTimerDecrement = () => {
     const cur = pendingTimerSeconds ?? event?.questionTimerSeconds ?? 300;
-    const idx = timerOptions.indexOf(cur);
-    if (idx > 0) setPendingTimerSeconds(timerOptions[idx - 1]);
+    const idx = QUESTION_TIMER_OPTIONS.indexOf(cur);
+    if (idx > 0) setPendingTimerSeconds(QUESTION_TIMER_OPTIONS[idx - 1]);
   };
 
   const handleConfirmTimer = async () => {
@@ -228,15 +224,15 @@ export default function AdminSettings() {
 
   const handleResultsTimerIncrement = () => {
     const cur = pendingResultsTimerSeconds ?? event?.resultsTimerSeconds ?? 10;
-    const idx = resultsTimerOptions.indexOf(cur);
-    if (idx < resultsTimerOptions.length - 1)
-      setPendingResultsTimerSeconds(resultsTimerOptions[idx + 1]);
+    const idx = RESULTS_TIMER_OPTIONS.indexOf(cur);
+    if (idx < RESULTS_TIMER_OPTIONS.length - 1)
+      setPendingResultsTimerSeconds(RESULTS_TIMER_OPTIONS[idx + 1]);
   };
 
   const handleResultsTimerDecrement = () => {
     const cur = pendingResultsTimerSeconds ?? event?.resultsTimerSeconds ?? 10;
-    const idx = resultsTimerOptions.indexOf(cur);
-    if (idx > 0) setPendingResultsTimerSeconds(resultsTimerOptions[idx - 1]);
+    const idx = RESULTS_TIMER_OPTIONS.indexOf(cur);
+    if (idx > 0) setPendingResultsTimerSeconds(RESULTS_TIMER_OPTIONS[idx - 1]);
   };
 
   const handleConfirmResultsTimer = async () => {
@@ -305,7 +301,7 @@ export default function AdminSettings() {
       pendingResultsTimerSeconds !== null
         ? pendingResultsTimerSeconds
         : event?.resultsTimerSeconds || 10;
-    return `${seconds}s`;
+    return formatSeconds(seconds);
   };
 
   // ── Render ─────────────────────────────────────────────────────────
@@ -399,7 +395,7 @@ export default function AdminSettings() {
           <TimerControl
             label="Question Timer"
             currentValue={getCurrentTimerLabel()}
-            options={timerOptions}
+            options={QUESTION_TIMER_OPTIONS}
             onIncrement={handleTimerIncrement}
             onDecrement={handleTimerDecrement}
             onConfirm={handleConfirmTimer}
@@ -410,7 +406,7 @@ export default function AdminSettings() {
           <TimerControl
             label="Results Timer"
             currentValue={getCurrentResultsTimerLabel()}
-            options={resultsTimerOptions}
+            options={RESULTS_TIMER_OPTIONS}
             onIncrement={handleResultsTimerIncrement}
             onDecrement={handleResultsTimerDecrement}
             onConfirm={handleConfirmResultsTimer}
