@@ -41,7 +41,6 @@ export default function AdminSettings() {
   const {
     handleNextQuestion,
     handleStartGame,
-    handleEndGame,
     handleEndQuestion,
     handleResetGame,
     showMessage,
@@ -76,13 +75,9 @@ export default function AdminSettings() {
   useTheme(event?.theme);
 
   // ── Local State ────────────────────────────────────────────────────
-  const [pendingTimerSeconds, setPendingTimerSeconds] = useState(null);
-  const [pendingResultsTimerSeconds, setPendingResultsTimerSeconds] =
-    useState(null);
   const [isKickMode, setIsKickMode] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState("");
-  const [allQuestions, setAllQuestions] = useState([]);
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -201,45 +196,39 @@ export default function AdminSettings() {
 
   // ── Timer Management ───────────────────────────────────────────────
 
-  const handleTimerIncrement = () => {
-    const cur = pendingTimerSeconds ?? event?.questionTimerSeconds ?? 300;
+  const handleTimerIncrement = async () => {
+    const cur = event?.questionTimerSeconds ?? 300;
     const idx = QUESTION_TIMER_OPTIONS.indexOf(cur);
-    if (idx < QUESTION_TIMER_OPTIONS.length - 1)
-      setPendingTimerSeconds(QUESTION_TIMER_OPTIONS[idx + 1]);
-  };
-
-  const handleTimerDecrement = () => {
-    const cur = pendingTimerSeconds ?? event?.questionTimerSeconds ?? 300;
-    const idx = QUESTION_TIMER_OPTIONS.indexOf(cur);
-    if (idx > 0) setPendingTimerSeconds(QUESTION_TIMER_OPTIONS[idx - 1]);
-  };
-
-  const handleConfirmTimer = async () => {
-    if (pendingTimerSeconds !== null) {
-      await updateTimerDuration(eventId, pendingTimerSeconds);
-      showMessage(`Timer set to ${formatSeconds(pendingTimerSeconds)}`);
-      setPendingTimerSeconds(null);
+    if (idx < QUESTION_TIMER_OPTIONS.length - 1) {
+      const newValue = QUESTION_TIMER_OPTIONS[idx + 1];
+      await updateTimerDuration(eventId, newValue);
     }
   };
 
-  const handleResultsTimerIncrement = () => {
-    const cur = pendingResultsTimerSeconds ?? event?.resultsTimerSeconds ?? 10;
-    const idx = RESULTS_TIMER_OPTIONS.indexOf(cur);
-    if (idx < RESULTS_TIMER_OPTIONS.length - 1)
-      setPendingResultsTimerSeconds(RESULTS_TIMER_OPTIONS[idx + 1]);
+  const handleTimerDecrement = async () => {
+    const cur = event?.questionTimerSeconds ?? 300;
+    const idx = QUESTION_TIMER_OPTIONS.indexOf(cur);
+    if (idx > 0) {
+      const newValue = QUESTION_TIMER_OPTIONS[idx - 1];
+      await updateTimerDuration(eventId, newValue);
+    }
   };
 
-  const handleResultsTimerDecrement = () => {
-    const cur = pendingResultsTimerSeconds ?? event?.resultsTimerSeconds ?? 10;
+  const handleResultsTimerIncrement = async () => {
+    const cur = event?.resultsTimerSeconds ?? 10;
     const idx = RESULTS_TIMER_OPTIONS.indexOf(cur);
-    if (idx > 0) setPendingResultsTimerSeconds(RESULTS_TIMER_OPTIONS[idx - 1]);
+    if (idx < RESULTS_TIMER_OPTIONS.length - 1) {
+      const newValue = RESULTS_TIMER_OPTIONS[idx + 1];
+      await updateResultsTimerDuration(eventId, newValue);
+    }
   };
 
-  const handleConfirmResultsTimer = async () => {
-    if (pendingResultsTimerSeconds !== null) {
-      await updateResultsTimerDuration(eventId, pendingResultsTimerSeconds);
-      showMessage(`Results timer set to ${pendingResultsTimerSeconds}s`);
-      setPendingResultsTimerSeconds(null);
+  const handleResultsTimerDecrement = async () => {
+    const cur = event?.resultsTimerSeconds ?? 10;
+    const idx = RESULTS_TIMER_OPTIONS.indexOf(cur);
+    if (idx > 0) {
+      const newValue = RESULTS_TIMER_OPTIONS[idx - 1];
+      await updateResultsTimerDuration(eventId, newValue);
     }
   };
 
@@ -286,22 +275,6 @@ export default function AdminSettings() {
 
   const getResultsTimeLeftDisplay = () => {
     return `${resultsTimeLeft}s`;
-  };
-
-  const getCurrentTimerLabel = () => {
-    const seconds =
-      pendingTimerSeconds !== null
-        ? pendingTimerSeconds
-        : event?.questionTimerSeconds || 300;
-    return formatSeconds(seconds);
-  };
-
-  const getCurrentResultsTimerLabel = () => {
-    const seconds =
-      pendingResultsTimerSeconds !== null
-        ? pendingResultsTimerSeconds
-        : event?.resultsTimerSeconds || 10;
-    return formatSeconds(seconds);
   };
 
   // ── Render ─────────────────────────────────────────────────────────
@@ -394,26 +367,22 @@ export default function AdminSettings() {
         <div className={styles.timersRow}>
           <TimerControl
             label="Question Timer"
-            currentValue={getCurrentTimerLabel()}
+            currentValue={formatSeconds(event?.questionTimerSeconds || 120)}
             options={QUESTION_TIMER_OPTIONS}
             onIncrement={handleTimerIncrement}
             onDecrement={handleTimerDecrement}
-            onConfirm={handleConfirmTimer}
             formatValue={(val) => val}
-            disabled={pendingTimerSeconds === null && event.status !== "lobby"}
+            disabled={event.status !== "lobby"}
           />
 
           <TimerControl
             label="Results Timer"
-            currentValue={getCurrentResultsTimerLabel()}
+            currentValue={formatSeconds(event?.resultsTimerSeconds || 30)}
             options={RESULTS_TIMER_OPTIONS}
             onIncrement={handleResultsTimerIncrement}
             onDecrement={handleResultsTimerDecrement}
-            onConfirm={handleConfirmResultsTimer}
             formatValue={(val) => val}
-            disabled={
-              pendingResultsTimerSeconds === null && event.status !== "lobby"
-            }
+            disabled={event.status !== "lobby"}
           />
         </div>
 
@@ -421,7 +390,6 @@ export default function AdminSettings() {
         {event.status === "lobby" && (
           <LobbyControls
             event={event}
-            allQuestions={allQuestions}
             onRemoveQuestion={handleRemoveQuestion}
             onStartGame={handleStartGame}
             onDeleteEvent={handleDeleteEvent}
@@ -438,16 +406,6 @@ export default function AdminSettings() {
             timeLeftDisplay={getTimeLeftDisplay()}
             onNextQuestion={handleNextQuestion}
             onEndQuestion={handleEndQuestion}
-            onEndGame={() => openConfirmModal(
-              "End Game",
-              "Are you sure you want to end this game?",
-              () => {
-                closeModal();
-                handleEndGame();
-              },
-              "End Game",
-              "danger"
-            )}
             onResetGame={() => openConfirmModal(
               "Reset Game",
               "Reset the game? All answers will be cleared.",
@@ -467,16 +425,6 @@ export default function AdminSettings() {
             event={event}
             timeLeftDisplay={getResultsTimeLeftDisplay()}
             onNextQuestion={handleNextQuestion}
-            onEndGame={() => openConfirmModal(
-              "End Game",
-              "Are you sure you want to end this game?",
-              () => {
-                closeModal();
-                handleEndGame();
-              },
-              "End Game",
-              "danger"
-            )}
             onResetGame={() => openConfirmModal(
               "Reset Game",
               "Reset the game? All answers will be cleared.",

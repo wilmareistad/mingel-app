@@ -27,24 +27,3 @@
   border-radius: 0.375rem;
   color: var(--text-primary);
 }
-
-.setBtn {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: white;
-  background-color: var(--primary);
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.setBtn:hover:not(:disabled) {
-  background-color: var(--primary-dark);
-}
-
-.setBtn:disabled {
-  background-color: var(--border-color);
-  cursor: not-allowed;
-}

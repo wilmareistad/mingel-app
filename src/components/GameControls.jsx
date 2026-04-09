@@ -13,7 +13,6 @@ export default function GameControls({
   timeLeftDisplay,
   onNextQuestion,
   onEndQuestion,
-  onEndGame,
   onResetGame,
 }) {
   const totalQuestions =
@@ -35,9 +34,6 @@ export default function GameControls({
         </button>
         <button className={styles.secondaryBtn} onClick={onEndQuestion}>
           End Question & Show Results
-        </button>
-        <button className={styles.dangerBtn} onClick={onEndGame}>
-          End Game
         </button>
         <button className={styles.ghostBtn} onClick={onResetGame}>
           Reset Game

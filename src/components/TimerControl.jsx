@@ -4,6 +4,7 @@ import styles from "./TimerControl.module.css";
 /**
  * Reusable timer control component for incrementing/decrementing durations
  * Used for both question timer and results timer
+ * Auto-saves changes to database - no "Set" button needed
  */
 export default function TimerControl({
   label,
@@ -11,7 +12,6 @@ export default function TimerControl({
   options,
   onIncrement,
   onDecrement,
-  onConfirm,
   formatValue,
   disabled = false,
 }) {
@@ -34,13 +34,6 @@ export default function TimerControl({
           label={`Increase ${label.toLowerCase()}`}
           disabled={disabled}
         />
-        <button
-          className={styles.setBtn}
-          onClick={onConfirm}
-          disabled={disabled}
-        >
-          Set
-        </button>
       </div>
     </div>
   );

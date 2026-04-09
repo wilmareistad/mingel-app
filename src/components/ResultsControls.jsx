@@ -8,7 +8,6 @@ export default function ResultsControls({
   event,
   timeLeftDisplay,
   onNextQuestion,
-  onEndGame,
   onResetGame,
 }) {
   return (
@@ -24,9 +23,6 @@ export default function ResultsControls({
           <div className={styles.btnGroup}>
             <button className={styles.primaryBtn} onClick={onNextQuestion}>
               Next Question
-            </button>
-            <button className={styles.dangerBtn} onClick={onEndGame}>
-              End Game
             </button>
             <button className={styles.ghostBtn} onClick={onResetGame}>
               Reset Game
