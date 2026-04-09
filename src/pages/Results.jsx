@@ -7,6 +7,7 @@ import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { getQuestionAnswers } from "../features/game/gameService";
 import { useTheme } from "../hooks/useTheme";
+import ResultsTimer from "../components/ResultsTimer";
 import styles from "./Results.module.css";
 
 export default function Results() {
@@ -22,7 +23,6 @@ export default function Results() {
   const [question, setQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(0);
 
   // Effect 1: Handle navigation away from results status
   useEffect(() => {
@@ -65,40 +65,6 @@ export default function Results() {
     loadData();
   }, [event?.status, event?.currentQuestionIndex, event?.showingResultsOnly, eventId]);
 
-  // Calculate time remaining for results phase
-  useEffect(() => {
-    if (!event || event.status !== "results" || !event.showingResultsOnly) {
-      setTimeLeft(0);
-      return;
-    }
-
-    const updateTimeLeft = () => {
-      const durationSeconds = event.resultsTimerSeconds || 10;
-      const phaseStartedAt =
-        event.resultsPhaseStartedAt?.toMillis?.() || event.resultsPhaseStartedAt;
-
-      if (!phaseStartedAt) {
-        setTimeLeft(durationSeconds);
-        return;
-      }
-
-      const now = Date.now();
-      const elapsedMs = now - phaseStartedAt;
-      const elapsedSeconds = Math.floor(elapsedMs / 1000);
-      const remaining = Math.max(0, durationSeconds - elapsedSeconds);
-
-      setTimeLeft(remaining);
-    };
-
-    // Update immediately
-    updateTimeLeft();
-
-    // Then update every 100ms for smooth display
-    const interval = setInterval(updateTimeLeft, 100);
-
-    return () => clearInterval(interval);
-  }, [event?.status, event?.resultsPhaseStartedAt, event?.resultsTimerSeconds, event?.showingResultsOnly]);
-
   if (loading) return <div>Loading results...</div>;
   if (!question) return <div>No question available</div>;
 
@@ -114,12 +80,25 @@ export default function Results() {
 
   return (
     <div className={styles.resultsContainer}>
+      {/* Timer at the top */}
+      <div className={styles.timerContainer}>
+        <ResultsTimer 
+          eventId={eventId}
+          event={event}
+        />
+      </div>
+
       <div className={styles.resultsHeader}>
         <h1>{question.text}</h1>
         <p className={styles.resultsSubtitle}>Results</p>
       </div>
 
-      <div className={styles.resultsColumns}>
+      <div 
+        className={styles.resultsColumns}
+        style={{
+          '--answer-count': totalVotes,
+        }}
+      >
         {question.options.map((option, index) => {
           const voteCount = voteCounts[index];
           const percentage =
@@ -149,32 +128,6 @@ export default function Results() {
 
       <div className={styles.resultsFooter}>
         <p className={styles.resultsCount}>Total votes: {totalVotes}</p>
-        
-        {/* Timer countdown to next question */}
-        {timeLeft > 0 && (
-          <div className={styles.autoAdvanceTimer}>
-            <p className={styles.timerMessage}>Next question in:</p>
-            <p className={styles.timerValue}>{timeLeft}s</p>
-          </div>
-        )}
-        
-        {/* Manual button as fallback if timer doesn't work */}
-        <button 
-          onClick={async () => {
-            try {
-              // Change status back to lobby so the listener redirects
-              await updateDoc(doc(db, "events", eventId), {
-                status: "lobby"
-              });
-              navigate(`/lobby/${eventId}`);
-            } catch (error) {
-              console.error("Error returning to lobby:", error);
-            }
-          }}
-          className={styles.returnButton}
-        >
-          Return to Lobby
-        </button>
       </div>
     </div>
   );
