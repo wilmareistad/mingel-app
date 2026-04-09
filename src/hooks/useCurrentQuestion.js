@@ -12,6 +12,7 @@ export function useCurrentQuestion(event) {
   const [voteCount, setVoteCount] = useState(0);
 
   useEffect(() => {
+    // Clear question when not in question phase
     if (!event || event.status !== "question") {
       setCurrentQuestion(null);
       setVoteCount(0);
@@ -24,8 +25,8 @@ export function useCurrentQuestion(event) {
         ...(event.customQuestions || []),
       ];
 
-      const questionIndex = event.currentQuestionIndex || 0;
-      if (questionIndex < allQuestionIds.length) {
+      const questionIndex = event.currentQuestionIndex ?? 0;
+      if (questionIndex >= 0 && questionIndex < allQuestionIds.length) {
         const questionId = allQuestionIds[questionIndex];
 
         // Try to fetch from public questions first

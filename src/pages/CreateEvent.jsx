@@ -9,6 +9,7 @@ import { themes, applyTheme, resetTheme } from "../config/themes";
 import { useTheme } from "../hooks/useTheme";
 import { QUESTION_TIMER_OPTIONS, RESULTS_TIMER_OPTIONS } from "../config/gameConfig";
 import styles from "./CreateEvent.module.css";
+import buttonBaseStyles from "../styles/buttonBase.module.css";
 
 export default function CreateEvent() {
   const navigate = useNavigate();
@@ -154,7 +155,12 @@ export default function CreateEvent() {
 
   return (
     <div>
-      <h1>Set up new event</h1>
+      <div className={styles.headerRow}>
+        <button className={buttonBaseStyles.backBtn} onClick={() => navigate("/admin")}>
+          ← Back
+        </button>
+        <h1>Set up new event</h1>
+      </div>
 
       <div className={styles.inputContainer}>
         <label>Name:</label>

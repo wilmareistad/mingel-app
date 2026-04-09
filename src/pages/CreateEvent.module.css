@@ -7,6 +7,25 @@ h1 {
   margin-bottom: 32px;
 }
 
+.headerRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  margin-bottom: 32px;
+  width: 100%;
+  gap: 16px;
+}
+
+.headerRow h1 {
+  margin-bottom: 0;
+  grid-column: 2;
+  text-align: center;
+}
+
+.headerRow button {
+  grid-column: 1;
+}
+
 .inputContainer {
   display: flex;
   flex-direction: column;

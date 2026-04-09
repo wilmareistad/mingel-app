@@ -51,6 +51,21 @@ export default function AdminSettings() {
     handleNextQuestion();
   }, [handleNextQuestion]);
 
+  // ── Timer Update State ────────────────────────────────────────────
+  // Forces re-render every 100ms to keep timer display updated
+  const [, setTimerTick] = useState(0);
+
+  useEffect(() => {
+    // Update timer display during both question and results phases
+    if (event?.status !== "question" && event?.status !== "results") return;
+
+    const interval = setInterval(() => {
+      setTimerTick((prev) => prev + 1);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [event?.status]);
+
   // 📊 Compute question timer display (read-only, no DB writes)
   // GameTimer component is responsible for progression
   const questionTimeLeft = (() => {
@@ -274,7 +289,16 @@ export default function AdminSettings() {
   };
 
   const getResultsTimeLeftDisplay = () => {
-    return `${resultsTimeLeft}s`;
+    const minutes = Math.floor(resultsTimeLeft / 60);
+    const seconds = resultsTimeLeft % 60;
+
+    if (minutes === 0) {
+      return `${seconds}s`;
+    } else if (seconds === 0) {
+      return `${minutes}min`;
+    } else {
+      return `${minutes}min ${seconds}s`;
+    }
   };
 
   // ── Render ─────────────────────────────────────────────────────────
@@ -423,6 +447,9 @@ export default function AdminSettings() {
         {event.status === "results" && (
           <ResultsControls
             event={event}
+            currentQuestion={currentQuestion}
+            currentIndex={event?.currentQuestionIndex || 0}
+            totalQuestions={totalQuestions}
             timeLeftDisplay={getResultsTimeLeftDisplay()}
             onNextQuestion={handleNextQuestion}
             onResetGame={() => openConfirmModal(

@@ -1,3 +1,4 @@
+import ResultsDisplay from "./ResultsDisplay";
 import styles from "./ResultsControls.module.css";
 
 /**
@@ -6,6 +7,9 @@ import styles from "./ResultsControls.module.css";
  */
 export default function ResultsControls({
   event,
+  currentQuestion,
+  currentIndex,
+  totalQuestions,
   timeLeftDisplay,
   onNextQuestion,
   onResetGame,
@@ -14,12 +18,12 @@ export default function ResultsControls({
     <div className={styles.section}>
       {event.showingResultsOnly ? (
         <>
-          <p className={styles.resultsText}>
-            Showing results for current question.
-            {timeLeftDisplay > 0 && (
-              <span> Auto-advancing in {timeLeftDisplay}</span>
-            )}
-          </p>
+          <ResultsDisplay
+            question={currentQuestion}
+            currentIndex={currentIndex}
+            totalQuestions={totalQuestions}
+            timeLeft={timeLeftDisplay}
+          />
           <div className={styles.btnGroup}>
             <button className={styles.primaryBtn} onClick={onNextQuestion}>
               Next Question
