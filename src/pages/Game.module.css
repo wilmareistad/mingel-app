@@ -142,6 +142,66 @@
   pointer-events: none;
 }
 
+/* First answer button (Agree) - Blue */
+.answerButton:nth-child(1) {
+  border-color: #001A52;
+  background: #001A52;
+  color: white;
+}
+
+.answerButton:nth-child(1):hover:not(:disabled) {
+  border-color: #001A52;
+  box-shadow: 0 0 10px rgba(0, 26, 82, 0.3);
+  background: #001A52;
+}
+
+.answerButton:nth-child(1).selected {
+  border-color: #001A52;
+  background: #001A52;
+  color: white;
+}
+
+/* Second answer button (Disagree) - Red */
+.answerButton:nth-child(2) {
+  border-color: #001A52;
+  background: #E51536;
+  color: white;
+}
+
+.answerButton:nth-child(2):hover:not(:disabled) {
+  border-color: #001A52;
+  box-shadow: 0 0 10px rgba(229, 21, 54, 0.3);
+  background: #E51536;
+}
+
+.answerButton:nth-child(2).selected {
+  border-color: #001A52;
+  background: #E51536;
+  color: white;
+}
+
+/* Matrix Mode Overrides */
+:global(.matrix) .answerButton:nth-child(1),
+:global(.matrix) .answerButton:nth-child(2) {
+  border-color: #00FF41;
+  background: transparent;
+  color: #00FF41;
+}
+
+:global(.matrix) .answerButton:nth-child(1):hover:not(:disabled),
+:global(.matrix) .answerButton:nth-child(2):hover:not(:disabled) {
+  border-color: #00FF41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+}
+
+:global(.matrix) .answerButton:nth-child(1).selected,
+:global(.matrix) .answerButton:nth-child(2).selected {
+  border-color: #00FF41;
+  background: #00FF41;
+  color: #000000;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+}
+
 /* Center the selected answer */
 .answerButtons:has(.selected) {
   align-items: center;
