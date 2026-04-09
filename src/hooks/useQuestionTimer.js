@@ -44,6 +44,7 @@ export function useQuestionTimer(event, eventId, onTimeExpired) {
       // Additional safety: Only transition if duration is positive
       if (remaining === 0 && !timerExpiredRef.current && durationSeconds > 0) {
         timerExpiredRef.current = true;
+        console.log("⏰ QUESTION TIMER EXPIRED - transitioning to results");
 
         // Atomic write: transition to results phase
         const eventRef = doc(db, "events", eventId);

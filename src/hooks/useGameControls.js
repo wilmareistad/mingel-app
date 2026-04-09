@@ -71,9 +71,19 @@ export function useGameControls(eventId, participants, onMessageChange) {
       // Use the FRESH currentQuestionIndex from the latest read
       const nextIndex = (freshEvent.currentQuestionIndex || 0) + 1;
 
+      // Check if we're in results phase from finishing all questions
+      // If so, return to lobby instead of trying to load next question
+      if (freshEvent.status === "results" && nextIndex >= totalQuestions) {
+        // All questions done and results shown - reset to lobby
+        await updateEventStatus(eventId, "lobby");
+        showMessage("Game completed! Returning to lobby.");
+        return;
+      }
+
       // Check if we've reached the end of all questions
       if (nextIndex >= totalQuestions) {
-        // All questions done - show final results
+        // All questions done - transition to final results
+        await updateEventStatus(eventId, "results");
         showMessage("All questions completed! Game finished.");
       } else {
         // More questions to go - proceed to next question
@@ -95,9 +105,9 @@ export function useGameControls(eventId, participants, onMessageChange) {
         participants.length > 0 ? participants : []
       );
 
-      // Reset question index to start from first question
-      await updateCurrentQuestionIndex(eventId, 0);
-      await updateEventStatus(eventId, "question");
+      // ✅ CRITICAL: Use updateToQuestionPhase to set BOTH index AND phaseStartedAt atomically
+      // This ensures GameTimer has a valid phaseStartedAt to work with
+      await updateToQuestionPhase(eventId, 0);
       showMessage("Game started!");
     } catch (e) {
       showMessage("Error starting game.");

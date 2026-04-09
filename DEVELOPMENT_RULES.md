@@ -1,7 +1,7 @@
 # Mingel App - Development Rules & Standards
 
 **Last Updated:** April 8, 2026  
-**Version:** 1.4
+**Version:** 1.5
 
 This document defines the rules and standards for developing Mingel. All developers must follow these rules to maintain code quality, prevent quota exhaustion, and avoid infinite loops.
 
@@ -143,6 +143,58 @@ Developer: "Yes, go ahead" OR "No, let me review first"
 ### 🚨 CRITICAL: Prevent Infinite Loops
 
 These patterns have caused quota exhaustion and must NEVER be used:
+
+#### ❌ Rule 0: Unstable Callback References (INFINITE RE-RENDERS)
+
+**VIOLATION:**
+```javascript
+// ❌ WRONG: Inline arrow function creates new reference every render
+const { event, loading } = useAdminEvent(eventId, () => navigate("/admin"));
+
+// Effect dependency tracking:
+// 1. Component renders
+// 2. New arrow function created: () => navigate("/admin")
+// 3. useAdminEvent sees new dependency
+// 4. Effect re-runs → onSnapshot fires
+// 5. setEvent called → component re-renders
+// 6. Back to step 1... INFINITE LOOP!
+```
+
+**Why it's bad:**
+- New function created on every render
+- Dependency arrays see it as a "change"
+- Effects re-run continuously
+- "Maximum update depth exceeded" error
+- Component crashes or freezes
+
+**Solution:**
+```javascript
+// ✅ CORRECT: Use useCallback to memoize callback
+const handleNavigateToAdmin = useCallback(() => {
+  navigate("/admin");
+}, [navigate]); // ✅ Only changes if navigate changes (it doesn't)
+
+const { event, loading } = useAdminEvent(eventId, handleNavigateToAdmin);
+
+// Now:
+// 1. handleNavigateToAdmin reference stays stable
+// 2. useAdminEvent dependency never changes
+// 3. Effects run once on mount, not repeatedly
+// 4. No infinite loop ✓
+```
+
+**When to use useCallback:**
+- ✅ Passing callbacks to custom hooks that track them as dependencies
+- ✅ Passing callbacks to Context providers
+- ✅ Passing event handlers to memoized child components (React.memo)
+- ✅ Callbacks used inside dependency arrays of other effects
+
+**When NOT needed:**
+- ❌ Simple event handlers in JSX (onClick, onChange)
+- ❌ One-time setup functions
+- ❌ Callbacks not used as dependencies
+
+---
 
 #### ❌ Rule 1: Listener that Updates Itself
 

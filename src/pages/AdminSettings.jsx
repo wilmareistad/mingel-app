@@ -11,7 +11,6 @@ import {
 import { useTheme } from "../hooks/useTheme";
 import { useAdminEvent } from "../hooks/useAdminEvent";
 import { useCurrentQuestion } from "../hooks/useCurrentQuestion";
-import { useQuestionTimer } from "../hooks/useQuestionTimer";
 import { useResultsTimer } from "../hooks/useResultsTimer";
 import { useGameControls } from "../hooks/useGameControls";
 import ConfirmModal from "../components/ConfirmModal";
@@ -26,10 +25,14 @@ export default function AdminSettings() {
   const { eventId } = useParams();
   const navigate = useNavigate();
 
+  // ✅ FIXED: Wrap navigation callback in useCallback to prevent infinite loops
+  // Otherwise, every render creates a new function → useAdminEvent dependency triggers re-render
+  const handleNavigateToAdmin = useCallback(() => {
+    navigate("/admin");
+  }, [navigate]);
+
   // ── Hooks ──────────────────────────────────────────────────────────
-  const { event, loading, message, setMessage } = useAdminEvent(eventId, () =>
-    navigate("/admin")
-  );
+  const { event, loading, message, setMessage } = useAdminEvent(eventId, handleNavigateToAdmin);
 
   const [participants, setParticipants] = useState([]);
   const { currentQuestion, voteCount, setVoteCount } = useCurrentQuestion(event);
@@ -48,7 +51,20 @@ export default function AdminSettings() {
     handleNextQuestion();
   }, [handleNextQuestion]);
 
-  const { timeLeft: questionTimeLeft } = useQuestionTimer(event, eventId);
+  // 📊 Compute question timer display (read-only, no DB writes)
+  // GameTimer component is responsible for progression
+  const questionTimeLeft = (() => {
+    if (!event || event.status !== "question") return 0;
+    const durationSeconds = event.questionTimerSeconds || 30;
+    const questionPhaseStartedAt =
+      event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
+    if (!questionPhaseStartedAt) return durationSeconds;
+    const now = Date.now();
+    const elapsedMs = now - questionPhaseStartedAt;
+    const elapsedSeconds = Math.floor(elapsedMs / 1000);
+    return Math.max(0, durationSeconds - elapsedSeconds);
+  })();
+
   const { timeLeft: resultsTimeLeft } = useResultsTimer(
     event,
     eventId,
