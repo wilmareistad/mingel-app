@@ -27,7 +27,6 @@ export default function Header() {
       <a href="/" onClick={handleLogoClick} className={styles.logo}>
         Pulse
       </a>
-      <img src={GearIcon} alt="Settings" className={styles.icon} />
       </nav>
     </header>
   );
