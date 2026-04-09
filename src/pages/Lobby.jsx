@@ -12,12 +12,13 @@ import {
 import { db } from "../services/firebase";
 import { hasUserAnswered } from "../features/game/gameService";
 import { deleteAnswersForEvent } from "../features/game/dataCleanup";
-import { listenToParticipants, setShowingResultsOnly } from "../features/event/eventService";
+import { listenToParticipants, setShowingResultsOnly, updateEventStatus } from "../features/event/eventService";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { useTheme } from "../hooks/useTheme";
 import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import KickedModal from "../components/KickedModal";
+import GameTimer from "../components/GameTimer";
 import styles from "./Lobby.module.css";
 
 export default function Lobby() {
@@ -29,7 +30,6 @@ export default function Lobby() {
   const [error, setError] = useState(null);
   const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
   const [isKicked, setIsKicked] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
 
   // Apply theme based on event
   useTheme(event?.theme);
@@ -71,11 +71,17 @@ export default function Lobby() {
     try {
       // If we're in a question phase, transition to results
       if (event.status === "question") {
-        // Just signal results - AdminSettings will control the results display
+        // Transition to results status (GameTimer fires and calls this)
+        console.log("⏱️ handleTimerExpired: Updating event status to 'results' and enabling results display");
+        await updateEventStatus(eventId, "results");
+        // CRITICAL: Also enable results display so Results page will render
         await setShowingResultsOnly(eventId, true);
+        console.log("✅ handleTimerExpired: Event status updated and results enabled");
+      } else {
+        console.log("⏱️ handleTimerExpired: Event status is", event.status, "- not transitioning");
       }
     } catch (error) {
-      console.error("Error handling timer expiration:", error);
+      console.error("❌ Error handling timer expiration:", error);
     }
   };
 
@@ -91,7 +97,10 @@ export default function Lobby() {
 
         // GAME LOOP: If event status changes to "results" → navigate to results page
         if (eventData.status === "results") {
+          console.log("📍 Event status changed to 'results' - navigating to results page");
           navigate(`/results/${eventId}`);
+        } else {
+          console.log("📍 Event listener fired - status:", eventData.status);
         }
 
         // GAME LOOP: If event status changes to "question" → mark for validation
@@ -182,40 +191,6 @@ export default function Lobby() {
     validateAndNavigate();
   }, [event?.status, lastQuestionIndex, eventId, navigate]);
 
-  // Calculate time remaining for question phase (shown in lobby while waiting for results)
-  useEffect(() => {
-    if (!event || event.status !== "question") {
-      setTimeLeft(0);
-      return;
-    }
-
-    const updateTimeLeft = () => {
-      const durationSeconds = event.questionTimerSeconds || 30;
-      const phaseStartedAt =
-        event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
-
-      if (!phaseStartedAt) {
-        setTimeLeft(durationSeconds);
-        return;
-      }
-
-      const now = Date.now();
-      const elapsedMs = now - phaseStartedAt;
-      const elapsedSeconds = Math.floor(elapsedMs / 1000);
-      const remaining = Math.max(0, durationSeconds - elapsedSeconds);
-
-      setTimeLeft(remaining);
-    };
-
-    // Update immediately
-    updateTimeLeft();
-
-    // Then update every 100ms for smooth display
-    const interval = setInterval(updateTimeLeft, 100);
-
-    return () => clearInterval(interval);
-  }, [event?.status, event?.phaseStartedAt, event?.questionTimerSeconds]);
-
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
 
@@ -243,17 +218,14 @@ export default function Lobby() {
         </div>
       )}
 
-      {event.status === "question" && (
-        <div className={styles.statusMessage}>
-          <p>Question in progress...</p>
-          {userHasAnswered ? (
-            <>
-              <p className={styles.userAnsweredMessage}>✓ You have answered!</p>
-              <p className={styles.timerText}>Results in: <span className={styles.timer}>{timeLeft}s</span></p>
-            </>
-          ) : (
-            <p className={styles.waitingMessage}>Waiting for you to answer...</p>
-          )}
+      {event.status === "question" && event && (
+        <div className={styles.timerContainer}>
+          <GameTimer 
+            eventId={eventId}
+            event={event}
+            onTimeExpired={handleTimerExpired}
+            isActive={true}
+          />
         </div>
       )}
 

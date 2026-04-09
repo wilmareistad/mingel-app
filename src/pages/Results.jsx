@@ -28,8 +28,14 @@ export default function Results() {
   useEffect(() => {
     if (!event) return;
 
+    console.log("Results: Effect 1 running", {
+      status: event.status,
+      showingResultsOnly: event.showingResultsOnly
+    });
+
     // If game is no longer in results state AND we're not showing results for just this question → go back to lobby
     if (event.status !== "results" && !event.showingResultsOnly) {
+      console.log("Results: Navigating back to lobby");
       navigate(`/lobby/${eventId}`);
       return;
     }
@@ -38,26 +44,38 @@ export default function Results() {
   // Effect 2: Load question and answers ONLY when currentQuestionIndex changes
   // Separate from navigation effect to prevent excessive reruns during timer updates
   useEffect(() => {
+    console.log("Results: Effect 2 running", {
+      hasEvent: !!event,
+      status: event?.status,
+      showingResultsOnly: event?.showingResultsOnly,
+      currentQuestionIndex: event?.currentQuestionIndex
+    });
+
     if (!event || event.status !== "results" || !event.showingResultsOnly) {
+      console.log("Results: Skipping load - conditions not met");
       return;
     }
 
     // Load current question and answers
     async function loadData() {
       try {
+        console.log("Results: Loading data for question index", event.currentQuestionIndex);
         const q = await getCurrentEventQuestion(
           event.id,
           event.currentQuestionIndex
         );
+        console.log("Results: Question loaded", q);
         setQuestion(q);
 
         if (q) {
           const allAnswers = await getQuestionAnswers(eventId, q.id);
+          console.log("Results: Answers loaded", allAnswers.length, "answers");
           setAnswers(allAnswers);
         }
       } catch (error) {
         console.error("Error loading results:", error);
       } finally {
+        console.log("Results: Setting loading to false");
         setLoading(false);
       }
     }

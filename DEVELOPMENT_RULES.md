@@ -1,7 +1,7 @@
 # Mingel App - Development Rules & Standards
 
 **Last Updated:** April 8, 2026  
-**Version:** 1.4
+**Version:** 1.5
 
 This document defines the rules and standards for developing Mingel. All developers must follow these rules to maintain code quality, prevent quota exhaustion, and avoid infinite loops.
 
@@ -10,6 +10,9 @@ This document defines the rules and standards for developing Mingel. All develop
 ## Table of Contents
 
 1. [Documentation Rules](#documentation-rules)
+   - [Markdown Documentation Standard](#-markdown-documentation-standard)
+   - [AI Agent File Creation Rule](#-ai-agent-file-creation-rule)
+   - [Git Commit/Push Permission Rule](#-git-commitpush-permission-rule)
 2. [Anti-Pattern Rules](#anti-pattern-rules)
 3. [Database Rules](#database-rules)
 4. [React/Effect Rules](#reacteffect-rules)
@@ -50,11 +53,148 @@ This document defines the rules and standards for developing Mingel. All develop
 
 ---
 
+### 🤖 AI Agent File Creation Rule
+
+**RULE:** AI agents MUST NOT create documentation files (.md), configuration files, or any other files unless explicitly requested by the developer.
+
+**Violation Examples:**
+- ❌ Creating `FIREBASE_REQUEST_ANALYSIS.md` to document findings
+- ❌ Creating `RATE_LIMITING_OPTIMIZATION.md` to explain solutions
+- ❌ Creating `IMPLEMENTATION_COMPLETE.md` as a summary
+- ❌ Creating any `.md`, `.txt`, `.json`, or other file types as "documentation"
+
+**What AI agents SHOULD do instead:**
+- ✅ Implement the actual code fixes directly
+- ✅ Add detailed comments in the code explaining patterns
+- ✅ Use meaningful commit messages that document what changed and why
+- ✅ If important insights exist, request permission to update `DEVELOPMENT_RULES.md`
+- ✅ Include technical details in code comments, not separate files
+
+**Example - WRONG:**
+```
+Agent creates FIREBASE_ANALYSIS.md explaining rate limiting issues
+→ Then creates RATE_LIMITING_OPTIMIZATION.md with solution guide
+→ Then creates IMPLEMENTATION_COMPLETE.md with testing checklist
+Result: 3 new files cluttering the project root ❌
+```
+
+**Example - RIGHT:**
+```
+Agent adds detailed comment blocks in useGameControls.js explaining batch operations
+Agent implements batchService.js with full JSDoc comments
+Agent writes commit message: "feat: Implement batch operations for high-volume events
+
+- Add batchService.js with batched writes for 100+ participants
+- Parallelize cleanup operations in game loop
+- Fix race condition in handleNextQuestion
+- Support multiple concurrent events without rate limiting"
+Result: Clean code, clear history, no extra files ✅
+```
+
+**Why:** 
+- Project root stays clean and maintainable
+- Documentation is co-located with code (easier to update)
+- Commit messages provide full history of changes
+- Developers can find answers by reading code, not searching files
+- Reduces git clutter and improves repository signal-to-noise ratio
+
+---
+
+### 🔐 Git Commit/Push Permission Rule
+
+**RULE:** AI agents MUST ask explicit permission from the developer before executing any git commit or git push commands.
+
+**What Requires Permission:**
+- ✋ `git commit` - Any commit operation
+- ✋ `git push` - Any push to remote
+- ✋ `git rebase` - Rebasing commits
+- ✋ `git reset` - Resetting to previous state
+- ✋ `git merge` - Merging branches
+
+**What Does NOT Require Permission:**
+- ✅ `git status` - Checking status
+- ✅ `git log` - Viewing history
+- ✅ `git diff` - Viewing changes
+- ✅ `git add` - Staging files (if permission given for commit)
+
+**Correct Pattern:**
+```
+Agent: "I've made the following changes:
+- Modified src/hooks/useGameControls.js to add batch operations
+- Updated src/features/event/batchService.js with new functions
+
+Would you like me to commit and push these changes? Here's the proposed commit message:
+'feat: Implement batch operations for high-volume events'"
+
+Developer: "Yes, go ahead" OR "No, let me review first"
+```
+
+**Why:**
+- Prevents accidental commits of incomplete work
+- Gives developer time to review changes before they're pushed
+- Protects against unwanted commits on wrong branch
+- Maintains developer control over git history
+- Prevents intermediate/experimental commits from polluting history
+
+---
+
 ## Anti-Pattern Rules
 
 ### 🚨 CRITICAL: Prevent Infinite Loops
 
 These patterns have caused quota exhaustion and must NEVER be used:
+
+#### ❌ Rule 0: Unstable Callback References (INFINITE RE-RENDERS)
+
+**VIOLATION:**
+```javascript
+// ❌ WRONG: Inline arrow function creates new reference every render
+const { event, loading } = useAdminEvent(eventId, () => navigate("/admin"));
+
+// Effect dependency tracking:
+// 1. Component renders
+// 2. New arrow function created: () => navigate("/admin")
+// 3. useAdminEvent sees new dependency
+// 4. Effect re-runs → onSnapshot fires
+// 5. setEvent called → component re-renders
+// 6. Back to step 1... INFINITE LOOP!
+```
+
+**Why it's bad:**
+- New function created on every render
+- Dependency arrays see it as a "change"
+- Effects re-run continuously
+- "Maximum update depth exceeded" error
+- Component crashes or freezes
+
+**Solution:**
+```javascript
+// ✅ CORRECT: Use useCallback to memoize callback
+const handleNavigateToAdmin = useCallback(() => {
+  navigate("/admin");
+}, [navigate]); // ✅ Only changes if navigate changes (it doesn't)
+
+const { event, loading } = useAdminEvent(eventId, handleNavigateToAdmin);
+
+// Now:
+// 1. handleNavigateToAdmin reference stays stable
+// 2. useAdminEvent dependency never changes
+// 3. Effects run once on mount, not repeatedly
+// 4. No infinite loop ✓
+```
+
+**When to use useCallback:**
+- ✅ Passing callbacks to custom hooks that track them as dependencies
+- ✅ Passing callbacks to Context providers
+- ✅ Passing event handlers to memoized child components (React.memo)
+- ✅ Callbacks used inside dependency arrays of other effects
+
+**When NOT needed:**
+- ❌ Simple event handlers in JSX (onClick, onChange)
+- ❌ One-time setup functions
+- ❌ Callbacks not used as dependencies
+
+---
 
 #### ❌ Rule 1: Listener that Updates Itself
 
