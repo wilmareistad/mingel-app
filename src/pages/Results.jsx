@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { useEvent } from "../features/event/useEvent";
@@ -13,6 +13,8 @@ import styles from "./Results.module.css";
 export default function Results() {
   const navigate = useNavigate();
   const { eventId } = useParams();
+  const [searchParams] = useSearchParams();
+  const isAdminView = searchParams.get("admin") === "true";
 
   const { event } = useEvent(eventId);
   const { user } = useUser();
@@ -36,10 +38,13 @@ export default function Results() {
     // If game is no longer in results state AND we're not showing results for just this question → go back to lobby
     if (event.status !== "results" && !event.showingResultsOnly) {
       console.log("Results: Navigating back to lobby");
-      navigate(`/lobby/${eventId}`);
+      const redirectPath = isAdminView 
+        ? `/admin/lobby/${eventId}` 
+        : `/lobby/${eventId}`;
+      navigate(redirectPath);
       return;
     }
-  }, [event?.status, event?.showingResultsOnly, eventId, navigate]);
+  }, [event?.status, event?.showingResultsOnly, eventId, navigate, isAdminView]);
 
   // Effect 2: Load question and answers ONLY when currentQuestionIndex changes
   // Separate from navigation effect to prevent excessive reruns during timer updates
