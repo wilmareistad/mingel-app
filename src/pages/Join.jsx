@@ -208,28 +208,13 @@ export default function Join() {
             />
           </div>
 
-          {/* Right controls with labels */}
+          {/* Right controls */}
           <div className={styles.rightControls}>
-            <div className={styles.controlRow}>
-              <ToggleButton size="small" direction="right" label="Next Hair" onClick={() => handleHairChange("right")} />
-              <span className={styles.label}>Hair</span>
-            </div>
-            <div className={styles.controlRow}>
-              <ToggleButton size="small" direction="right" label="Next Eyes" onClick={() => handleEyeChange("right")} />
-              <span className={styles.label}>Eyes</span>
-            </div>
-            <div className={styles.controlRow}>
-              <ToggleButton size="small" direction="right" label="Next Nose" onClick={() => handleNoseChange("right")} />
-              <span className={styles.label}>Nose</span>
-            </div>
-            <div className={styles.controlRow}>
-              <ToggleButton size="small" direction="right" label="Next Mouth" onClick={() => handleMouthChange("right")} />
-              <span className={styles.label}>Mouth</span>
-            </div>
-            <div className={styles.controlRow}>
-              <ToggleButton size="small" direction="right" label="Next Base" onClick={() => handleBaseChange("right")} />
-              <span className={styles.label}>Base</span>
-            </div>
+            <ToggleButton size="small" direction="right" label="Next Hair" onClick={() => handleHairChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Eyes" onClick={() => handleEyeChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Nose" onClick={() => handleNoseChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Mouth" onClick={() => handleMouthChange("right")} />
+            <ToggleButton size="small" direction="right" label="Next Base" onClick={() => handleBaseChange("right")} />
           </div>
         </div>
 
