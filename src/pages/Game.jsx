@@ -5,6 +5,8 @@ import { useUser } from "../features/user/useUser";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { submitAnswer, hasUserAnswered } from "../features/game/gameService";
 import { listenToParticipants, setShowingResultsOnly, updateEventStatus } from "../features/event/eventService";
+import { useAutoLeaveGame } from "../hooks/useAutoLeaveGame";
+import { useAFKKick } from "../hooks/useAFKKick";
 import GameTimer from "../components/GameTimer";
 import KickedModal from "../components/KickedModal";
 import { useTheme } from "../hooks/useTheme";
@@ -19,6 +21,12 @@ export default function Game() {
 
   // Apply theme based on event
   useTheme(event?.theme);
+
+  // Auto-remove player when leaving event
+  useAutoLeaveGame(eventId);
+
+  // Auto-kick player if inactive for 15 minutes
+  useAFKKick(eventId);
 
   const [question, setQuestion] = useState(null);
   const [answered, setAnswered] = useState(false);
@@ -46,9 +54,9 @@ export default function Game() {
 
   const handleKickedModalClose = () => {
     // Clear user data and redirect to home
-    localStorage.removeItem("userId");
-    localStorage.removeItem("eventId");
-    localStorage.removeItem("userDocId");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("eventId");
+    sessionStorage.removeItem("userDocId");
     navigate("/");
   };
 
@@ -113,7 +121,7 @@ export default function Game() {
     if (!eventId) return;
 
     const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
-      const userId = localStorage.getItem("userId");
+      const userId = sessionStorage.getItem("userId");
       
       // Check if current user is still in participants list
       // If not, they've been kicked by the admin

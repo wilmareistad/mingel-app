@@ -177,11 +177,11 @@ export default function Join() {
       };
       await addParticipant(eventId, userId, username, avatarConfig);
 
-      localStorage.setItem("userDocId", userId);
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("eventId", eventId);
-      localStorage.setItem("username", username);
-      localStorage.setItem("avatar", JSON.stringify(avatarConfig));
+      sessionStorage.setItem("userDocId", userId);
+      sessionStorage.setItem("userId", userId);
+      sessionStorage.setItem("eventId", eventId);
+      sessionStorage.setItem("username", username);
+      sessionStorage.setItem("avatar", JSON.stringify(avatarConfig));
 
       navigate(`/lobby/${eventId}`);
     } catch (error) {

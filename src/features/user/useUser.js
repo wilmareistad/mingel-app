@@ -12,7 +12,7 @@ export function useUser() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const userId = sessionStorage.getItem("userId");
 
     if (!userId) {
       setLoading(false);

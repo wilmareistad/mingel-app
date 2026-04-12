@@ -10,13 +10,31 @@ export default function Header() {
   const handleLogoClick = async (e) => {
     e.preventDefault();
 
-    const userDocId = localStorage.getItem("userDocId");
+    const userDocId = sessionStorage.getItem("userDocId");
+    const userId = sessionStorage.getItem("userId");
+    const eventId = sessionStorage.getItem("eventId");
+
+    // Delete from legacy users collection
     if (userDocId) {
-      await deleteDoc(doc(db, "users", userDocId));
-      localStorage.removeItem("userId");
-      localStorage.removeItem("eventId");
-      localStorage.removeItem("userDocId");
+      try {
+        await deleteDoc(doc(db, "users", userDocId));
+      } catch (error) {
+        console.warn("Could not delete user doc:", error);
+      }
     }
+
+    // Delete from participants sub-collection
+    if (userId && eventId) {
+      try {
+        await deleteDoc(doc(db, "events", eventId, "participants", userId));
+      } catch (error) {
+        console.warn("Could not delete participant:", error);
+      }
+    }
+
+    // Don't clear sessionStorage here - let the Lobby detect the user is missing from Firestore
+    // When they navigate back via browser history, they'll see the kicked modal
+    // sessionStorage will be cleared on tab close via beforeunload in useAutoLeaveGame
 
     navigate("/");
   };

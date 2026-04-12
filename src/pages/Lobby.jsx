@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   collection,
@@ -15,6 +15,8 @@ import { deleteAnswersForEvent } from "../features/game/dataCleanup";
 import { listenToParticipants, setShowingResultsOnly, updateEventStatus } from "../features/event/eventService";
 import { getCurrentEventQuestion } from "../features/question/questionService";
 import { useTheme } from "../hooks/useTheme";
+import { useAutoLeaveGame } from "../hooks/useAutoLeaveGame";
+import { useAFKKick } from "../hooks/useAFKKick";
 import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import KickedModal from "../components/KickedModal";
@@ -30,13 +32,49 @@ export default function Lobby() {
   const [error, setError] = useState(null);
   const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
   const [isKicked, setIsKicked] = useState(false);
+  const isKickedRef = useRef(false);
+
+  // Check if user was kicked - this runs independently of other effects
+  useEffect(() => {
+    const checkKicked = async () => {
+      if (isKickedRef.current) return; // Already kicked, don't check again
+      
+      const userId = sessionStorage.getItem("userId");
+      if (!userId || !eventId) return;
+
+      try {
+        const participantDoc = await getDoc(doc(db, "events", eventId, "participants", userId));
+        if (!participantDoc.exists()) {
+          console.log("🚨 checkKicked: User is not in participants");
+          isKickedRef.current = true;
+          setIsKicked(true);
+        }
+      } catch (error) {
+        console.warn("Error checking if kicked:", error);
+      }
+    };
+
+    // Check immediately
+    checkKicked();
+    
+    // Also check periodically in case of timing issues
+    const interval = setInterval(checkKicked, 1000);
+    
+    return () => clearInterval(interval);
+  }, [eventId]);
 
   // Apply theme based on event
   useTheme(event?.theme);
 
+  // Auto-remove player when leaving event
+  useAutoLeaveGame(eventId);
+
+  // Auto-kick player if inactive for 15 minutes
+  useAFKKick(eventId);
+
   const handleLeave = async () => {
-    const userDocId = localStorage.getItem("userDocId");
-    const userId = localStorage.getItem("userId");
+    const userDocId = sessionStorage.getItem("userDocId");
+    const userId = sessionStorage.getItem("userId");
     if (userDocId) {
       // Delete from legacy users collection
       await deleteDoc(doc(db, "users", userDocId));
@@ -50,18 +88,18 @@ export default function Lobby() {
         }
       }
       
-      localStorage.removeItem("userId");
-      localStorage.removeItem("eventId");
-      localStorage.removeItem("userDocId");
+      sessionStorage.removeItem("userId");
+      sessionStorage.removeItem("eventId");
+      sessionStorage.removeItem("userDocId");
     }
     navigate("/");
   };
 
   const handleKickedModalClose = () => {
     // Clear user data and redirect to home
-    localStorage.removeItem("userId");
-    localStorage.removeItem("eventId");
-    localStorage.removeItem("userDocId");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("eventId");
+    sessionStorage.removeItem("userDocId");
     navigate("/");
   };
 
@@ -122,20 +160,21 @@ export default function Lobby() {
 
     // Listen to participants (new structure - more efficient than querying all users)
     const unsubscribeParticipants = listenToParticipants(eventId, (participants) => {
-      const userId = localStorage.getItem("userId");
+      const userId = sessionStorage.getItem("userId");
       
       // Check if current user is still in participants list
       // If not, they've been kicked by the admin
-      if (userId) {
+      if (userId && !isKickedRef.current) {
         const userExists = participants.some(p => p.id === userId);
         if (!userExists) {
-          console.log("User has been kicked from the event");
-          // Show kicked modal instead of immediately navigating
+          console.log("🚨 User has been kicked from the event");
+          // Mark as kicked using ref so it persists across effect reruns
+          isKickedRef.current = true;
           setIsKicked(true);
-          return;
         }
       }
       
+      // Always update players, even if kicked
       setPlayers(participants.map(p => ({
         id: p.id,
         username: p.name,
@@ -158,7 +197,7 @@ export default function Lobby() {
 
     const validateAndNavigate = async () => {
       try {
-        const userId = localStorage.getItem("userId");
+        const userId = sessionStorage.getItem("userId");
         if (!userId) return;
 
         const question = await getCurrentEventQuestion(eventId, lastQuestionIndex);
@@ -194,8 +233,17 @@ export default function Lobby() {
   // ⏳ loading state
   if (!event) return <p>Loading room...</p>;
 
-  const userId = localStorage.getItem("userId");
-  const userHasAnswered = players.find(p => p.id === userId)?.answered || false;
+  // Use ref as source of truth, not state
+  const shouldShowKickedModal = isKickedRef.current;
+
+  // If kicked, show modal immediately
+  if (shouldShowKickedModal) {
+    return <KickedModal isOpen={true} onClose={handleKickedModalClose} />;
+  }
+
+  const userId = sessionStorage.getItem("userId");
+  const currentPlayer = players.find(p => p.id === userId);
+  const userHasAnswered = currentPlayer?.answered || false;
 
   return (
     <div>
@@ -249,8 +297,6 @@ export default function Lobby() {
       )}
 
       <button onClick={handleLeave}>Leave Game</button>
-
-      <KickedModal isOpen={isKicked} onClose={handleKickedModalClose} />
     </div>
   );
 }
