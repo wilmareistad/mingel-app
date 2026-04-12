@@ -18,8 +18,10 @@ import { useTheme } from "../hooks/useTheme";
 import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import KickedModal from "../components/KickedModal";
+import EventDeletedModal from "../components/EventDeletedModal";
 import GameTimer from "../components/GameTimer";
 import NotFound from "./NotFound";
+import EventGone from "./EventGone";
 import styles from "./Lobby.module.css";
 
 export default function Lobby() {
@@ -30,6 +32,8 @@ export default function Lobby() {
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState(null);
   const [eventNotFound, setEventNotFound] = useState(false);
+  const [eventGone, setEventGone] = useState(false);
+  const [eventDeleted, setEventDeleted] = useState(false);
   const [firstLoadComplete, setFirstLoadComplete] = useState(false);
   const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
   const [isKicked, setIsKicked] = useState(false);
@@ -61,6 +65,14 @@ export default function Lobby() {
   };
 
   const handleKickedModalClose = () => {
+    // Clear user data and redirect to home
+    localStorage.removeItem("userId");
+    localStorage.removeItem("eventId");
+    localStorage.removeItem("userDocId");
+    navigate("/");
+  };
+
+  const handleEventDeletedModalClose = () => {
     // Clear user data and redirect to home
     localStorage.removeItem("userId");
     localStorage.removeItem("eventId");
@@ -127,11 +139,23 @@ export default function Lobby() {
           }
         }
       } else {
-        console.log("❌ Event not found - navigating to 404");
-        setEvent(null);
-        setEventNotFound(true);
-        // Navigate to 404 page instead of just showing it
-        navigate("/404");
+        console.log("❌ Event not found");
+        // Check the current event state to determine what happened
+        setEvent((prevEvent) => {
+          if (prevEvent) {
+            // Event was loaded before, now it's deleted - show 410 page
+            console.log("Event was deleted while user was viewing it - showing 410 Gone page");
+            setTimeout(() => setEventGone(true), 0);
+          } else {
+            // Event never existed - navigate to 404
+            console.log("Event never existed - navigating to 404");
+            setTimeout(() => {
+              setEventNotFound(true);
+              navigate("/404");
+            }, 0);
+          }
+          return null;
+        });
       }
     });
 
@@ -211,7 +235,9 @@ export default function Lobby() {
 
   return (
     <div>
-      {eventNotFound ? (
+      {eventGone ? (
+        <EventGone />
+      ) : eventNotFound ? (
         <NotFound />
       ) : !firstLoadComplete || !event ? (
         <div className={styles.loading}>Loading room...</div>
