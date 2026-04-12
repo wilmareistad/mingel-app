@@ -281,7 +281,7 @@ export default function Lobby() {
 
           <EventQRCodeDisplay eventCode={event.code} />
 
-          <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar }))} />
+          <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar, role: p.role }))} />
           
           {/* Show answer progress when game is in question state */}
           {event.status === "question" && (

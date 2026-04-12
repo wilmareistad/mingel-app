@@ -59,6 +59,7 @@ export default function UserAvatarCard({
         )}
       </div>
       <p className={styles.userName}>{user.name}</p>
+      {user.role && <p className={styles.userRole}>{user.role}</p>}
     </div>
   );
 }

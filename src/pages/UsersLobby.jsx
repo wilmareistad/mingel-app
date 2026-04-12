@@ -101,6 +101,7 @@ export default function UsersLobby({ users }) {
               userId: user.userId,
               name: user.name,
               avatar: user.avatar || {},
+              role: user.role,
             }}
             size={avatarSize}
             position={pos}

@@ -13,6 +13,7 @@ import styles from "../styles/Join.module.css";
 export default function Join() {
   const [code, setCode] = useState("");
   const [username, setUsername] = useState("");
+  const [role, setRole] = useState("");
   const [message, setMessage] = useState("");
   const [searchParams] = useSearchParams();
   const [baseIndex, setBaseIndex] = useState(0);
@@ -168,12 +169,13 @@ export default function Join() {
         noseIndex,
         mouthIndex,
       };
-      await addParticipant(eventId, userId, username, avatarConfig);
+      await addParticipant(eventId, userId, username, avatarConfig, role);
 
       localStorage.setItem("userDocId", userId);
       localStorage.setItem("userId", userId);
       localStorage.setItem("eventId", eventId);
       localStorage.setItem("username", username);
+      localStorage.setItem("role", role);
       localStorage.setItem("avatar", JSON.stringify(avatarConfig));
 
       navigate(`/lobby/${eventId}`);
@@ -236,6 +238,17 @@ export default function Join() {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", marginTop: "1rem" }}>
+        <span style={{ fontSize: "0.875rem", color: "#666" }}>(optional)</span>
+        <input
+          type="text"
+          placeholder="Role"
+          value={role}
+          onChange={(e) => setRole(e.target.value.slice(0, 40))}
+          maxLength={40}
+        />
+      </div>
 
       <button onClick={handleJoin}>Join</button>
 
