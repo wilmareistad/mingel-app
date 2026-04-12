@@ -25,10 +25,10 @@ export default function ResultsControls({
             timeLeft={timeLeftDisplay}
           />
           <div className={styles.btnGroup}>
-            <button className={styles.primaryBtn} onClick={onNextQuestion}>
+            <button onClick={onNextQuestion}>
               Next Question
             </button>
-            <button className={styles.ghostBtn} onClick={onResetGame}>
+            <button onClick={onResetGame}>
               Reset Game
             </button>
           </div>
@@ -39,7 +39,7 @@ export default function ResultsControls({
             Game finished. Results are displayed.
           </p>
           <div className={styles.btnGroup}>
-            <button className={styles.ghostBtn} onClick={onResetGame}>
+            <button onClick={onResetGame}>
               Reset Game
             </button>
           </div>

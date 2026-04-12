@@ -75,10 +75,10 @@ export default function LobbyControls({
       )}
 
       <div className={styles.finishRow}>
-        <button className={styles.primaryBtn} onClick={onStartGame}>
+        <button onClick={onStartGame}>
           Start Game
         </button>
-        <button className={styles.deleteEventBtn} onClick={onDeleteEvent}>
+        <button className={styles.deleteBtn} onClick={onDeleteEvent}>
           🗑 Delete Event
         </button>
       </div>

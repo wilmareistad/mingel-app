@@ -29,13 +29,13 @@ export default function GameControls({
         timeLeft={timeLeftDisplay}
       />
       <div className={styles.btnGroup}>
-        <button className={styles.primaryBtn} onClick={onNextQuestion}>
+        <button onClick={onNextQuestion}>
           Next Question
         </button>
-        <button className={styles.secondaryBtn} onClick={onEndQuestion}>
+        <button onClick={onEndQuestion}>
           End Question & Show Results
         </button>
-        <button className={styles.ghostBtn} onClick={onResetGame}>
+        <button onClick={onResetGame}>
           Reset Game
         </button>
       </div>

@@ -58,6 +58,7 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
+  width: auto;
 }
 
 .removeQuestionBtn:hover {
@@ -69,6 +70,10 @@
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+}
+
+.finishRow button {
+  width: auto;
 }
 
 .primaryBtn {
@@ -102,4 +107,12 @@
 
 .deleteEventBtn:hover {
   background-color: var(--danger-dark);
+}
+
+.deleteBtn {
+  background-color: #c0392b !important;
+}
+
+.deleteBtn:hover {
+  background-color: #a93226 !important;
 }
