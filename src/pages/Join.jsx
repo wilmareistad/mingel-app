@@ -20,7 +20,6 @@ export default function Join() {
   const [eyeIndex, setEyeIndex] = useState(0);
   const [noseIndex, setNoseIndex] = useState(0);
   const [mouthIndex, setMouthIndex] = useState(0);
-  const [clothesIndex, setClothesIndex] = useState(0);
   const [layerCounts, setLayerCounts] = useState({});
   const [eventTheme, setEventTheme] = useState(null);
 
@@ -85,7 +84,6 @@ export default function Join() {
     setEyeIndex(Math.floor(Math.random() * counts.Eyes));
     setNoseIndex(Math.floor(Math.random() * counts.Noses));
     setMouthIndex(Math.floor(Math.random() * counts.Mouths));
-    setClothesIndex(Math.floor(Math.random() * counts.Clothes));
   };
 
   // Helper function to cycle through layers
@@ -118,10 +116,6 @@ export default function Join() {
 
   const handleMouthChange = (direction) => {
     cycleLayer(mouthIndex, setMouthIndex, layerCounts["Mouths"], direction);
-  };
-
-  const handleClothesChange = (direction) => {
-    cycleLayer(clothesIndex, setClothesIndex, layerCounts["Clothes"], direction);
   };
 
   // On mount, check if code is in URL params
@@ -173,7 +167,6 @@ export default function Join() {
         eyeIndex,
         noseIndex,
         mouthIndex,
-        clothesIndex,
       };
       await addParticipant(eventId, userId, username, avatarConfig);
 
@@ -201,7 +194,6 @@ export default function Join() {
             <ToggleButton size="small" direction="left" label="Previous Nose" onClick={() => handleNoseChange("left")} />
             <ToggleButton size="small" direction="left" label="Previous Mouth" onClick={() => handleMouthChange("left")} />
             <ToggleButton size="small" direction="left" label="Previous Base" onClick={() => handleBaseChange("left")} />
-            <ToggleButton size="small" direction="left" label="Previous Clothes" onClick={() => handleClothesChange("left")} />
           </div>
 
           {/* Center image */}
@@ -212,19 +204,32 @@ export default function Join() {
               eyeIndex={eyeIndex}
               noseIndex={noseIndex}
               mouthIndex={mouthIndex}
-              clothesIndex={clothesIndex}
               layerCounts={layerCounts}
             />
           </div>
 
-          {/* Right controls */}
+          {/* Right controls with labels */}
           <div className={styles.rightControls}>
-            <ToggleButton size="small" direction="right" label="Next Hair" onClick={() => handleHairChange("right")} />
-            <ToggleButton size="small" direction="right" label="Next Eyes" onClick={() => handleEyeChange("right")} />
-            <ToggleButton size="small" direction="right" label="Next Nose" onClick={() => handleNoseChange("right")} />
-            <ToggleButton size="small" direction="right" label="Next Mouth" onClick={() => handleMouthChange("right")} />
-            <ToggleButton size="small" direction="right" label="Next Base" onClick={() => handleBaseChange("right")} />
-            <ToggleButton size="small" direction="right" label="Next Clothes" onClick={() => handleClothesChange("right")} />
+            <div className={styles.controlRow}>
+              <ToggleButton size="small" direction="right" label="Next Hair" onClick={() => handleHairChange("right")} />
+              <span className={styles.label}>Hair</span>
+            </div>
+            <div className={styles.controlRow}>
+              <ToggleButton size="small" direction="right" label="Next Eyes" onClick={() => handleEyeChange("right")} />
+              <span className={styles.label}>Eyes</span>
+            </div>
+            <div className={styles.controlRow}>
+              <ToggleButton size="small" direction="right" label="Next Nose" onClick={() => handleNoseChange("right")} />
+              <span className={styles.label}>Nose</span>
+            </div>
+            <div className={styles.controlRow}>
+              <ToggleButton size="small" direction="right" label="Next Mouth" onClick={() => handleMouthChange("right")} />
+              <span className={styles.label}>Mouth</span>
+            </div>
+            <div className={styles.controlRow}>
+              <ToggleButton size="small" direction="right" label="Next Base" onClick={() => handleBaseChange("right")} />
+              <span className={styles.label}>Base</span>
+            </div>
           </div>
         </div>
 
