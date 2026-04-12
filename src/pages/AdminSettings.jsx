@@ -1,13 +1,14 @@
 import { useState, useCallback, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, updateDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
-import { db } from "../services/firebase";
+import { db, auth } from "../services/firebase";
 import {
   listenToParticipants,
   updateTimerDuration,
   updateResultsTimerDuration,
   removeParticipant,
 } from "../features/event/eventService";
+import { createCustomQuestion } from "../features/customQuestion/customQuestionService";
 import { useTheme } from "../hooks/useTheme";
 import { useAdminEvent } from "../hooks/useAdminEvent";
 import { useCurrentQuestion } from "../hooks/useCurrentQuestion";
@@ -19,6 +20,7 @@ import TimerControl from "../components/TimerControl";
 import LobbyControls from "../components/LobbyControls";
 import GameControls from "../components/GameControls";
 import ResultsControls from "../components/ResultsControls";
+import AddCustomQuestion from "../components/AddCustomQuestion";
 import { QUESTION_TIMER_OPTIONS, RESULTS_TIMER_OPTIONS } from "../config/gameConfig";
 import styles from "./AdminSettings.module.css";
 
@@ -93,6 +95,9 @@ export default function AdminSettings() {
   const [isKickMode, setIsKickMode] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [eventCategories, setEventCategories] = useState([]);
+  const [adminId, setAdminId] = useState(null);
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -103,8 +108,45 @@ export default function AdminSettings() {
     confirmStyle: "default",
   });
 
-  // ── Participants Listener ──────────────────────────────────────────
-  // ✅ OPTIMIZED: Separate effects for listener and vote counting
+  // ── Get admin ID from auth ─────────────────────────────────────────
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setAdminId(user ? user.uid : null);
+    });
+    return unsubscribe;
+  }, []);
+
+  // ── Fetch all questions for categories ──────────────────────────────
+  useEffect(() => {
+    async function fetchQuestionsAndCategories() {
+      try {
+        const snapshot = await getDocs(collection(db, "questions"));
+        const qList = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const unique = [...new Set(qList.map((q) => q.category).filter(Boolean))];
+        setCategories(unique);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    }
+    fetchQuestionsAndCategories();
+  }, []);
+
+  // Update event categories from custom questions
+  useEffect(() => {
+    if (event?.customQuestions?.length > 0) {
+      // Collect unique categories from custom question IDs
+      // This would require loading the custom questions, but we can collect from event data
+      const cats = new Set();
+      // Extract categories if available in event data
+      if (event.customQuestionCategories) {
+        event.customQuestionCategories.forEach((cat) => cats.add(cat));
+      }
+      setEventCategories(Array.from(cats));
+    }
+  }, [event?.customQuestions]);
+
+  //Participants Listener
+  // Separate effects for listener and vote counting
   // This prevents listener recreation when currentQuestion changes
   useEffect(() => {
     if (!eventId) return;
@@ -117,7 +159,7 @@ export default function AdminSettings() {
     return () => unsubscribeParticipants();
   }, [eventId]);
 
-  // ✅ SEPARATE: Vote counting logic (depends on participants and status)
+  // Vote counting logic (depends on participants and status)
   useEffect(() => {
     if (event?.status === "question" && currentQuestion && participants.length > 0) {
       const answeredCount = participants.filter((p) => p.hasAnswered).length;
@@ -127,7 +169,7 @@ export default function AdminSettings() {
     }
   }, [participants, event?.status, currentQuestion?.id, setVoteCount]);
 
-  // ── Modal Helpers ──────────────────────────────────────────────────
+  // Modal Helpers
   const openConfirmModal = (
     title,
     message,
@@ -148,7 +190,7 @@ export default function AdminSettings() {
   const closeModal = () =>
     setModalState((prev) => ({ ...prev, isOpen: false }));
 
-  // ── Event Management ───────────────────────────────────────────────
+  // Event Management
   const handleStartEditName = () => {
     setEditedName(event.name);
     setIsEditingName(true);
@@ -179,6 +221,43 @@ export default function AdminSettings() {
     } catch (e) {
       console.error(e);
       showMessage("Error removing question.");
+    }
+  };
+
+  const handleAddCustomQuestion = async (questionData) => {
+    try {
+      if (!adminId) {
+        showMessage("You must be logged in");
+        return;
+      }
+
+      // Add category to event categories if new
+      if (
+        questionData.category &&
+        !eventCategories.includes(questionData.category)
+      ) {
+        setEventCategories((prev) => [...prev, questionData.category]);
+      }
+
+      // Create the custom question in the database
+      const customQuestionId = await createCustomQuestion(
+        eventId,
+        questionData.text,
+        questionData.category,
+        questionData.options,
+        adminId
+      );
+
+      // Add the new custom question ID to the event
+      const currentCustomQuestions = event.customQuestions || [];
+      await updateDoc(doc(db, "events", eventId), {
+        customQuestions: [...currentCustomQuestions, customQuestionId],
+      });
+
+      showMessage("✅ Custom question added!");
+    } catch (error) {
+      console.error("Error adding custom question:", error);
+      showMessage("Error adding custom question");
     }
   };
 
@@ -266,7 +345,7 @@ export default function AdminSettings() {
     });
   };
 
-  // ── Helpers ────────────────────────────────────────────────────────
+  // Helpers
   const formatSeconds = (s) => {
     const m = Math.floor(s / 60);
     const r = s % 60;
@@ -301,7 +380,7 @@ export default function AdminSettings() {
     }
   };
 
-  // ── Render ─────────────────────────────────────────────────────────
+  // Render
   if (loading) return <p className={styles.loading}>Loading...</p>;
 
   if (!event) {
@@ -412,12 +491,21 @@ export default function AdminSettings() {
 
         {/* ── Lobby ── */}
         {event.status === "lobby" && (
-          <LobbyControls
-            event={event}
-            onRemoveQuestion={handleRemoveQuestion}
-            onStartGame={handleStartGame}
-            onDeleteEvent={handleDeleteEvent}
-          />
+          <>
+            <LobbyControls
+              event={event}
+              onRemoveQuestion={handleRemoveQuestion}
+              onStartGame={handleStartGame}
+              onDeleteEvent={handleDeleteEvent}
+            />
+            <AddCustomQuestion
+              eventId={eventId}
+              adminId={adminId}
+              onQuestionAdded={handleAddCustomQuestion}
+              categories={categories}
+              eventCategories={eventCategories}
+            />
+          </>
         )}
 
         {/* ── Question phase ── */}

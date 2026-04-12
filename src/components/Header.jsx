@@ -10,6 +10,13 @@ export default function Header() {
   const handleLogoClick = async (e) => {
     e.preventDefault();
 
+    // If user is in a game (has eventId), do nothing
+    const eventId = localStorage.getItem("eventId");
+    if (eventId) {
+      return;
+    }
+
+    // If not in a game, log out and go home
     const userDocId = localStorage.getItem("userDocId");
     if (userDocId) {
       await deleteDoc(doc(db, "users", userDocId));

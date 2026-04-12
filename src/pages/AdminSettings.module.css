@@ -306,10 +306,10 @@
 
 /* Delete event button */
 .deleteEventBtn {
-  background: none;
-  border: 2px solid #e0e0e0;
+  background: var(--accent, #001A52) !important;
+  border: none !important;
   border-radius: 8px;
-  color: #c0392b;
+  color: white !important;
   font-size: 0.85rem;
   font-weight: 700;
   padding: 8px 14px;
@@ -318,12 +318,12 @@
   white-space: nowrap;
   flex: 1;
   min-width: 140px;
+  width: auto !important;
+  height: auto !important;
 }
 
 .deleteEventBtn:hover {
-  background: #fff0f0;
-  border-color: #c0392b;
-  color: #c0392b;
+  opacity: 0.85;
 }
 
 /* ── Message ── */
@@ -363,6 +363,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  justify-content: space-evenly;
 }
 
 .timersRow .section { 
@@ -382,16 +383,12 @@
 
 .sectionLabel {
   margin: 0;
-  font-size: 0.7rem;
+  /* font-size: 0.7rem; */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text);
   opacity: 0.55;
-}
-
-.timersRow .sectionLabel {
-  text-align: center;
 }
 
 /* ── Timer controls ── */
@@ -509,79 +506,21 @@
   margin: 0;
 }
 
-/* ── Buttons ── */
-.btnGroup {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
 .finishRow {
   display: flex;
   gap: 10px;
   margin-top: 12px;
+  justify-content: center;
 }
 
-.primaryBtn {
-  flex: 1;
-  min-width: 140px;
-  padding: 12px 20px;
-  background: var(--text-h, #0d1b4b);
-  color: var(--btn-primary-text);
-  border: none;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s;
+.deleteBtn {
+  background: #c0392b !important;
+  color: white !important;
 }
-.primaryBtn:hover { opacity: 0.85; }
 
-.secondaryBtn {
-  flex: 1;
-  min-width: 140px;
-  padding: 12px 20px;
-  background: white;
-  color: var(--text-h);
-  border: 2px solid var(--border, #e0e4f0);
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: border-color 0.2s;
+.deleteBtn:hover {
+  background: #a93226 !important;
 }
-.secondaryBtn:hover { border-color: var(--text-h); }
-
-.dangerBtn {
-  flex: 1;
-  min-width: 140px;
-  padding: 12px 20px;
-  background: white;
-  color: #c0392b;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.dangerBtn:hover { border-color: #c0392b; background: #fff0f0; }
-
-.ghostBtn {
-  flex: 1;
-  min-width: 140px;
-  padding: 12px 20px;
-  background: transparent;
-  color: var(--text);
-  border: 2px solid var(--border, #e0e4f0);
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s, border-color 0.2s;
-}
-.ghostBtn:hover { opacity: 1; border-color: var(--text); }
 
 /* ── Results ── */
 .resultsText {
@@ -659,10 +598,7 @@
     flex-direction: row;
     gap: 24px;
     flex-wrap: wrap;
-  }
-
-  .sectionLabel {
-    font-size: 0.78rem;
+    text-align: center;
   }
 
   .timerDisplay {
