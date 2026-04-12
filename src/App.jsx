@@ -12,6 +12,7 @@ import AdminLobby from "./pages/AdminLobby";
 import AdminDebug from "./pages/AdminDebug";
 import Game from "./pages/Game";
 import Results from "./pages/Results";
+import NotFound from "./pages/NotFound";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Header from './components/Header';
@@ -88,6 +89,8 @@ function AppContent() {
         />
         <Route path="/game/:eventId" element={<Game />} />
         <Route path="/results/:eventId" element={<Results />} />
+        <Route path="/404" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );

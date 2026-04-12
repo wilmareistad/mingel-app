@@ -19,6 +19,7 @@ import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import KickedModal from "../components/KickedModal";
 import GameTimer from "../components/GameTimer";
+import NotFound from "./NotFound";
 import styles from "./Lobby.module.css";
 
 export default function Lobby() {
@@ -28,6 +29,8 @@ export default function Lobby() {
   const [event, setEvent] = useState(null);
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState(null);
+  const [eventNotFound, setEventNotFound] = useState(false);
+  const [firstLoadComplete, setFirstLoadComplete] = useState(false);
   const [lastQuestionIndex, setLastQuestionIndex] = useState(null);
   const [isKicked, setIsKicked] = useState(false);
 
@@ -86,13 +89,21 @@ export default function Lobby() {
   };
 
   useEffect(() => {
+    // Reset state when eventId changes
+    setFirstLoadComplete(false);
+    setEventNotFound(false);
+    setEvent(null);
+    
     // fetch room data
     const eventRef = doc(db, "events", eventId);
 
     const unsubscribeEvent = onSnapshot(eventRef, async (docSnap) => {
+      setFirstLoadComplete(true);
+      
       if (docSnap.exists()) {
         const eventData = docSnap.data();
         setEvent(eventData);
+        setEventNotFound(false);
         setError(null); // Clear error when event updates
 
         // GAME LOOP: If event status changes to "results" → navigate to results page
@@ -116,7 +127,11 @@ export default function Lobby() {
           }
         }
       } else {
+        console.log("❌ Event not found - navigating to 404");
         setEvent(null);
+        setEventNotFound(true);
+        // Navigate to 404 page instead of just showing it
+        navigate("/404");
       }
     });
 
@@ -191,66 +206,71 @@ export default function Lobby() {
     validateAndNavigate();
   }, [event?.status, lastQuestionIndex, eventId, navigate]);
 
-  // ⏳ loading state
-  if (!event) return <p>Loading room...</p>;
-
   const userId = localStorage.getItem("userId");
   const userHasAnswered = players.find(p => p.id === userId)?.answered || false;
 
   return (
     <div>
-      <h1>Lobby</h1>
+      {eventNotFound ? (
+        <NotFound />
+      ) : !firstLoadComplete || !event ? (
+        <div className={styles.loading}>Loading room...</div>
+      ) : (
+        <>
+          <h1>Lobby</h1>
 
-      <p><strong>Room Name:</strong> {event.name}</p>
-      <p><strong>Room Code:</strong> {event.code}</p>
-      <p><strong>Status:</strong> {event.status}</p>
+          <p><strong>Room Name:</strong> {event.name}</p>
+          <p><strong>Room Code:</strong> {event.code}</p>
+          <p><strong>Status:</strong> {event.status}</p>
 
-      {error && (
-        <div className={styles.errorMessage}>
-          <strong>Error:</strong> {error}
-        </div>
+          {error && (
+            <div className={styles.errorMessage}>
+              <strong>Error:</strong> {error}
+            </div>
+          )}
+
+          {/* Show appropriate message based on game state */}
+          {event.status === "lobby" && (
+            <div className={styles.statusMessage}>
+              <p>Waiting for the admin to start the game...</p>
+            </div>
+          )}
+
+          {event.status === "question" && event && (
+            <div className={styles.timerContainer}>
+              <GameTimer 
+                eventId={eventId}
+                event={event}
+                onTimeExpired={handleTimerExpired}
+                isActive={true}
+              />
+            </div>
+          )}
+
+          {event.status === "results" && (
+            <div className={styles.statusMessage}>
+              <p>Results are being displayed...</p>
+            </div>
+          )}
+
+          <EventQRCodeDisplay eventCode={event.code} />
+
+          <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar }))} />
+          
+          {/* Show answer progress when game is in question state */}
+          {event.status === "question" && (
+            <div className={styles.answerProgress}>
+              <p className={styles.answerProgressText}>
+                <strong>Answers:</strong> {players.filter(p => p.answered).length} / {players.length} participants
+              </p>
+            </div>
+          )}
+
+          <button onClick={handleLeave}>Leave Game</button>
+
+          <KickedModal isOpen={isKicked} onClose={handleKickedModalClose} />
+        </>
       )}
-
-      {/* Show appropriate message based on game state */}
-      {event.status === "lobby" && (
-        <div className={styles.statusMessage}>
-          <p>Waiting for the admin to start the game...</p>
-        </div>
-      )}
-
-      {event.status === "question" && event && (
-        <div className={styles.timerContainer}>
-          <GameTimer 
-            eventId={eventId}
-            event={event}
-            onTimeExpired={handleTimerExpired}
-            isActive={true}
-          />
-        </div>
-      )}
-
-      {event.status === "results" && (
-        <div className={styles.statusMessage}>
-          <p>Results are being displayed...</p>
-        </div>
-      )}
-
-      <EventQRCodeDisplay eventCode={event.code} />
-
-      <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar }))} />
-      
-      {/* Show answer progress when game is in question state */}
-      {event.status === "question" && (
-        <div className={styles.answerProgress}>
-          <p className={styles.answerProgressText}>
-            <strong>Answers:</strong> {players.filter(p => p.answered).length} / {players.length} participants
-          </p>
-        </div>
-      )}
-
-      <button onClick={handleLeave}>Leave Game</button>
-
-      <KickedModal isOpen={isKicked} onClose={handleKickedModalClose} />
     </div>
   );
 }
