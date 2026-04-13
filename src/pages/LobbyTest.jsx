@@ -19,14 +19,14 @@ const LAST_NAMES = [
   "Töreland", "", "Vrethammar", "LaBeouf", "Snusson", "Guryan", "Simone", "Aronofsky", "Panda",
   "Bergman", "McCalla", "Pastrami", "Taco", "D2", "de Ripper", "Filibuster", "Tolsoj",
   "Hyvönen", "Hurula", "Waits", "Lamar", "Swayze", "Crumb", "McDermot", "Carmichael",
-  "Sagan", "Cooper", "Bovary", "Ingmarsson"
+  "Sagan", "Cooper", "Bovary", "Ingmarsson", "", "", "", "", "", "", "", "", ""
 ];
 
 const ROLES = [
-  "Manager", "Developer", "Designer", "Product Owner", "Analyst", "Engineer",
-  "Coordinator", "Specialist", "Consultant", "Director", "Lead", "Architect",
-  "Strategist", "Supervisor", "Administrator", "Executive", "Officer", "Chief",
-  "Coach", "Mentor", "Facilitator", "Organizer", "Planner", "Investor"
+  "Manager", "Developer", "Student", "Product Owner", "Analyst", "Engineer",
+  "Coordinator", "Student", "Consultant", "Director", "Lead", "Homeless",
+  "Strategist", "Supervisor", "Administrator", "Executive", "Officer", "Chef",
+  "Coach", "Mentor", "Facilitator", "Daydreamer", "Planner", "Investor"
 ];
 
 export default function LobbyTest() {
