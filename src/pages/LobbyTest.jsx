@@ -17,7 +17,7 @@ const LAST_NAMES = [
   "Steinbeck", "Holiday", "Sin Carne", "Buendía", "Olsson", "Alm", "Giraldo",
   "Johansson", "Persson", "Moore", "Rosie", "Reistad", "Rosenkvist", "Saadon", "Tedeman",
   "Töreland", "", "Vrethammar", "LaBeouf", "Snusson", "Guryan", "Simone", "Aronofsky", "Panda",
-  "Bergman", "McCalla", "Pastrami", "Taco", "D2", "de Ripper", "Filibuster", "Tolsoj",
+  "Bergman", "McCalla", "Pastrami", "Taco", "D2", "de Ripper", "Filibuster", "Tolstoj",
   "Hyvönen", "Hurula", "Waits", "Lamar", "Swayze", "Crumb", "McDermot", "Carmichael",
   "Sagan", "Cooper", "Bovary", "Ingmarsson", "", "", "", "", "", "", "", "", ""
 ];
