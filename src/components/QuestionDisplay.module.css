@@ -1,3 +1,5 @@
+/* Mobile-first approach */
+
 .currentQuestion {
   background: var(--accent-bg);
   border: 1px solid var(--accent-border);
@@ -20,15 +22,15 @@
   color: var(--text);
   margin: 0.5rem 0 1.5rem 0;
   line-height: 1.5;
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .questionFooter {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.75rem;
 }
 
 .voteCount,
@@ -42,17 +44,27 @@
   font-size: 0.95rem;
   margin: 0;
   white-space: nowrap;
+  width: 90%;
+  text-align: center;
 }
 
-@media (max-width: 768px) {
+/* Desktop: 768px and above */
+@media (min-width: 768px) {
+  .questionText {
+    font-size: 1.05rem;
+  }
+
   .questionFooter {
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
   }
 
   .voteCount,
   .timeLeft {
-    width: 100%;
-    text-align: center;
+    width: auto;
+    text-align: left;
+    white-space: nowrap;
   }
 }
