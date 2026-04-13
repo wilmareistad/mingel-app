@@ -27,10 +27,8 @@ function TutorialRedirect() {
   const { checkTutorialVisited } = useTutorialVisited();
 
   useEffect(() => {
-    // Skip tutorial redirect if user has a code parameter (from QR code)
     const params = new URLSearchParams(location.search);
     const hasCode = params.has("code");
-
     if (!checkTutorialVisited() && location.pathname !== "/tutorial" && !hasCode) {
       navigate("/tutorial", { replace: true });
     }
@@ -50,7 +48,6 @@ function AppContent() {
     return () => unsubscribe();
   }, []);
 
-  // Enforce minimum loading screen display time (0.8 seconds)
   useEffect(() => {
     const timer = setTimeout(() => {
       setMinLoadTimeElapsed(true);
@@ -58,7 +55,6 @@ function AppContent() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Show loading screen until minimum time has elapsed
   if (!minLoadTimeElapsed) {
     return <LoadingScreen />;
   }
@@ -74,22 +70,10 @@ function AppContent() {
         <Route path="/lobby-test" element={<LobbyTest />} />
         <Route path="/login" element={<Login />} />
         <Route path="/tutorial" element={<Tutorial />} />
-        <Route
-          path="/admin"
-          element={user ? <AdminPanel /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/admin/settings/:eventId"
-          element={user ? <AdminSettings /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/admin/lobby/:eventId"
-          element={user ? <AdminLobby /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/admin/debug"
-          element={user ? <AdminDebug /> : <Navigate to="/login" />}
-        />
+        <Route path="/admin" element={user ? <AdminPanel /> : <Navigate to="/login" />} />
+        <Route path="/admin/settings/:eventId" element={user ? <AdminSettings /> : <Navigate to="/login" />} />
+        <Route path="/admin/lobby/:eventId" element={user ? <AdminLobby /> : <Navigate to="/login" />} />
+        <Route path="/admin/debug" element={user ? <AdminDebug /> : <Navigate to="/login" />} />
         <Route path="/game/:eventId" element={<Game />} />
         <Route path="/results/:eventId" element={<Results />} />
         <Route path="/404" element={<NotFound />} />
@@ -101,23 +85,27 @@ function AppContent() {
 
 function App() {
   const [firebaseLoaded, setFirebaseLoaded] = useState(false);
+  const [avatarDefsReady, setAvatarDefsReady] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, () => {
       setFirebaseLoaded(true);
     });
-
     return () => unsubscribe();
   }, []);
 
-  if (!firebaseLoaded) return <LoadingScreen />;
+  // Wait for avatar defs to be injected before rendering any page content
+  useEffect(() => {
+    import('./components/AvatarDefs').then(({ defsReady }) => {
+      defsReady.then(() => setAvatarDefsReady(true));
+    });
+  }, []);
+
+  if (!firebaseLoaded || !avatarDefsReady) return <LoadingScreen />;
 
   return (
     <>
       <AvatarDefs />
-      {/* Animated background (fixed, behind everything) */}
-
-      {/* Main app content */}
       <BrowserRouter>
         <div className="animated-bg">
           <div className="gradient gradient1"></div>
