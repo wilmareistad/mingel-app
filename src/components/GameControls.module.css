@@ -15,4 +15,13 @@
 
 .btnGroup button {
   width: auto;
+  transition: all 0.2s ease;
+}
+
+/* Desktop hover effects */
+@media (min-width: 640px) {
+  .btnGroup button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 }
