@@ -1,7 +1,7 @@
 .qrCodeContainer {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  bottom: 2%;
+  left: 2%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -18,6 +18,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 160px;
+  height: 160px;
+  transform-origin: bottom left;
+  transition: transform 0.3s ease;
 }
 
 .qrCode svg {
@@ -28,6 +32,57 @@
   margin: 0;
   font-size: 16px;
   color: var(--text);
+}
+
+/* Projector/Extra large screens */
+@media (min-width: 3200px) {
+  .qrCode {
+    transform: scale(5);
+  }
+
+  .qrCodeContainer {
+    bottom: 40px;
+    left: 40px;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .qrCodeContainer h2 {
+    font-size: 32px;
+  }
+}
+
+/* Large desktop screens */
+@media (min-width: 2560px) and (max-width: 3200px) {
+  .qrCode {
+    transform: scale(1.5);
+  }
+
+  .qrCodeContainer h2 {
+    font-size: 18px;
+  }
+}
+
+/* Medium to large screens */
+@media (min-width: 1440px) and (max-width: 2559px) {
+  .qrCode {
+    transform: scale(1.25);
+  }
+
+  .qrCodeContainer h2 {
+    font-size: 16px;
+  }
+}
+
+/* Standard desktop */
+@media (min-width: 1025px) and (max-width: 1439px) {
+  .qrCode {
+    transform: scale(1);
+  }
+
+  .qrCodeContainer h2 {
+    font-size: 14px;
+  }
 }
 
 /* Hide QR code on mobile - only show on desktop */
