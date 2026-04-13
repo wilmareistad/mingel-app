@@ -6,7 +6,8 @@
   border: 2px solid rgb(0, 0, 0);
   border-radius: 16px;
   overflow: hidden;
-  margin: 40px 0;
+  margin: 40px 0; /* keep vertical margin, remove horizontal */
+
 }
 
 .userAvatarContainer {
@@ -17,6 +18,7 @@
   gap: 8px;
   transition: left 0.1s linear, top 0.1s linear;
   cursor: pointer;
+  transform: translate(-50%, -50%); /* ← add this */
 }
 
 .userAvatar {

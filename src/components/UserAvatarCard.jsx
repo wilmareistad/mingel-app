@@ -1,7 +1,8 @@
 import AvatarDisplay from "./AvatarDisplay";
 import styles from "../styles/UserAvatarCard.module.css";
+import { memo } from "react";
 
-export default function UserAvatarCard({
+const UserAvatarCard = memo(function UserAvatarCard({
   user,
   size = "medium",
   position = null,
@@ -63,4 +64,6 @@ export default function UserAvatarCard({
       {user.role && <p className={styles.userRole}>{user.role}</p>}
     </div>
   );
-}
+});
+
+export default UserAvatarCard;
