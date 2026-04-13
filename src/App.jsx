@@ -17,7 +17,7 @@ import NotFound from "./pages/NotFound";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Header from './components/Header';
-import AvatarDefs, { defsReady } from './components/AvatarDefs';
+import AvatarDefs from './components/AvatarDefs';
 import { useTutorialVisited } from "./hooks/useTutorialVisited";
 import LoadingScreen from "./components/LoadingScreen";
 
@@ -85,7 +85,6 @@ function AppContent() {
 
 function App() {
   const [firebaseLoaded, setFirebaseLoaded] = useState(false);
-  const [avatarDefsReady, setAvatarDefsReady] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, () => {
@@ -94,11 +93,7 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    defsReady.then(() => setAvatarDefsReady(true));
-  }, []);
-
-  if (!firebaseLoaded || !avatarDefsReady) return <LoadingScreen />;
+  if (!firebaseLoaded) return <LoadingScreen />;
 
   return (
     <>
