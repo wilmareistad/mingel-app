@@ -66,9 +66,6 @@ export default function AdminLobby() {
   return (
     <div>
       <h1>{event.name}</h1>
-      <p style={{ fontSize: "18px", fontWeight: "600", marginBottom: "10px" }}>
-        Event Code: <strong>{event.code}</strong>
-      </p>
       {event.status === "question" && currentQuestion && (
         <div style={{ 
           marginBottom: "20px", 
