@@ -8,7 +8,7 @@ h1 {
 }
 
 .headerRow {
-  display: grid;
+  display: block;
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   margin-bottom: 32px;
@@ -128,3 +128,9 @@ h1 {
   font-size: 13px;
   padding: 0;
 }
+
+@media (min-width: 1025px) {
+  .headerRow {
+    display: grid;
+  }
+  }
