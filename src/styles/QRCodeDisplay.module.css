@@ -9,6 +9,7 @@
   padding: 12px;
   border-radius: 12px;
   z-index: 10;
+  width: auto;
 }
 
 .qrCode {
@@ -26,6 +27,37 @@
 
 .qrCode svg {
   display: block;
+}
+
+.codeWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 20;
+}
+
+.codeDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  flex-wrap: wrap;
+}
+
+.codeText {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  letter-spacing: 3px;
+  font-size: 60px;
+  padding: 10px 0px 10px 40px;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 1.9rem;
 }
 
 .qrCodeContainer h2 {
@@ -47,6 +79,16 @@
     padding: 20px;
   }
 
+  .codeDisplay {
+    font-size: 20px;
+    gap: 10px;
+  }
+
+  .codeLabel {
+    font-size: 18px;
+  }
+
+
   .qrCodeContainer h2 {
     font-size: 32px;
   }
@@ -56,6 +98,11 @@
 @media (min-width: 2560px) and (max-width: 3200px) {
   .qrCode {
     transform: scale(1.5);
+  }
+
+  .codeDisplay {
+    font-size: 15px;
+    gap: 8px;
   }
 
   .qrCodeContainer h2 {
@@ -69,6 +116,12 @@
     transform: scale(1.25);
   }
 
+  .codeDisplay {
+    font-size: 14px;
+    gap: 7px;
+  }
+
+
   .qrCodeContainer h2 {
     font-size: 16px;
   }
@@ -79,6 +132,11 @@
   .qrCode {
     transform: scale(1);
   }
+
+  .codeDisplay {
+    font-size: 12px;
+  }
+
 
   .qrCodeContainer h2 {
     font-size: 14px;

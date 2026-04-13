@@ -30,6 +30,11 @@ export default function EventQRCode({ eventCode }) {
 
   return (
     <div className={styles.qrCodeContainer}>
+      <div className={styles.codeWrapper}>
+        <div className={styles.codeDisplay}>
+          <span className={styles.codeText}>{eventCode}</span>
+        </div>
+      </div>
       <div className={styles.qrCode}>
         <QRCodeSVG
           value={joinUrl}
@@ -38,8 +43,6 @@ export default function EventQRCode({ eventCode }) {
           includeMargin={true}
         />
       </div>
-      {/* <p><strong>Scan to join event</strong></p> */}
-      <p><strong>Room Code: {eventCode}</strong></p>
     </div>
   );
 }
