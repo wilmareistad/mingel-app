@@ -41,26 +41,24 @@ export default function UsersLobby({ users }) {
       [gridPositions[i], gridPositions[j]] = [gridPositions[j], gridPositions[i]];
     }
 
-    const next = {};
-    users.forEach((user, i) => {
-      const existing = physicsRef.current[user.userId];
-      if (existing) {
-        // Keep existing physics state for users already in the lobby
-        next[user.userId] = existing;
-        return;
-      }
-      const { r, c } = gridPositions[i] || { r: 0, c: 0 };
-      const x = 10 + c * cellW + cellW / 2 + (Math.random() - 0.5) * cellW * 0.3;
-      const y = 5  + r * cellH + cellH / 2 + (Math.random() - 0.5) * cellH * 0.3;
-      next[user.userId] = {
-x: Math.max(5,  Math.min(95, x)),   // was max(10, min(90))
-y: Math.max(5,  Math.min(90, y)),   // was max(5, min(75))
-        vx: 0,
-        vy: 0,
-      };
-    });
-
-    physicsRef.current = next;
+      const next = {};
+      users.forEach((user, i) => {
+        const existing = physicsRef.current[user.userId];
+        if (existing) {
+          // Keep existing physics state for users already in the lobby
+          next[user.userId] = existing;
+          return;
+        }
+        const { r, c } = gridPositions[i] || { r: 0, c: 0 };
+        const x = 10 + c * cellW + cellW / 2 + (Math.random() - 0.5) * cellW * 0.3;
+        const y = 5  + r * cellH + cellH / 2 + (Math.random() - 0.5) * cellH * 0.3;
+        next[user.userId] = {
+x: Math.max(8,  Math.min(92, x)),   // symmetric: 8% padding on left/right
+y: Math.max(8,  Math.min(92, y)),   // symmetric: 8% padding on top/bottom
+          vx: 0,
+          vy: 0,
+        };
+      });    physicsRef.current = next;
   }, [users]);
 
   // Animation loop — never torn down/recreated
@@ -124,13 +122,13 @@ y: Math.max(5,  Math.min(90, y)),   // was max(5, min(75))
         }
       }
 
-      // 3. Boundary bounce
+      // 3. Boundary bounce - symmetric padding (8% on all sides)
       ids.forEach((id) => {
         const u = p[id];
-    if (u.x <  5) { u.x =  5; u.vx =  Math.abs(u.vx); }  // was 10
-    if (u.x > 95) { u.x = 95; u.vx = -Math.abs(u.vx); }  // was 90
-    if (u.y <  5) { u.y =  5; u.vy =  Math.abs(u.vy); }  // unchanged
-    if (u.y > 90) { u.y = 90; u.vy = -Math.abs(u.vy); }  // was 75
+    if (u.x <  8) { u.x =  8; u.vx =  Math.abs(u.vx); }
+    if (u.x > 92) { u.x = 92; u.vx = -Math.abs(u.vx); }
+    if (u.y <  8) { u.y =  8; u.vy =  Math.abs(u.vy); }
+    if (u.y > 92) { u.y = 92; u.vy = -Math.abs(u.vy); }
       });     
 
       // 4. Sync a snapshot to React state for rendering
