@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Join from "./pages/Join";
 import CreateEvent from "./pages/CreateEvent";
 import Lobby from "./pages/Lobby";
+import LobbyTest from "./pages/LobbyTest";
 import Login from "./pages/Login";
 import Tutorial from "./pages/Tutorial";
 import AdminPanel from "./pages/AdminPanel";
@@ -87,6 +88,7 @@ function AppContent() {
           path="/admin/debug"
           element={user ? <AdminDebug /> : <Navigate to="/login" />}
         />
+        <Route path="/lobby-test" element={<LobbyTest />} />
         <Route path="/game/:eventId" element={<Game />} />
         <Route path="/results/:eventId" element={<Results />} />
         <Route path="/404" element={<NotFound />} />

@@ -56,24 +56,151 @@
   margin: 0;
 }
 
+/* Size-specific styles using data attribute */
+/* Large avatars (5 or fewer users) */
+.usersLobby[data-avatar-size="large"] .userAvatar {
+  width: 100px;
+  height: 100px;
+}
+
+.usersLobby[data-avatar-size="large"] .avatarInitial {
+  font-size: 48px;
+}
+
+.usersLobby[data-avatar-size="large"] .userName {
+  font-size: 14px;
+  max-width: 120px;
+}
+
+/* Medium avatars (6-15 users) */
+.usersLobby[data-avatar-size="medium"] .userAvatar {
+  width: 80px;
+  height: 80px;
+}
+
+.usersLobby[data-avatar-size="medium"] .avatarInitial {
+  font-size: 36px;
+}
+
+.usersLobby[data-avatar-size="medium"] .userName {
+  font-size: 13px;
+  max-width: 100px;
+}
+
+/* Small avatars (16-30 users) */
+.usersLobby[data-avatar-size="small"] .userAvatar {
+  width: 60px;
+  height: 60px;
+}
+
+.usersLobby[data-avatar-size="small"] .avatarInitial {
+  font-size: 28px;
+}
+
+.usersLobby[data-avatar-size="small"] .userName {
+  font-size: 12px;
+  max-width: 85px;
+}
+
+/* Tiny avatars (31-75 users) */
+.usersLobby[data-avatar-size="tiny"] .userAvatar {
+  width: 45px;
+  height: 45px;
+}
+
+.usersLobby[data-avatar-size="tiny"] .avatarInitial {
+  font-size: 20px;
+}
+
+.usersLobby[data-avatar-size="tiny"] .userName {
+  font-size: 11px;
+  max-width: 65px;
+}
+
+/* Micro avatars (76+ users) */
+.usersLobby[data-avatar-size="micro"] .userAvatar {
+  width: 35px;
+  height: 35px;
+}
+
+.usersLobby[data-avatar-size="micro"] .avatarInitial {
+  font-size: 16px;
+}
+
+.usersLobby[data-avatar-size="micro"] .userName {
+  font-size: 10px;
+  max-width: 55px;
+}
+
 /* Tablet and up */
 @media (min-width: 640px) {
   .usersLobby {
     height: 60vh;
   }
 
-  .userAvatar {
+  .usersLobby[data-avatar-size="large"] .userAvatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .usersLobby[data-avatar-size="large"] .avatarInitial {
+    font-size: 48px;
+  }
+
+  .usersLobby[data-avatar-size="large"] .userName {
+    font-size: 14px;
+  }
+
+  .usersLobby[data-avatar-size="medium"] .userAvatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .usersLobby[data-avatar-size="medium"] .avatarInitial {
+    font-size: 36px;
+  }
+
+  .usersLobby[data-avatar-size="medium"] .userName {
+    font-size: 13px;
+  }
+
+  .usersLobby[data-avatar-size="small"] .userAvatar {
     width: 60px;
     height: 60px;
   }
 
-  .avatarInitial {
+  .usersLobby[data-avatar-size="small"] .avatarInitial {
     font-size: 28px;
   }
 
-  .userName {
-    font-size: 13px;
-    max-width: 85px;
+  .usersLobby[data-avatar-size="small"] .userName {
+    font-size: 12px;
+  }
+
+  .usersLobby[data-avatar-size="tiny"] .userAvatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .usersLobby[data-avatar-size="tiny"] .avatarInitial {
+    font-size: 20px;
+  }
+
+  .usersLobby[data-avatar-size="tiny"] .userName {
+    font-size: 11px;
+  }
+
+  .usersLobby[data-avatar-size="micro"] .userAvatar {
+    width: 35px;
+    height: 35px;
+  }
+
+  .usersLobby[data-avatar-size="micro"] .avatarInitial {
+    font-size: 16px;
+  }
+
+  .usersLobby[data-avatar-size="micro"] .userName {
+    font-size: 10px;
   }
 }
 
@@ -83,17 +210,68 @@
     height: 70vh;
   }
 
-  .userAvatar {
+  .usersLobby[data-avatar-size="large"] .userAvatar {
     width: 100px;
     height: 100px;
   }
 
-  .avatarInitial {
+  .usersLobby[data-avatar-size="large"] .avatarInitial {
     font-size: 48px;
   }
 
-  .userName {
+  .usersLobby[data-avatar-size="large"] .userName {
+    font-size: 14px;
+  }
+
+  .usersLobby[data-avatar-size="medium"] .userAvatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .usersLobby[data-avatar-size="medium"] .avatarInitial {
+    font-size: 36px;
+  }
+
+  .usersLobby[data-avatar-size="medium"] .userName {
+    font-size: 13px;
+  }
+
+  .usersLobby[data-avatar-size="small"] .userAvatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .usersLobby[data-avatar-size="small"] .avatarInitial {
+    font-size: 28px;
+  }
+
+  .usersLobby[data-avatar-size="small"] .userName {
+    font-size: 12px;
+  }
+
+  .usersLobby[data-avatar-size="tiny"] .userAvatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .usersLobby[data-avatar-size="tiny"] .avatarInitial {
+    font-size: 20px;
+  }
+
+  .usersLobby[data-avatar-size="tiny"] .userName {
+    font-size: 11px;
+  }
+
+  .usersLobby[data-avatar-size="micro"] .userAvatar {
+    width: 35px;
+    height: 35px;
+  }
+
+  .usersLobby[data-avatar-size="micro"] .avatarInitial {
     font-size: 16px;
-    max-width: 140px;
+  }
+
+  .usersLobby[data-avatar-size="micro"] .userName {
+    font-size: 10px;
   }
 }

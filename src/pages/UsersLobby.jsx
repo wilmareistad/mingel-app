@@ -11,7 +11,16 @@ export default function UsersLobby({ users }) {
     if (userCount <= 5) return "large"; // 100px desktop, 80px mobile
     if (userCount <= 15) return "medium"; // 80px desktop, 60px mobile
     if (userCount <= 30) return "small"; // 60px desktop, 45px mobile
-    return "tiny"; // 45px desktop, 35px mobile
+    if (userCount <= 75) return "tiny"; // 45px desktop, 35px mobile
+    return "micro"; // 35px desktop, 25px mobile
+  }, [users.length]);
+
+  // Calculate container height based on user count
+  const containerHeight = useMemo(() => {
+    const userCount = users.length;
+    if (userCount <= 15) return "50vh";
+    if (userCount <= 50) return "70vh";
+    return "90vh";
   }, [users.length]);
 
   useEffect(() => {
@@ -84,7 +93,7 @@ export default function UsersLobby({ users }) {
   }, [positions]);
 
   return (
-    <div className={styles.usersLobby} data-avatar-size={avatarSize}>
+    <div className={styles.usersLobby} data-avatar-size={avatarSize} style={{ height: containerHeight }}>
       {users.map((user) => {
         let pos = positions[user.userId] || { x: 0, y: 0 };
         
