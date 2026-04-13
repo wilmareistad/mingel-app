@@ -29,34 +29,49 @@ export function useAdminEvent(eventId, onNavigateToAdmin) {
   useEffect(() => {
     if (!eventId) return;
 
-    const eventRef = doc(db, "events", eventId);
-    const unsubscribe = onSnapshot(eventRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const eventData = { id: docSnap.id, ...docSnap.data() };
-        setEvent(eventData);
+    let unsubscribe;
 
-        if (adminId && eventData.adminId !== adminId) {
-          onNavigateToAdmin();
-          return;
+    const setupListener = () => {
+      const eventRef = doc(db, "events", eventId);
+      unsubscribe = onSnapshot(eventRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const eventData = { id: docSnap.id, ...docSnap.data() };
+          setEvent(eventData);
+
+          if (adminId && eventData.adminId !== adminId) {
+            onNavigateToAdmin();
+            return;
+          }
+        } else {
+          setMessage("Event not found");
         }
-      } else {
-        setMessage("Event not found");
-      }
-    });
+      });
+    };
 
-    // Handle tab visibility to refresh listener when user switches tabs
+    setupListener();
+
+    // Handle tab visibility to reconnect listener when user switches tabs
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        // Tab became visible - trigger a re-fetch to ensure data is current
-        // The listener above will handle the update
-        console.log("📍 Tab became visible, listener should have latest data");
+        // Tab became visible - reconnect the listener to get latest data
+        console.log("📍 Tab became visible, reconnecting listener...");
+        
+        // Clean up old listener
+        if (unsubscribe) {
+          unsubscribe();
+        }
+        
+        // Set up fresh listener
+        setupListener();
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      unsubscribe();
+      if (unsubscribe) {
+        unsubscribe();
+      }
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [eventId, adminId, onNavigateToAdmin]);
