@@ -63,17 +63,27 @@
 
 .removeQuestionBtn:hover {
   background-color: var(--danger);
-  color: white;
+  color: rgb(255, 0, 0);
 }
 
 .finishRow {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+  justify-content: center;
 }
 
 .finishRow button {
   width: auto;
+  transition: all 0.2s ease;
+}
+
+/* Desktop hover effects */
+@media (min-width: 640px) {
+  .finishRow button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .primaryBtn {

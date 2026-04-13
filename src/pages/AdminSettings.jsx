@@ -289,42 +289,43 @@ export default function AdminSettings() {
   };
 
   // ── Timer Management ───────────────────────────────────────────────
-
-  const handleTimerIncrement = async () => {
-    const cur = event?.questionTimerSeconds ?? 300;
-    const idx = QUESTION_TIMER_OPTIONS.indexOf(cur);
-    if (idx < QUESTION_TIMER_OPTIONS.length - 1) {
-      const newValue = QUESTION_TIMER_OPTIONS[idx + 1];
-      await updateTimerDuration(eventId, newValue);
+  // Factory function to avoid repetition
+  const createTimerHandler = (isQuestion) => ({
+    increment: async () => {
+      const options = isQuestion ? QUESTION_TIMER_OPTIONS : RESULTS_TIMER_OPTIONS;
+      const currentKey = isQuestion ? "questionTimerSeconds" : "resultsTimerSeconds";
+      const updateFn = isQuestion ? updateTimerDuration : updateResultsTimerDuration;
+      const defaultVal = isQuestion ? 300 : 10;
+      
+      const cur = event?.[currentKey] ?? defaultVal;
+      const idx = options.indexOf(cur);
+      if (idx < options.length - 1) {
+        const newValue = options[idx + 1];
+        await updateFn(eventId, newValue);
+      }
+    },
+    decrement: async () => {
+      const options = isQuestion ? QUESTION_TIMER_OPTIONS : RESULTS_TIMER_OPTIONS;
+      const currentKey = isQuestion ? "questionTimerSeconds" : "resultsTimerSeconds";
+      const updateFn = isQuestion ? updateTimerDuration : updateResultsTimerDuration;
+      const defaultVal = isQuestion ? 300 : 10;
+      
+      const cur = event?.[currentKey] ?? defaultVal;
+      const idx = options.indexOf(cur);
+      if (idx > 0) {
+        const newValue = options[idx - 1];
+        await updateFn(eventId, newValue);
+      }
     }
-  };
+  });
 
-  const handleTimerDecrement = async () => {
-    const cur = event?.questionTimerSeconds ?? 300;
-    const idx = QUESTION_TIMER_OPTIONS.indexOf(cur);
-    if (idx > 0) {
-      const newValue = QUESTION_TIMER_OPTIONS[idx - 1];
-      await updateTimerDuration(eventId, newValue);
-    }
-  };
+  const questionTimerHandlers = createTimerHandler(true);
+  const resultsTimerHandlers = createTimerHandler(false);
 
-  const handleResultsTimerIncrement = async () => {
-    const cur = event?.resultsTimerSeconds ?? 10;
-    const idx = RESULTS_TIMER_OPTIONS.indexOf(cur);
-    if (idx < RESULTS_TIMER_OPTIONS.length - 1) {
-      const newValue = RESULTS_TIMER_OPTIONS[idx + 1];
-      await updateResultsTimerDuration(eventId, newValue);
-    }
-  };
-
-  const handleResultsTimerDecrement = async () => {
-    const cur = event?.resultsTimerSeconds ?? 10;
-    const idx = RESULTS_TIMER_OPTIONS.indexOf(cur);
-    if (idx > 0) {
-      const newValue = RESULTS_TIMER_OPTIONS[idx - 1];
-      await updateResultsTimerDuration(eventId, newValue);
-    }
-  };
+  const handleTimerIncrement = questionTimerHandlers.increment;
+  const handleTimerDecrement = questionTimerHandlers.decrement;
+  const handleResultsTimerIncrement = resultsTimerHandlers.increment;
+  const handleResultsTimerDecrement = resultsTimerHandlers.decrement;
 
   const handleKickPlayer = (participant) => {
     setModalState({
@@ -352,32 +353,6 @@ export default function AdminSettings() {
     if (m === 0) return `${s}s`;
     if (r === 0) return `${m}min`;
     return `${m}min ${r}s`;
-  };
-
-  const getTimeLeftDisplay = () => {
-    const minutes = Math.floor(questionTimeLeft / 60);
-    const seconds = questionTimeLeft % 60;
-
-    if (minutes === 0) {
-      return `${seconds}s`;
-    } else if (seconds === 0) {
-      return `${minutes}min`;
-    } else {
-      return `${minutes}min ${seconds}s`;
-    }
-  };
-
-  const getResultsTimeLeftDisplay = () => {
-    const minutes = Math.floor(resultsTimeLeft / 60);
-    const seconds = resultsTimeLeft % 60;
-
-    if (minutes === 0) {
-      return `${seconds}s`;
-    } else if (seconds === 0) {
-      return `${minutes}min`;
-    } else {
-      return `${minutes}min ${seconds}s`;
-    }
   };
 
   // Render
@@ -498,13 +473,15 @@ export default function AdminSettings() {
               onStartGame={handleStartGame}
               onDeleteEvent={handleDeleteEvent}
             />
-            <AddCustomQuestion
-              eventId={eventId}
-              adminId={adminId}
-              onQuestionAdded={handleAddCustomQuestion}
-              categories={categories}
-              eventCategories={eventCategories}
-            />
+            <div className={styles.addCustomQuestionWrapper}>
+              <AddCustomQuestion
+                eventId={eventId}
+                adminId={adminId}
+                onQuestionAdded={handleAddCustomQuestion}
+                categories={categories}
+                eventCategories={eventCategories}
+              />
+            </div>
           </>
         )}
 
@@ -515,7 +492,7 @@ export default function AdminSettings() {
             currentQuestion={currentQuestion}
             voteCount={voteCount}
             totalParticipants={participants.length}
-            timeLeftDisplay={getTimeLeftDisplay()}
+            timeLeftDisplay={formatSeconds(questionTimeLeft)}
             onNextQuestion={handleNextQuestion}
             onEndQuestion={handleEndQuestion}
             onResetGame={() => openConfirmModal(
@@ -538,7 +515,7 @@ export default function AdminSettings() {
             currentQuestion={currentQuestion}
             currentIndex={event?.currentQuestionIndex || 0}
             totalQuestions={totalQuestions}
-            timeLeftDisplay={getResultsTimeLeftDisplay()}
+            timeLeftDisplay={formatSeconds(resultsTimeLeft)}
             onNextQuestion={handleNextQuestion}
             onResetGame={() => openConfirmModal(
               "Reset Game",

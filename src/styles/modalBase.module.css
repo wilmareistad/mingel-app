@@ -34,6 +34,11 @@
   padding: 20px 24px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-subtle);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .modalHeader h2 {
@@ -41,12 +46,18 @@
   font-size: 20px;
   font-weight: 600;
   color: var(--text-h);
+  text-align: center;
 }
 
 .modalContent {
   padding: 20px 24px;
   color: var(--text-m);
   line-height: 1.5;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .modalContent p {
@@ -58,7 +69,8 @@
   gap: 12px;
   padding: 16px 24px;
   border-top: 1px solid var(--border);
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
   background: var(--bg-subtle);
 }
 
