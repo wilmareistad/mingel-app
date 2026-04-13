@@ -41,28 +41,40 @@ export function useAvatarDefsLoaded() {
   return useContext(AvatarDefsContext);
 }
 
-// Render this ONCE at the top level of your app (e.g. in App.jsx or Layout.jsx)
-// It injects a single hidden SVG with all defs — all avatars share them
-export default function AvatarDefs() {
-  const [defs, setDefs] = useState("");
+export function AvatarDefsProvider({ children }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    getLayerCache().then(layers => {
-      setDefs(layers.__defs__);
+    getLayerCache().then(() => {
       setIsLoaded(true);
     });
   }, []);
 
   return (
     <AvatarDefsContext.Provider value={isLoaded}>
-      {defs && (
-        <svg
-          style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
-          aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: defs }}
-        />
-      )}
+      {children}
     </AvatarDefsContext.Provider>
+  );
+}
+
+// Render this ONCE at the top level of your app (e.g. in App.jsx or Layout.jsx)
+// It injects a single hidden SVG with all defs — all avatars share them
+export default function AvatarDefs() {
+  const [defs, setDefs] = useState("");
+
+  useEffect(() => {
+    getLayerCache().then(layers => {
+      setDefs(layers.__defs__);
+    });
+  }, []);
+
+  if (!defs) return null;
+
+  return (
+    <svg
+      style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+      aria-hidden="true"
+      dangerouslySetInnerHTML={{ __html: defs }}
+    />
   );
 }

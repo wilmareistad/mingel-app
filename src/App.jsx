@@ -17,7 +17,7 @@ import NotFound from "./pages/NotFound";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Header from './components/Header';
-import AvatarDefs from './components/AvatarDefs';
+import AvatarDefs, { AvatarDefsProvider } from './components/AvatarDefs';
 import { useTutorialVisited } from "./hooks/useTutorialVisited";
 import LoadingScreen from "./components/LoadingScreen";
 
@@ -118,17 +118,19 @@ function App() {
       {/* Animated background (fixed, behind everything) */}
 
       {/* Main app content */}
-      <BrowserRouter>
-        <div className="animated-bg">
-          <div className="gradient gradient1"></div>
-          <div className="gradient gradient2"></div>
-          <div className="gradient gradient3"></div>
-        </div>
-        <Header />
-        <main>
-          <AppContent />
-        </main>
-      </BrowserRouter>
+      <AvatarDefsProvider>
+        <BrowserRouter>
+          <div className="animated-bg">
+            <div className="gradient gradient1"></div>
+            <div className="gradient gradient2"></div>
+            <div className="gradient gradient3"></div>
+          </div>
+          <Header />
+          <main>
+            <AppContent />
+          </main>
+        </BrowserRouter>
+      </AvatarDefsProvider>
     </>
   );
 }
