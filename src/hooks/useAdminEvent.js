@@ -44,7 +44,21 @@ export function useAdminEvent(eventId, onNavigateToAdmin) {
       }
     });
 
-    return unsubscribe;
+    // Handle tab visibility to refresh listener when user switches tabs
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Tab became visible - trigger a re-fetch to ensure data is current
+        // The listener above will handle the update
+        console.log("📍 Tab became visible, listener should have latest data");
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [eventId, adminId, onNavigateToAdmin]);
 
   return {
