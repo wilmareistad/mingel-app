@@ -43,8 +43,9 @@ export default function Lobby() {
 
   // Check if user was kicked - this runs independently of other effects
   useEffect(() => {
+    let isMounted = true;
     const checkKicked = async () => {
-      if (isKickedRef.current) return; // Already kicked, don't check again
+      if (!isMounted || isKickedRef.current) return; // Already kicked or unmounted
       
       const userId = sessionStorage.getItem("userId");
       if (!userId || !eventId) return;
@@ -52,22 +53,36 @@ export default function Lobby() {
       try {
         const participantDoc = await getDoc(doc(db, "events", eventId, "participants", userId));
         if (!participantDoc.exists()) {
-          console.log("🚨 checkKicked: User is not in participants");
-          isKickedRef.current = true;
-          setIsKicked(true);
+          if (isMounted) {
+            console.log("🚨 checkKicked: User is not in participants");
+            isKickedRef.current = true;
+            setIsKicked(true);
+          }
         }
       } catch (error) {
         console.warn("Error checking if kicked:", error);
       }
     };
 
-    // Check immediately
-    checkKicked();
+    // Add a longer grace period (5 seconds) before first check to allow participant to be created in Firestore
+    // First person joining needs more time due to database initialization
+    const initialCheckTimeout = setTimeout(() => {
+      if (isMounted) {
+        checkKicked();
+        
+        // Then check periodically (every 2 seconds instead of 1 to be less aggressive)
+        const interval = setInterval(() => {
+          if (isMounted) checkKicked();
+        }, 2000);
+        
+        return () => clearInterval(interval);
+      }
+    }, 5000);
     
-    // Also check periodically in case of timing issues
-    const interval = setInterval(checkKicked, 1000);
-    
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearTimeout(initialCheckTimeout);
+    };
   }, [eventId]);
 
   // Apply theme based on event
