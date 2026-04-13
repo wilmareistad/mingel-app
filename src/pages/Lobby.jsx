@@ -282,11 +282,9 @@ export default function Lobby() {
         <div className={styles.loading}>Loading room...</div>
       ) : (
         <>
-          <h1>Lobby</h1>
+          <h1>{event.name}</h1>
 
-          <p><strong>Room Name:</strong> {event.name}</p>
           <p><strong>Room Code:</strong> {event.code}</p>
-          <p><strong>Status:</strong> {event.status}</p>
 
           {error && (
             <div className={styles.errorMessage}>
