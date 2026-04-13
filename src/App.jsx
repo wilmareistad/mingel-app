@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Join from "./pages/Join";
 import CreateEvent from "./pages/CreateEvent";
 import Lobby from "./pages/Lobby";
+import LobbyTest from "./pages/LobbyTest";
 import Login from "./pages/Login";
 import Tutorial from "./pages/Tutorial";
 import AdminPanel from "./pages/AdminPanel";
@@ -69,6 +70,7 @@ function AppContent() {
         <Route path="/join" element={<Join />} />
         <Route path="/create" element={<CreateEvent />} />
         <Route path="/lobby/:eventId" element={<Lobby />} />
+        <Route path="/lobby-test" element={<LobbyTest />} />
         <Route path="/login" element={<Login />} />
         <Route path="/tutorial" element={<Tutorial />} />
         <Route
