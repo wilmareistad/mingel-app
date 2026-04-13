@@ -1,4 +1,4 @@
-# Mingel - Real-Time Multiplayer Quiz Application
+# Pulse - Real-Time Multiplayer Quiz Application
 
 Pulse is a real-time, interactive multiplayer quiz application built with React and Firebase. Admins create events with curated questions and manage the game flow in real-time, while participants join via QR code or event code and answer questions synchronously with live scoring.
 
