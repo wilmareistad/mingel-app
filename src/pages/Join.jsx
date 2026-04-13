@@ -169,8 +169,11 @@ export default function Join() {
         noseIndex,
         mouthIndex,
       };
+      
+      // Wait for participant to be created before storing session data
       await addParticipant(eventId, userId, username, avatarConfig, role);
-
+      
+      // Only store session data AFTER participant is confirmed created
       sessionStorage.setItem("userDocId", userId);
       sessionStorage.setItem("userId", userId);
       sessionStorage.setItem("eventId", eventId);
@@ -178,6 +181,7 @@ export default function Join() {
       sessionStorage.setItem("role", role);
       sessionStorage.setItem("avatar", JSON.stringify(avatarConfig));
 
+      // Navigate to lobby - participant should now exist in Firestore
       navigate(`/lobby/${eventId}`);
     } catch (error) {
       console.error(error);
