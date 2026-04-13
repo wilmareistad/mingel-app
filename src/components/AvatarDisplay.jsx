@@ -2,24 +2,26 @@ import { useState, useEffect, useRef } from "react";
 import AvatarSVG from "../assets/avatar.svg";
 import styles from "../styles/AvatarDisplay.module.css";
 
-// Global cache for SVG - fetched once, reused for all avatars
-let svgCache = null;
+// Global cache for parsed SVG DOM - fetched and parsed once, cloned for each avatar
+let parsedSVGCache = null;
 let svgCachePromise = null;
 
-// Function to get SVG text (cached after first fetch)
-function getSVGText() {
-  if (svgCache) {
-    // Already cached - return immediately
-    return Promise.resolve(svgCache);
+// Function to get parsed SVG DOM (cached after first fetch/parse)
+function getParsedSVG() {
+  if (parsedSVGCache) {
+    // Already parsed - return immediately
+    return Promise.resolve(parsedSVGCache);
   }
 
   if (!svgCachePromise) {
-    // First request - fetch and cache
+    // First request - fetch, parse once, and cache the DOM
     svgCachePromise = fetch(AvatarSVG)
       .then((res) => res.text())
       .then((svgText) => {
-        svgCache = svgText;
-        return svgText;
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
+        parsedSVGCache = svgDoc.documentElement;
+        return parsedSVGCache;
       });
   }
 
@@ -41,29 +43,27 @@ export default function AvatarDisplay({
   useEffect(() => {
     if (!svgContainerRef.current) return;
 
-    // Get SVG text from cache (or fetch once if not cached)
-    getSVGText()
-      .then((svgText) => {
+    // Get parsed SVG from cache (or fetch+parse once if not cached)
+    getParsedSVG()
+      .then((parsedSVG) => {
         // Guard against ref becoming null
         if (!svgContainerRef.current) return;
+
+        // Clone the cached SVG - fast operation
+        const svgElement = parsedSVG.cloneNode(true);
 
         // Get background color from CSS variable
         const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--avatar-background-color').trim() || "#980c50";
         
-        // Parse the SVG
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
-        const svgElement = svgDoc.documentElement;
-
         // Find the Avatar group and insert background inside it
         const avatarGroup = svgElement.getElementById("Avatar");
         if (avatarGroup) {
           // Create background group
-          const backgroundGroup = svgDoc.createElementNS("http://www.w3.org/2000/svg", "g");
+          const backgroundGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
           backgroundGroup.setAttribute("id", "Background");
           
           // Create background rectangle
-          const backgroundRect = svgDoc.createElementNS("http://www.w3.org/2000/svg", "rect");
+          const backgroundRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
           backgroundRect.setAttribute("width", "100%");
           backgroundRect.setAttribute("height", "100%");
           backgroundRect.setAttribute("fill", bgColor);
