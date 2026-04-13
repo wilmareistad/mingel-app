@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import AvatarSVG from "../assets/avatar.svg";
 
 let defsCache = null;
@@ -34,24 +34,35 @@ export function getLayerCache() {
   return defsPromise;
 }
 
+// Context to track when defs are loaded
+const AvatarDefsContext = createContext(false);
+
+export function useAvatarDefsLoaded() {
+  return useContext(AvatarDefsContext);
+}
+
 // Render this ONCE at the top level of your app (e.g. in App.jsx or Layout.jsx)
 // It injects a single hidden SVG with all defs — all avatars share them
 export default function AvatarDefs() {
   const [defs, setDefs] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     getLayerCache().then(layers => {
       setDefs(layers.__defs__);
+      setIsLoaded(true);
     });
   }, []);
 
-  if (!defs) return null;
-
   return (
-    <svg
-      style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
-      aria-hidden="true"
-      dangerouslySetInnerHTML={{ __html: defs }}
-    />
+    <AvatarDefsContext.Provider value={isLoaded}>
+      {defs && (
+        <svg
+          style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: defs }}
+        />
+      )}
+    </AvatarDefsContext.Provider>
   );
 }
