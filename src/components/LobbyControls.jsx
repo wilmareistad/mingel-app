@@ -79,7 +79,7 @@ export default function LobbyControls({
           Start Game
         </button>
         <button className={styles.deleteBtn} onClick={onDeleteEvent}>
-          🗑 Delete Event
+          Delete Event
         </button>
       </div>
     </div>
