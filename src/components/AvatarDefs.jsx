@@ -46,6 +46,10 @@ export default function AvatarDefs() {
   useEffect(() => {
     getLayerCache().then(layers => {
       setDefs(layers.__defs__);
+      // Signal that defs are ready in the DOM
+      if (defsReadyResolve) {
+        defsReadyResolve();
+      }
     });
   }, []);
 
