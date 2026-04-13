@@ -64,7 +64,8 @@ export function useAutoLeaveGame(eventId) {
       return false;
     }
 
-    const currentEventId = pathMatch[2];
+    // Decode the eventId from URL (handles special characters like å, ä)
+    const currentEventId = decodeURIComponent(pathMatch[2]);
     
     // Check if the eventId in the URL matches the player's eventId
     if (currentEventId !== eventId) {
