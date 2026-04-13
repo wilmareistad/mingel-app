@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Header from './components/Header';
+import AvatarDefs from './components/AvatarDefs';
 import { useTutorialVisited } from "./hooks/useTutorialVisited";
 import LoadingScreen from "./components/LoadingScreen";
 
@@ -113,6 +114,7 @@ function App() {
 
   return (
     <>
+      <AvatarDefs />
       {/* Animated background (fixed, behind everything) */}
 
       {/* Main app content */}
