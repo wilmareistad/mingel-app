@@ -2,6 +2,31 @@ import { useState, useEffect, useRef } from "react";
 import AvatarSVG from "../assets/avatar.svg";
 import styles from "../styles/AvatarDisplay.module.css";
 
+// Global cache for SVG - fetched once, reused for all avatars
+let svgCache = null;
+let svgCachePromise = null;
+
+// Function to get SVG text (cached after first fetch)
+function getSVGText() {
+  if (svgCache) {
+    // Already cached - return immediately
+    return Promise.resolve(svgCache);
+  }
+
+  if (!svgCachePromise) {
+    // First request - fetch and cache
+    svgCachePromise = fetch(AvatarSVG)
+      .then((res) => res.text())
+      .then((svgText) => {
+        svgCache = svgText;
+        return svgText;
+      });
+  }
+
+  // Return the same promise to all concurrent requests
+  return svgCachePromise;
+}
+
 export default function AvatarDisplay({
   baseIndex = 0,
   hairIndex = 0,
@@ -16,9 +41,8 @@ export default function AvatarDisplay({
   useEffect(() => {
     if (!svgContainerRef.current) return;
 
-    // Fetch the SVG file as text
-    fetch(AvatarSVG)
-      .then((res) => res.text())
+    // Get SVG text from cache (or fetch once if not cached)
+    getSVGText()
       .then((svgText) => {
         // Guard against ref becoming null
         if (!svgContainerRef.current) return;
