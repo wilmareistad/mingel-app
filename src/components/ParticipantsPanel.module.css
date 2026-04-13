@@ -60,6 +60,26 @@
   background: #c82333;
 }
 
+/* Matrix Mode: Black text on lime green button */
+.kickBtn.matrixMode {
+  background: #00FF41;
+  color: black;
+}
+
+.kickBtn.matrixMode:hover {
+  opacity: 0.9;
+}
+
+.kickBtn.matrixMode.active {
+  background: #00FF41;
+  color: black;
+}
+
+.kickBtn.matrixMode.active:hover {
+  background: #00FF41;
+  opacity: 0.9;
+}
+
 .participantsList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

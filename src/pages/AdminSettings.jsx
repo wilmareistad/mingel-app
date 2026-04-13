@@ -476,6 +476,7 @@ export default function AdminSettings() {
             onDecrement={handleTimerDecrement}
             formatValue={(val) => val}
             disabled={event.status !== "lobby"}
+            matrixMode={event?.theme === "matrix"}
           />
 
           <TimerControl
@@ -486,6 +487,7 @@ export default function AdminSettings() {
             onDecrement={handleResultsTimerDecrement}
             formatValue={(val) => val}
             disabled={event.status !== "lobby"}
+            matrixMode={event?.theme === "matrix"}
           />
         </div>
 
@@ -560,6 +562,7 @@ export default function AdminSettings() {
         isKickMode={isKickMode}
         onToggleKickMode={() => setIsKickMode(!isKickMode)}
         onKickClick={handleKickPlayer}
+        matrixMode={event?.theme === "matrix"}
       />
 
       <ConfirmModal

@@ -14,6 +14,7 @@ export default function TimerControl({
   onDecrement,
   formatValue,
   disabled = false,
+  matrixMode = false,
 }) {
   return (
     <div className={styles.section}>
@@ -24,6 +25,7 @@ export default function TimerControl({
           onClick={onDecrement}
           label={`Decrease ${label.toLowerCase()}`}
           disabled={disabled}
+          matrixMode={matrixMode}
         />
         <div className={styles.timerDisplay}>
           {formatValue(currentValue)}
@@ -33,6 +35,7 @@ export default function TimerControl({
           onClick={onIncrement}
           label={`Increase ${label.toLowerCase()}`}
           disabled={disabled}
+          matrixMode={matrixMode}
         />
       </div>
     </div>
