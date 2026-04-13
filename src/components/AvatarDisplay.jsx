@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { getLayerCache, useAvatarDefsLoaded } from "./AvatarDefs";
+import { getLayerCache } from "./AvatarDefs";
 import styles from "../styles/AvatarDisplay.module.css";
 
 const AvatarDisplay = memo(function AvatarDisplay({
@@ -12,12 +12,8 @@ const AvatarDisplay = memo(function AvatarDisplay({
 }) {
   const [svgContent, setSvgContent] = useState("");
   const [viewBox, setViewBox] = useState("0 0 1024 1024");
-  const defsLoaded = useAvatarDefsLoaded();
 
   useEffect(() => {
-    // Only fetch and render once defs are loaded in the DOM
-    if (!defsLoaded) return;
-
     getLayerCache().then(layers => {
       const bgColor = getComputedStyle(document.documentElement)
         .getPropertyValue("--avatar-background-color").trim() || "#980c50";
@@ -33,7 +29,7 @@ const AvatarDisplay = memo(function AvatarDisplay({
         ${layers.Hairs?.[hairIndex]      || ""}
       `);
     });
-  }, [baseIndex, hairIndex, eyeIndex, noseIndex, mouthIndex, clothesIndex, defsLoaded]);
+  }, [baseIndex, hairIndex, eyeIndex, noseIndex, mouthIndex, clothesIndex]);
 
   return (
     <svg

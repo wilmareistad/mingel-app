@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AvatarSVG from "../assets/avatar.svg";
 
 let defsCache = null;
@@ -32,29 +32,6 @@ export function getLayerCache() {
       });
   }
   return defsPromise;
-}
-
-// Context to track when defs are loaded
-const AvatarDefsContext = createContext(false);
-
-export function useAvatarDefsLoaded() {
-  return useContext(AvatarDefsContext);
-}
-
-export function AvatarDefsProvider({ children }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    getLayerCache().then(() => {
-      setIsLoaded(true);
-    });
-  }, []);
-
-  return (
-    <AvatarDefsContext.Provider value={isLoaded}>
-      {children}
-    </AvatarDefsContext.Provider>
-  );
 }
 
 // Render this ONCE at the top level of your app (e.g. in App.jsx or Layout.jsx)
