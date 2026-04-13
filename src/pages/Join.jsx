@@ -7,7 +7,7 @@ import { addParticipant } from "../features/event/eventService";
 import { useTheme } from "../hooks/useTheme";
 import ToggleButton from "../components/ToggleButton";
 import AvatarViewer from "../components/AvatarViewer";
-import AvatarSVG from "../assets/Avatar.svg";
+import AvatarSVG from "../assets/avatar.svg";
 import styles from "../styles/Join.module.css";
 
 export default function Join() {
