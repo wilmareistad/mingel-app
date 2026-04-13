@@ -282,11 +282,9 @@ export default function Lobby() {
         <div className={styles.loading}>Loading room...</div>
       ) : (
         <>
-          <h1>Lobby</h1>
+          <h1>{event.name}</h1>
 
-          <p><strong>Room Name:</strong> {event.name}</p>
           <p><strong>Room Code:</strong> {event.code}</p>
-          <p><strong>Status:</strong> {event.status}</p>
 
           {error && (
             <div className={styles.errorMessage}>
@@ -322,15 +320,6 @@ export default function Lobby() {
 
           <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar, role: p.role }))} />
           
-          {/* Show answer progress when game is in question state */}
-          {event.status === "question" && (
-            <div className={styles.answerProgress}>
-              <p className={styles.answerProgressText}>
-                <strong>Answers:</strong> {players.filter(p => p.answered).length} / {players.length} participants
-              </p>
-            </div>
-          )}
-
           <button onClick={handleLeave}>Leave Game</button>
 
           <KickedModal isOpen={isKicked} onClose={handleKickedModalClose} />
