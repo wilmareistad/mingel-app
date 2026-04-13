@@ -25,16 +25,6 @@
   align-items: center;
 }
 
-.answerProgress {
-  margin-top: 20px;
-  padding: 12px;
-  background-color: #e7f3ff;
-  border-radius: 6px;
-}
-
-.answerProgressText {
-  margin: 0;
-}
 
 .statusMessage {
   margin-top: 20px;
