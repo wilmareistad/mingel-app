@@ -1,99 +1,155 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import UserAvatarCard from "../components/UserAvatarCard";
 import styles from "../styles/UsersLobby.module.css";
 
 export default function UsersLobby({ users }) {
-  const [positions, setPositions] = useState({});
+  const [renderPositions, setRenderPositions] = useState({});
+  const physicsRef = useRef({});
 
-  // Calculate responsive avatar size based on user count
   const avatarSize = useMemo(() => {
-    const userCount = users.length;
-    if (userCount <= 5) return "large"; // 100px desktop, 80px mobile
-    if (userCount <= 15) return "medium"; // 80px desktop, 60px mobile
-    if (userCount <= 30) return "small"; // 60px desktop, 45px mobile
-    return "tiny"; // 45px desktop, 35px mobile
+    const n = users.length;
+    if (n <= 5)  return "large";
+    if (n <= 15) return "medium";
+    if (n <= 30) return "small";
+    if (n <= 75) return "tiny";
+    return "micro";
   }, [users.length]);
 
+  const containerHeight = useMemo(() => {
+    const n = users.length;
+    if (n <= 15) return "50vh";
+    if (n <= 50) return "70vh";
+    return "90vh";
+  }, [users.length]);
+
+  // Initialize physics state when user list changes
   useEffect(() => {
-    // Initialize random positions for each user
-    const initialPositions = {};
-    users.forEach((user) => {
-      initialPositions[user.userId] = {
-        x: Math.random() * 80,
-        y: Math.random() * 80,
+    const n = users.length;
+    const cols = Math.ceil(Math.sqrt(n * 1.2));
+    const rows = Math.ceil(n / cols);
+    const cellW = 80 / cols;
+    const cellH = 70 / rows;
+
+    const gridPositions = [];
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        gridPositions.push({ r, c });
+
+    // Shuffle
+    for (let i = gridPositions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [gridPositions[i], gridPositions[j]] = [gridPositions[j], gridPositions[i]];
+    }
+
+    const next = {};
+    users.forEach((user, i) => {
+      const existing = physicsRef.current[user.userId];
+      if (existing) {
+        // Keep existing physics state for users already in the lobby
+        next[user.userId] = existing;
+        return;
+      }
+      const { r, c } = gridPositions[i] || { r: 0, c: 0 };
+      const x = 10 + c * cellW + cellW / 2 + (Math.random() - 0.5) * cellW * 0.3;
+      const y = 5  + r * cellH + cellH / 2 + (Math.random() - 0.5) * cellH * 0.3;
+      next[user.userId] = {
+x: Math.max(5,  Math.min(95, x)),   // was max(10, min(90))
+y: Math.max(5,  Math.min(90, y)),   // was max(5, min(75))
+        vx: 0,
+        vy: 0,
       };
     });
-    setPositions(initialPositions);
+
+    physicsRef.current = next;
   }, [users]);
 
+  // Animation loop — never torn down/recreated
   useEffect(() => {
-    if (Object.keys(positions).length === 0) return;
+    const MIN_DIST = 18;
+    const MAX_SPEED = 0.55;
+    const WANDER = 0.025;      // small random nudge per frame
+    const DAMPING = 0.92;      // velocity bleeds off smoothly
+    const CENTER_X = 50;
+    const CENTER_Y = 40;
+    const CENTER_PULL_RADIUS = 40;
+    const CENTER_PULL_FORCE = 0.006;
 
-    // Animate positions slowly with collision detection
     const interval = setInterval(() => {
-      setPositions((prev) => {
-        const updated = { ...prev };
-        const minDistance = 20; // Minimum distance between avatars (%)
-        const avatarSize = 10; // Avatar size as percentage of container
+      const p = physicsRef.current;
+      const ids = Object.keys(p);
+      if (ids.length === 0) return;
 
-        // First pass: move all avatars
-        Object.keys(updated).forEach((userId) => {
-          updated[userId].x += (Math.random() - 0.5) * 1.2;
-          updated[userId].y += (Math.random() - 0.5) * 1.2;
+      // 1. Apply wander + damping + centering to velocities
+      ids.forEach((id) => {
+        const u = p[id];
+        u.vx = u.vx * DAMPING + (Math.random() - 0.5) * WANDER;
+        u.vy = u.vy * DAMPING + (Math.random() - 0.5) * WANDER;
 
-          // Keep within visible bounds (with padding for avatar + name)
-          updated[userId].x = Math.max(10, Math.min(90, updated[userId].x));
-          updated[userId].y = Math.max(5, Math.min(75, updated[userId].y));
-        });
-
-        // Second pass: collision detection and separation
-        const userIds = Object.keys(updated);
-        for (let i = 0; i < userIds.length; i++) {
-          for (let j = i + 1; j < userIds.length; j++) {
-            const user1 = updated[userIds[i]];
-            const user2 = updated[userIds[j]];
-
-            const dx = user2.x - user1.x;
-            const dy = user2.y - user1.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < minDistance) {
-              // Push avatars apart
-              const angle = Math.atan2(dy, dx);
-              const pushDistance = (minDistance - distance) / 2 + 0.5;
-
-              user1.x -= Math.cos(angle) * pushDistance;
-              user1.y -= Math.sin(angle) * pushDistance;
-              user2.x += Math.cos(angle) * pushDistance;
-              user2.y += Math.sin(angle) * pushDistance;
-
-              // Keep within bounds
-              user1.x = Math.max(10, Math.min(90, user1.x));
-              user1.y = Math.max(5, Math.min(75, user1.y));
-              user2.x = Math.max(10, Math.min(90, user2.x));
-              user2.y = Math.max(5, Math.min(75, user2.y));
-            }
-          }
+        const dx = u.x - CENTER_X;
+        const dy = u.y - CENTER_Y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > CENTER_PULL_RADIUS) {
+          u.vx -= (dx / dist) * CENTER_PULL_FORCE;
+          u.vy -= (dy / dist) * CENTER_PULL_FORCE;
         }
 
-        return updated;
+        // Clamp speed
+        const speed = Math.sqrt(u.vx * u.vx + u.vy * u.vy);
+        if (speed > MAX_SPEED) {
+          u.vx = (u.vx / speed) * MAX_SPEED;
+          u.vy = (u.vy / speed) * MAX_SPEED;
+        }
+
+        u.x += u.vx;
+        u.y += u.vy;
       });
-    }, 1200); // Update every 1.2 seconds for faster movement
+
+      // 2. Separation — push velocity, not position
+      for (let i = 0; i < ids.length; i++) {
+        for (let j = i + 1; j < ids.length; j++) {
+          const a = p[ids[i]];
+          const b = p[ids[j]];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MIN_DIST && dist > 0.01) {
+            const force = ((MIN_DIST - dist) / MIN_DIST) * 0.04;
+            const nx = dx / dist;
+            const ny = dy / dist;
+            a.vx -= nx * force;
+            a.vy -= ny * force;
+            b.vx += nx * force;
+            b.vy += ny * force;
+          }
+        }
+      }
+
+      // 3. Boundary bounce
+      ids.forEach((id) => {
+        const u = p[id];
+    if (u.x <  5) { u.x =  5; u.vx =  Math.abs(u.vx); }  // was 10
+    if (u.x > 95) { u.x = 95; u.vx = -Math.abs(u.vx); }  // was 90
+    if (u.y <  5) { u.y =  5; u.vy =  Math.abs(u.vy); }  // unchanged
+    if (u.y > 90) { u.y = 90; u.vy = -Math.abs(u.vy); }  // was 75
+      });     
+
+      // 4. Sync a snapshot to React state for rendering
+      setRenderPositions(
+        Object.fromEntries(ids.map((id) => [id, { x: p[id].x, y: p[id].y }]))
+      );
+    }, 50);
 
     return () => clearInterval(interval);
-  }, [positions]);
+  }, []); // ← empty deps: runs once, never restarts
 
   return (
-    <div className={styles.usersLobby} data-avatar-size={avatarSize}>
+    <div
+      className={styles.usersLobby}
+      data-avatar-size={avatarSize}
+      style={{ height: containerHeight }}
+    >
       {users.map((user) => {
-        let pos = positions[user.userId] || { x: 0, y: 0 };
-        
-        // Adjust position to keep avatar and name within bounds
-        pos = {
-          x: Math.max(10, Math.min(90, pos.x)),
-          y: Math.max(5, Math.min(75, pos.y)),
-        };
-        
+        const pos = renderPositions[user.userId] ?? { x: 50, y: 40 };
         return (
           <UserAvatarCard
             key={user.userId}
@@ -101,6 +157,7 @@ export default function UsersLobby({ users }) {
               userId: user.userId,
               name: user.name,
               avatar: user.avatar || {},
+              role: user.role,
             }}
             size={avatarSize}
             position={pos}

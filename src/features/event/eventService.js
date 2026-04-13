@@ -70,8 +70,10 @@ export async function updateCurrentQuestionIndex(eventId, questionIndex) {
  * @param {string} eventId - Event ID
  * @param {string} userId - User ID
  * @param {string} username - User's display name
+ * @param {object} avatar - Avatar configuration
+ * @param {string} role - User's optional role
  */
-export async function addParticipant(eventId, userId, username, avatar = null) {
+export async function addParticipant(eventId, userId, username, avatar = null, role = "") {
   const participantRef = doc(db, "events", eventId, "participants", userId);
   console.log("addParticipant called:", { eventId, userId, username });
   
@@ -80,6 +82,11 @@ export async function addParticipant(eventId, userId, username, avatar = null) {
     joinedAt: serverTimestamp(),
     hasAnswered: false
   };
+  
+  // Add role if provided
+  if (role && role.trim()) {
+    participantData.role = role.trim();
+  }
   
   // Add avatar configuration if provided
   if (avatar) {

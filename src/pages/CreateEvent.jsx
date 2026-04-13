@@ -7,12 +7,9 @@ import { createCustomQuestion } from "../features/customQuestion/customQuestionS
 import AddCustomQuestion from "../components/AddCustomQuestion";
 import { themes, applyTheme, resetTheme } from "../config/themes";
 import { useTheme } from "../hooks/useTheme";
+import { QUESTION_TIMER_OPTIONS, RESULTS_TIMER_OPTIONS } from "../config/gameConfig";
 import styles from "./CreateEvent.module.css";
-
-const timerOptions = [
-  30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 450, 540, 630, 720,
-  810, 900,
-];
+import buttonBaseStyles from "../styles/buttonBase.module.css";
 
 export default function CreateEvent() {
   const navigate = useNavigate();
@@ -158,7 +155,12 @@ export default function CreateEvent() {
 
   return (
     <div>
-      <h1>Set up new event</h1>
+      <div className={styles.headerRow}>
+        <button className={buttonBaseStyles.backBtn} onClick={() => navigate("/admin")}>
+          ← Back
+        </button>
+        <h1>Set up new event</h1>
+      </div>
 
       <div className={styles.inputContainer}>
         <label>Name:</label>
@@ -176,7 +178,7 @@ export default function CreateEvent() {
           value={questionTimerSeconds}
           onChange={(e) => setQuestionTimerSeconds(Number(e.target.value))}
         >
-          {timerOptions.map((sec) => (
+          {QUESTION_TIMER_OPTIONS.map((sec) => (
             <option key={sec} value={sec}>
               {sec / 60 >= 1
                 ? `${Math.floor(sec / 60)} min${sec % 60 ? " " + (sec % 60) + "s" : ""}`
@@ -192,7 +194,7 @@ export default function CreateEvent() {
           value={resultTimerSeconds}
           onChange={(e) => setResultTimerSeconds(Number(e.target.value))}
         >
-          {timerOptions.map((sec) => (
+          {RESULTS_TIMER_OPTIONS.map((sec) => (
             <option key={sec} value={sec}>
               {sec / 60 >= 1
                 ? `${Math.floor(sec / 60)} min${sec % 60 ? " " + (sec % 60) + "s" : ""}`

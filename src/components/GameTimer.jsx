@@ -9,8 +9,9 @@ export default function Timer({
 }) {
   const [timeLeft, setTimeLeft] = useState(0);
   const hasExpiredRef = useRef(false);
+  const currentPhaseRef = useRef(null);
 
-  // Main effect: Calculate time whenever event changes
+  // Single unified effect for timer management
   useEffect(() => {
     if (!event || !isActive || event.status !== "question") {
       setTimeLeft(0);
@@ -18,8 +19,12 @@ export default function Timer({
       return;
     }
 
-    // Reset expiration flag when a new question starts
-    hasExpiredRef.current = false;
+    // Identify this phase (to reset expiration flag if we enter a new question)
+    const phaseId = `question_${event.currentQuestionIndex}`;
+    if (phaseId !== currentPhaseRef.current) {
+      currentPhaseRef.current = phaseId;
+      hasExpiredRef.current = false;
+    }
 
     // Get question timer duration (default 5 minutes = 300 seconds)
     const durationSeconds = event.questionTimerSeconds || 300;
@@ -31,30 +36,8 @@ export default function Timer({
       return;
     }
 
-    const now = Date.now();
-    const elapsedMs = now - phaseStartedAt;
-    const elapsedSeconds = Math.floor(elapsedMs / 1000);
-    const remaining = Math.max(0, durationSeconds - elapsedSeconds);
-
-    setTimeLeft(remaining);
-
-    // If time expired and we haven't called callback yet, call it once
-    if (remaining === 0 && onTimeExpired && !hasExpiredRef.current) {
-      hasExpiredRef.current = true;
-      onTimeExpired();
-    }
-  }, [event, isActive, onTimeExpired]);
-
-  // Update timer every 100ms for smooth real-time updates
-  useEffect(() => {
-    if (!isActive || !event || event.status !== "question") return;
-
-    const durationSeconds = event.questionTimerSeconds || 300;
-    const phaseStartedAt = event.phaseStartedAt?.toMillis?.() || event.phaseStartedAt;
-    
-    if (!phaseStartedAt) return;
-
-    const interval = setInterval(() => {
+    // Function to update timer display and check for expiration
+    const updateTimer = () => {
       const now = Date.now();
       const elapsedMs = now - phaseStartedAt;
       const elapsedSeconds = Math.floor(elapsedMs / 1000);
@@ -62,15 +45,24 @@ export default function Timer({
 
       setTimeLeft(remaining);
 
-      // Only call callback once when timer reaches exactly 0
-      if (remaining === 0 && onTimeExpired && !hasExpiredRef.current) {
+      // Fire callback exactly once when timer hits 0 (only for this phase)
+      if (remaining === 0 && !hasExpiredRef.current) {
         hasExpiredRef.current = true;
-        onTimeExpired();
+        console.log("⏰ GAME TIMER EXPIRED - calling onTimeExpired callback");
+        if (onTimeExpired) {
+          onTimeExpired();
+        }
       }
-    }, 100); // Update every 100ms for smooth real-time display
+    };
+
+    // Update immediately for smooth UX
+    updateTimer();
+
+    // Then update every 100ms for real-time countdown display
+    const interval = setInterval(updateTimer, 100);
 
     return () => clearInterval(interval);
-  }, [event, isActive, onTimeExpired]);
+  }, [event?.status, event?.currentQuestionIndex, event?.phaseStartedAt, event?.questionTimerSeconds, isActive, onTimeExpired]);
 
   // Determine display format: "Xmin" for >60s, "Xs" for ≤60s
   const displayText = timeLeft > 60 

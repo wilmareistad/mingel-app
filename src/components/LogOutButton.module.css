@@ -1,0 +1,38 @@
+.logOutButton {
+  background-color: transparent;
+  border: 3px solid var(--color-primary, #001A52);
+  border-radius: 28px;
+  padding: 16px 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-primary, #001A52);
+  min-width: auto;
+  font-family: inherit;
+}
+
+.text {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  color: var(--color-primary, #001A52);
+}
+
+.logOutButton:hover:not(:disabled) .icon {
+  transform: translateX(2px);
+}

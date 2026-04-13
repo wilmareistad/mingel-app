@@ -13,6 +13,7 @@ import styles from "../styles/Join.module.css";
 export default function Join() {
   const [code, setCode] = useState("");
   const [username, setUsername] = useState("");
+  const [role, setRole] = useState("");
   const [message, setMessage] = useState("");
   const [searchParams] = useSearchParams();
   const [baseIndex, setBaseIndex] = useState(0);
@@ -20,7 +21,6 @@ export default function Join() {
   const [eyeIndex, setEyeIndex] = useState(0);
   const [noseIndex, setNoseIndex] = useState(0);
   const [mouthIndex, setMouthIndex] = useState(0);
-  const [clothesIndex, setClothesIndex] = useState(0);
   const [layerCounts, setLayerCounts] = useState({});
   const [eventTheme, setEventTheme] = useState(null);
 
@@ -85,7 +85,6 @@ export default function Join() {
     setEyeIndex(Math.floor(Math.random() * counts.Eyes));
     setNoseIndex(Math.floor(Math.random() * counts.Noses));
     setMouthIndex(Math.floor(Math.random() * counts.Mouths));
-    setClothesIndex(Math.floor(Math.random() * counts.Clothes));
   };
 
   // Helper function to cycle through layers
@@ -118,10 +117,6 @@ export default function Join() {
 
   const handleMouthChange = (direction) => {
     cycleLayer(mouthIndex, setMouthIndex, layerCounts["Mouths"], direction);
-  };
-
-  const handleClothesChange = (direction) => {
-    cycleLayer(clothesIndex, setClothesIndex, layerCounts["Clothes"], direction);
   };
 
   // On mount, check if code is in URL params
@@ -173,15 +168,15 @@ export default function Join() {
         eyeIndex,
         noseIndex,
         mouthIndex,
-        clothesIndex,
       };
-      await addParticipant(eventId, userId, username, avatarConfig);
+      await addParticipant(eventId, userId, username, avatarConfig, role);
 
-      localStorage.setItem("userDocId", userId);
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("eventId", eventId);
-      localStorage.setItem("username", username);
-      localStorage.setItem("avatar", JSON.stringify(avatarConfig));
+      sessionStorage.setItem("userDocId", userId);
+      sessionStorage.setItem("userId", userId);
+      sessionStorage.setItem("eventId", eventId);
+      sessionStorage.setItem("username", username);
+      sessionStorage.setItem("role", role);
+      sessionStorage.setItem("avatar", JSON.stringify(avatarConfig));
 
       navigate(`/lobby/${eventId}`);
     } catch (error) {
@@ -201,7 +196,6 @@ export default function Join() {
             <ToggleButton size="small" direction="left" label="Previous Nose" onClick={() => handleNoseChange("left")} />
             <ToggleButton size="small" direction="left" label="Previous Mouth" onClick={() => handleMouthChange("left")} />
             <ToggleButton size="small" direction="left" label="Previous Base" onClick={() => handleBaseChange("left")} />
-            <ToggleButton size="small" direction="left" label="Previous Clothes" onClick={() => handleClothesChange("left")} />
           </div>
 
           {/* Center image */}
@@ -212,7 +206,6 @@ export default function Join() {
               eyeIndex={eyeIndex}
               noseIndex={noseIndex}
               mouthIndex={mouthIndex}
-              clothesIndex={clothesIndex}
               layerCounts={layerCounts}
             />
           </div>
@@ -224,7 +217,6 @@ export default function Join() {
             <ToggleButton size="small" direction="right" label="Next Nose" onClick={() => handleNoseChange("right")} />
             <ToggleButton size="small" direction="right" label="Next Mouth" onClick={() => handleMouthChange("right")} />
             <ToggleButton size="small" direction="right" label="Next Base" onClick={() => handleBaseChange("right")} />
-            <ToggleButton size="small" direction="right" label="Next Clothes" onClick={() => handleClothesChange("right")} />
           </div>
         </div>
 
@@ -246,6 +238,17 @@ export default function Join() {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", marginTop: "1rem" }}>
+        <span style={{ fontSize: "0.875rem", color: "#666" }}>(optional)</span>
+        <input
+          type="text"
+          placeholder="Role"
+          value={role}
+          onChange={(e) => setRole(e.target.value.slice(0, 40))}
+          maxLength={40}
+        />
+      </div>
 
       <button onClick={handleJoin}>Join</button>
 

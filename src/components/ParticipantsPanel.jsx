@@ -6,19 +6,21 @@ import styles from './ParticipantsPanel.module.css';
  * @param {boolean} isKickMode - Whether kick mode is active
  * @param {function} onToggleKickMode - Callback to toggle kick mode
  * @param {function} onKickClick - Callback when kicking a participant
+ * @param {boolean} matrixMode - Whether Matrix Mode is active
  */
 export default function ParticipantsPanel({ 
   participants, 
   isKickMode, 
   onToggleKickMode, 
-  onKickClick 
+  onKickClick,
+  matrixMode = false
 }) {
   return (
     <div className={styles.section}>
       <div className={styles.participantsHeader}>
         <h3>Participants ({participants.length})</h3>
         <button 
-          className={`${styles.kickBtn} ${isKickMode ? styles.active : ''}`}
+          className={`${styles.kickBtn} ${isKickMode ? styles.active : ''} ${matrixMode ? styles.matrixMode : ''}`}
           onClick={onToggleKickMode}
         >
           {isKickMode ? 'Cancel Kick' : 'Kick Player'}

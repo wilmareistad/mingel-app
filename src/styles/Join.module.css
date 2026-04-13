@@ -20,9 +20,30 @@
 .rightControls {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  justify-content: space-between;
+  justify-content: space-evenly;
   flex: 0 0 auto;
+}
+
+.controlRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.leftControls .controlRow {
+  flex-direction: row;
+}
+
+.rightControls .controlRow {
+  flex-direction: row;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-h);
+  min-width: 50px;
+  text-align: center;
 }
 
 .avatarView {

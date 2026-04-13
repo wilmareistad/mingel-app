@@ -176,59 +176,6 @@
 }
 .cancelNameBtnInline:hover { opacity: 1; }
 
-.nameEditInline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: white;
-  border: 1.5px solid var(--border, #e0e4f0);
-  border-radius: 10px;
-  padding: 12px 16px;
-}
-
-.nameInputInline {
-  background: transparent;
-  border: none;
-  padding: 0;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--text-h);
-  outline: none;
-  flex: 1;
-  min-width: 180px;
-  font-family: inherit;
-}
-
-.saveNameBtnInline {
-  background: none;
-  color: #27ae60;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  opacity: 0.5;
-  transition: opacity 0.2s;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.saveNameBtnInline:hover { opacity: 1; }
-
-.cancelNameBtnInline {
-  background: none;
-  color: #c0392b;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  opacity: 0.5;
-  transition: opacity 0.2s;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.cancelNameBtnInline:hover { opacity: 1; }
-
 .nameEdit {
   display: flex;
   align-items: center;
@@ -306,10 +253,10 @@
 
 /* Delete event button */
 .deleteEventBtn {
-  background: none;
-  border: 2px solid #e0e0e0;
+  background: var(--accent, #001A52) !important;
+  border: none !important;
   border-radius: 8px;
-  color: #c0392b;
+  color: white !important;
   font-size: 0.85rem;
   font-weight: 700;
   padding: 8px 14px;
@@ -318,12 +265,12 @@
   white-space: nowrap;
   flex: 1;
   min-width: 140px;
+  width: auto !important;
+  height: auto !important;
 }
 
 .deleteEventBtn:hover {
-  background: #fff0f0;
-  border-color: #c0392b;
-  color: #c0392b;
+  opacity: 0.85;
 }
 
 /* ── Message ── */
@@ -363,6 +310,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  justify-content: space-evenly;
 }
 
 .timersRow .section { 
@@ -382,16 +330,12 @@
 
 .sectionLabel {
   margin: 0;
-  font-size: 0.7rem;
+  /* font-size: 0.7rem; */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text);
   opacity: 0.55;
-}
-
-.timersRow .sectionLabel {
-  text-align: center;
 }
 
 /* ── Timer controls ── */
@@ -486,21 +430,6 @@
   line-height: 1.4;
 }
 
-.removeQuestionBtn {
-  background: none;
-  border: none;
-  color: #c0392b;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  opacity: 0.5;
-  transition: opacity 0.2s, background 0.2s;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.removeQuestionBtn:hover { opacity: 1; background: #fff0f0; }
-
 .empty {
   color: var(--text);
   opacity: 0.6;
@@ -509,79 +438,14 @@
   margin: 0;
 }
 
-/* ── Buttons ── */
-.btnGroup {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+.deleteBtn {
+  background: #c0392b !important;
+  color: white !important;
 }
 
-.finishRow {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
+.deleteBtn:hover {
+  background: #a93226 !important;
 }
-
-.primaryBtn {
-  flex: 1;
-  min-width: 140px;
-  padding: 12px 20px;
-  background: var(--text-h, #0d1b4b);
-  color: var(--btn-primary-text);
-  border: none;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.primaryBtn:hover { opacity: 0.85; }
-
-.secondaryBtn {
-  flex: 1;
-  min-width: 140px;
-  padding: 12px 20px;
-  background: white;
-  color: var(--text-h);
-  border: 2px solid var(--border, #e0e4f0);
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-.secondaryBtn:hover { border-color: var(--text-h); }
-
-.dangerBtn {
-  flex: 1;
-  min-width: 140px;
-  padding: 12px 20px;
-  background: white;
-  color: #c0392b;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.dangerBtn:hover { border-color: #c0392b; background: #fff0f0; }
-
-.ghostBtn {
-  flex: 1;
-  min-width: 140px;
-  padding: 12px 20px;
-  background: transparent;
-  color: var(--text);
-  border: 2px solid var(--border, #e0e4f0);
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s, border-color 0.2s;
-}
-.ghostBtn:hover { opacity: 1; border-color: var(--text); }
 
 /* ── Results ── */
 .resultsText {
@@ -610,6 +474,13 @@
 
 .eventNameText:hover {
   border-bottom-color: currentColor;
+}
+
+.addCustomQuestionWrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ============================================
@@ -659,10 +530,7 @@
     flex-direction: row;
     gap: 24px;
     flex-wrap: wrap;
-  }
-
-  .sectionLabel {
-    font-size: 0.78rem;
+    text-align: center;
   }
 
   .timerDisplay {

@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Join from "./pages/Join";
 import CreateEvent from "./pages/CreateEvent";
 import Lobby from "./pages/Lobby";
+import LobbyTest from "./pages/LobbyTest";
 import Login from "./pages/Login";
 import Tutorial from "./pages/Tutorial";
 import AdminPanel from "./pages/AdminPanel";
@@ -12,6 +13,7 @@ import AdminLobby from "./pages/AdminLobby";
 import AdminDebug from "./pages/AdminDebug";
 import Game from "./pages/Game";
 import Results from "./pages/Results";
+import NotFound from "./pages/NotFound";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Header from './components/Header';
@@ -68,6 +70,7 @@ function AppContent() {
         <Route path="/join" element={<Join />} />
         <Route path="/create" element={<CreateEvent />} />
         <Route path="/lobby/:eventId" element={<Lobby />} />
+        <Route path="/lobby-test" element={<LobbyTest />} />
         <Route path="/login" element={<Login />} />
         <Route path="/tutorial" element={<Tutorial />} />
         <Route
@@ -88,6 +91,8 @@ function AppContent() {
         />
         <Route path="/game/:eventId" element={<Game />} />
         <Route path="/results/:eventId" element={<Results />} />
+        <Route path="/404" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );

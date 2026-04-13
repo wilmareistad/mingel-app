@@ -8,7 +8,6 @@ export default function AvatarViewer({
   eyeIndex,
   noseIndex,
   mouthIndex,
-  clothesIndex,
   layerCounts,
 }) {
   const svgContainerRef = useRef(null);
@@ -53,7 +52,6 @@ export default function AvatarViewer({
           { groupId: "Eyes", index: eyeIndex },
           { groupId: "Noses", index: noseIndex },
           { groupId: "Mouths", index: mouthIndex },
-          { groupId: "Clothes", index: clothesIndex },
         ];
 
         updates.forEach(({ groupId, index }) => {
@@ -66,6 +64,16 @@ export default function AvatarViewer({
           });
         });
 
+        // Always show Clothes01 (no toggle)
+        const clothesGroup = svgElement.getElementById("Clothes");
+        if (clothesGroup) {
+          const children = Array.from(clothesGroup.children);
+          children.forEach((child, idx) => {
+            // Show only Clothes01 (index 0)
+            child.style.display = idx === 0 ? "block" : "none";
+          });
+        }
+
         // Set width and height to fit container
         svgElement.setAttribute("width", "300");
         svgElement.setAttribute("height", "300");
@@ -77,7 +85,7 @@ export default function AvatarViewer({
         }
         svgContainerRef.current.appendChild(svgElement);
       });
-  }, [baseIndex, hairIndex, eyeIndex, noseIndex, mouthIndex, clothesIndex]);
+  }, [baseIndex, hairIndex, eyeIndex, noseIndex, mouthIndex]);
 
   return (
     <div

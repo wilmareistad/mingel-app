@@ -11,6 +11,7 @@ export default function UserAvatarCard({
     medium: { desktop: 80, mobile: 60, initial: 10, fontSize: 36 },
     small: { desktop: 60, mobile: 45, initial: 8, fontSize: 28 },
     tiny: { desktop: 45, mobile: 35, initial: 6, fontSize: 20 },
+    micro: { desktop: 35, mobile: 25, initial: 5, fontSize: 16 },
   };
 
   const config = sizeConfig[size];
@@ -59,6 +60,7 @@ export default function UserAvatarCard({
         )}
       </div>
       <p className={styles.userName}>{user.name}</p>
+      {user.role && <p className={styles.userRole}>{user.role}</p>}
     </div>
   );
 }

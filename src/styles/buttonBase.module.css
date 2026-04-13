@@ -185,3 +185,27 @@
 .button-group.fullWidth .button {
   flex: 1;
 }
+
+/* ============================================
+   BACK BUTTON
+   ============================================ */
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--text-h);
+  padding: 8px 0;
+  display: flex;
+  justify-content: flex-start;
+  flex: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.backBtn:hover {
+  opacity: 1;
+}
+

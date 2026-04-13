@@ -1,33 +1,33 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { useNavigate } from 'react-router-dom';
 import styles from './Header.module.css';
 import GearIcon from '../assets/GearSix.svg';
 
 export default function Header() {
   const navigate = useNavigate();
 
-  const handleLogoClick = async (e) => {
+  const handleLogoClick = (e) => {
     e.preventDefault();
-
-    const userDocId = localStorage.getItem("userDocId");
-    if (userDocId) {
-      await deleteDoc(doc(db, "users", userDocId));
-      localStorage.removeItem("userId");
-      localStorage.removeItem("eventId");
-      localStorage.removeItem("userDocId");
-    }
-
     navigate("/");
   };
+
+  // Check if user is currently playing (has userId in sessionStorage)
+  const userId = sessionStorage.getItem("userId");
+  const isPlaying = !!userId;
 
   return (
     <header className={styles.header}>
       <nav>
-      <a href="/" onClick={handleLogoClick} className={styles.logo}>
-        Pulse
-      </a>
-      <img src={GearIcon} alt="Settings" className={styles.icon} />
+      {isPlaying ? (
+        // If playing, render as non-clickable text
+        <span className={styles.logo}>
+          Pulse
+        </span>
+      ) : (
+        // If not playing, render as clickable link
+        <a href="/" onClick={handleLogoClick} className={styles.logo}>
+          Pulse
+        </a>
+      )}
       </nav>
     </header>
   );

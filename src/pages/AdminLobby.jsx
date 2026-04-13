@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { listenToParticipants } from "../features/event/eventService";
@@ -10,6 +10,7 @@ import styles from "./Lobby.module.css";
 
 export default function AdminLobby() {
   const { eventId } = useParams();
+  const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [players, setPlayers] = useState([]);
 
@@ -23,6 +24,15 @@ export default function AdminLobby() {
     });
     return unsubscribe;
   }, [eventId]);
+
+  // Redirect to results page when event is in results status, go back to admin lobby when it's not
+  useEffect(() => {
+    if (!event) return;
+    
+    if (event.status === "results") {
+      navigate(`/results/${eventId}?admin=true`, { replace: true });
+    }
+  }, [event?.status, eventId, navigate]);
 
   // Apply theme based on event
   useTheme(event?.theme);
