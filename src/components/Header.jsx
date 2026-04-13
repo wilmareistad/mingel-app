@@ -26,6 +26,9 @@ export default function Header() {
   // Check if on a game-related URL: lobby/eventId, game/eventId, results/eventId
   const isOnGameURL = /^\/(lobby|game|results)\//.test(location.pathname);
 
+  // Check if on admin lobby or results page where logout should be hidden
+  const isOnAdminOrResults = /^\/(admin\/lobby|results)\//.test(location.pathname);
+
   return (
     <header className={styles.header}>
       <nav className={styles.nav}>
@@ -40,7 +43,7 @@ export default function Header() {
             Pulse
           </a>
         )}
-        {isAdmin && (
+        {isAdmin && !isOnAdminOrResults && (
           <div className={styles.adminControls}>
             <LogOutButton />
           </div>
