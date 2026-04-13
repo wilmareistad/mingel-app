@@ -72,31 +72,31 @@
 <rect id="Eyes16" x="262.7" y="405.35" width="495" height="270" fill="url(#pattern59_0_1)"/>
 </g>
 <g id="Hairs">
-<rect id="Hair01" x="188.9" y="121.85" width="646.2" height="434.7" fill="url(#pattern60_0_1)"/>
-<rect id="Hair02" x="127.7" y="112.85" width="768.6" height="807.3" fill="url(#pattern61_0_1)"/>
-<rect id="Hair03" x="359.9" y="54.35" width="303.3" height="290.7" fill="url(#pattern62_0_1)"/>
-<rect id="Hair04" x="183.5" y="39.95" width="624.6" height="545.4" fill="url(#pattern63_0_1)"/>
-<rect id="Hair05" x="181.7" y="164.15" width="649.8" height="487.8" fill="url(#pattern64_0_1)"/>
-<rect id="Hair06" x="77.3" y="81.35" width="868.5" height="801" fill="url(#pattern65_0_1)"/>
-<rect id="Hair07" x="112.4" y="47.15" width="714.6" height="821.7" fill="url(#pattern66_0_1)"/>
-<rect id="Hair08" x="119.6" y="88.55" width="784.8" height="296.1" fill="url(#pattern67_0_1)"/>
-<rect id="Hair09" x="200.6" y="110.15" width="623.7" height="436.5" fill="url(#pattern68_0_1)"/>
-<rect id="Hair10" x="188.9" y="121.85" width="646.2" height="434.7" fill="url(#pattern69_0_1)"/>
-<rect id="Hair11" x="127.7" y="112.85" width="768.6" height="809.1" fill="url(#pattern70_0_1)"/>
-<rect id="Hair12" x="359.9" y="54.35" width="303.3" height="290.7" fill="url(#pattern71_0_1)"/>
-<rect id="Hair13" x="183.5" y="39.95" width="624.6" height="545.4" fill="url(#pattern72_0_1)"/>
-<rect id="Hair14" x="181.7" y="164.15" width="649.8" height="487.8" fill="url(#pattern73_0_1)"/>
-<rect id="Hair15" x="77.3" y="81.35" width="868.5" height="710.1" fill="url(#pattern74_0_1)"/>
-<rect id="Hair16" x="112.4" y="47.15" width="714.6" height="821.7" fill="url(#pattern75_0_1)"/>
-<rect id="Hair17" x="200.6" y="110.15" width="623.7" height="436.5" fill="url(#pattern76_0_1)"/>
-<rect id="Hair18" x="193.4" y="57.05" width="629.1" height="427.5" fill="url(#pattern77_0_1)"/>
-<rect id="Hair19" x="193.4" y="57.05" width="629.1" height="427.5" fill="url(#pattern78_0_1)"/>
-<rect id="Hair20" x="182.6" y="84.95" width="583.2" height="340.2" fill="url(#pattern79_0_1)"/>
-<rect id="Hair21" x="182.6" y="84.95" width="583.2" height="340.2" fill="url(#pattern80_0_1)"/>
-<rect id="Hair22" x="182.6" y="84.95" width="583.2" height="340.2" fill="url(#pattern81_0_1)"/>
-<rect id="Hair23" x="160.1" y="121.85" width="495.9" height="421.2" fill="url(#pattern82_0_1)"/>
-<rect id="Hair24" x="186.2" y="107.45" width="682.2" height="837" fill="url(#pattern83_0_1)"/>
-<rect id="Hair25" x="186.2" y="107.45" width="682.2" height="881.1" fill="url(#pattern84_0_1)"/>
+<rect id="Hair01" x="181.6" y="138.5" width="646.2" height="434.7" fill="url(#pattern60_0_1)"/>
+<rect id="Hair02" x="120.4" y="129.5" width="768.6" height="807.3" fill="url(#pattern61_0_1)"/>
+<rect id="Hair03" x="352.6" y="71" width="303.3" height="290.7" fill="url(#pattern62_0_1)"/>
+<rect id="Hair04" x="176.2" y="56.6" width="624.6" height="545.4" fill="url(#pattern63_0_1)"/>
+<rect id="Hair05" x="174.4" y="180.8" width="649.8" height="487.8" fill="url(#pattern64_0_1)"/>
+<rect id="Hair06" x="70" y="98" width="868.5" height="801" fill="url(#pattern65_0_1)"/>
+<rect id="Hair07" x="155" y="61" width="714.6" height="821.7" fill="url(#pattern66_0_1)"/>
+<rect id="Hair08" x="111" y="98" width="784.8" height="296.1" fill="url(#pattern67_0_1)"/>
+<rect id="Hair09" x="193.3" y="126.8" width="623.7" height="436.5" fill="url(#pattern68_0_1)"/>
+<rect id="Hair10" x="181.6" y="138.5" width="646.2" height="434.7" fill="url(#pattern69_0_1)"/>
+<rect id="Hair11" x="120.4" y="129.5" width="768.6" height="809.1" fill="url(#pattern70_0_1)"/>
+<rect id="Hair12" x="352.6" y="71" width="303.3" height="290.7" fill="url(#pattern71_0_1)"/>
+<rect id="Hair13" x="176.2" y="56.6" width="624.6" height="545.4" fill="url(#pattern72_0_1)"/>
+<rect id="Hair14" x="184" y="181" width="649.8" height="487.8" fill="url(#pattern73_0_1)"/>
+<rect id="Hair15" x="70" y="98" width="868.5" height="710.1" fill="url(#pattern74_0_1)"/>
+<rect id="Hair16" x="155" y="64" width="714.6" height="821.7" fill="url(#pattern75_0_1)"/>
+<rect id="Hair17" x="193.3" y="126.8" width="623.7" height="436.5" fill="url(#pattern76_0_1)"/>
+<rect id="Hair18" x="186.1" y="73.7" width="629.1" height="427.5" fill="url(#pattern77_0_1)"/>
+<rect id="Hair19" x="186.1" y="73.7" width="629.1" height="427.5" fill="url(#pattern78_0_1)"/>
+<rect id="Hair20" x="175.3" y="101.6" width="583.2" height="340.2" fill="url(#pattern79_0_1)"/>
+<rect id="Hair21" x="175.3" y="101.6" width="583.2" height="340.2" fill="url(#pattern80_0_1)"/>
+<rect id="Hair22" x="175.3" y="101.6" width="583.2" height="340.2" fill="url(#pattern81_0_1)"/>
+<rect id="Hair23" x="152.8" y="138.5" width="495.9" height="421.2" fill="url(#pattern82_0_1)"/>
+<rect id="Hair24" x="178.9" y="124.1" width="682.2" height="837" fill="url(#pattern83_0_1)"/>
+<rect id="Hair25" x="178.9" y="124.1" width="682.2" height="881.1" fill="url(#pattern84_0_1)"/>
 </g>
 </g>
 <defs>
