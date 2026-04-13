@@ -61,13 +61,16 @@ export default function Lobby() {
       }
     };
 
-    // Check immediately
-    checkKicked();
+    // Add a grace period (2 seconds) before first check to allow participant to be created in Firestore
+    const initialCheckTimeout = setTimeout(() => {
+      checkKicked();
+      
+      // Then check periodically
+      const interval = setInterval(checkKicked, 1000);
+      return () => clearInterval(interval);
+    }, 2000);
     
-    // Also check periodically in case of timing issues
-    const interval = setInterval(checkKicked, 1000);
-    
-    return () => clearInterval(interval);
+    return () => clearTimeout(initialCheckTimeout);
   }, [eventId]);
 
   // Apply theme based on event
