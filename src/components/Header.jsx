@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import styles from './Header.module.css';
@@ -7,6 +7,7 @@ import LogOutButton from './LogOutButton';
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
 
   const handleLogoClick = (e) => {
@@ -22,20 +23,19 @@ export default function Header() {
     return unsubscribe;
   }, []);
 
-  // Check if user is currently playing (has userId in sessionStorage)
-  const userId = sessionStorage.getItem("userId");
-  const isPlaying = !!userId;
+  // Check if on a game-related URL: lobby/eventId, game/eventId, results/eventId
+  const isOnGameURL = /^\/(lobby|game|results)\//.test(location.pathname);
 
   return (
     <header className={styles.header}>
       <nav className={styles.nav}>
-        {isPlaying ? (
-          // If playing, render as non-clickable text
+        {isOnGameURL ? (
+          // If on game URL, render as non-clickable text
           <span className={styles.logo}>
             Pulse
           </span>
         ) : (
-          // If not playing, render as clickable link
+          // Otherwise, render as clickable link
           <a href="/" onClick={handleLogoClick} className={styles.logo}>
             Pulse
           </a>
