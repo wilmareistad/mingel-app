@@ -12,7 +12,7 @@ export default function LogOutButton() {
   const handleLogOut = async () => {
     try {
       // Delete user document from Firestore
-      const userDocId = localStorage.getItem("userDocId");
+      const userDocId = sessionStorage.getItem("userDocId");
       if (userDocId) {
         await deleteDoc(doc(db, "users", userDocId));
       }
@@ -20,10 +20,10 @@ export default function LogOutButton() {
       // Sign out from Firebase
       await signOut(auth);
 
-      // Clear localStorage
-      localStorage.removeItem("userId");
-      localStorage.removeItem("eventId");
-      localStorage.removeItem("userDocId");
+      // Clear sessionStorage
+      sessionStorage.removeItem("userId");
+      sessionStorage.removeItem("eventId");
+      sessionStorage.removeItem("userDocId");
 
       // Navigate to home page
       navigate("/");
