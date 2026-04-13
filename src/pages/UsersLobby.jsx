@@ -53,8 +53,8 @@ export default function UsersLobby({ users }) {
       const x = 10 + c * cellW + cellW / 2 + (Math.random() - 0.5) * cellW * 0.3;
       const y = 5  + r * cellH + cellH / 2 + (Math.random() - 0.5) * cellH * 0.3;
       next[user.userId] = {
-        x: Math.max(10, Math.min(90, x)),
-        y: Math.max(5,  Math.min(75, y)),
+x: Math.max(5,  Math.min(95, x)),   // was max(10, min(90))
+y: Math.max(5,  Math.min(90, y)),   // was max(5, min(75))
         vx: 0,
         vy: 0,
       };
@@ -66,12 +66,12 @@ export default function UsersLobby({ users }) {
   // Animation loop — never torn down/recreated
   useEffect(() => {
     const MIN_DIST = 18;
-    const MAX_SPEED = 0.35;
-    const WANDER = 0.015;      // small random nudge per frame
+    const MAX_SPEED = 0.55;
+    const WANDER = 0.025;      // small random nudge per frame
     const DAMPING = 0.92;      // velocity bleeds off smoothly
     const CENTER_X = 50;
     const CENTER_Y = 40;
-    const CENTER_PULL_RADIUS = 35;
+    const CENTER_PULL_RADIUS = 40;
     const CENTER_PULL_FORCE = 0.006;
 
     const interval = setInterval(() => {
@@ -127,11 +127,11 @@ export default function UsersLobby({ users }) {
       // 3. Boundary bounce
       ids.forEach((id) => {
         const u = p[id];
-        if (u.x < 10) { u.x = 10; u.vx =  Math.abs(u.vx); }
-        if (u.x > 90) { u.x = 90; u.vx = -Math.abs(u.vx); }
-        if (u.y <  5) { u.y =  5; u.vy =  Math.abs(u.vy); }
-        if (u.y > 75) { u.y = 75; u.vy = -Math.abs(u.vy); }
-      });
+    if (u.x <  5) { u.x =  5; u.vx =  Math.abs(u.vx); }  // was 10
+    if (u.x > 95) { u.x = 95; u.vx = -Math.abs(u.vx); }  // was 90
+    if (u.y <  5) { u.y =  5; u.vy =  Math.abs(u.vy); }  // unchanged
+    if (u.y > 90) { u.y = 90; u.vy = -Math.abs(u.vy); }  // was 75
+      });     
 
       // 4. Sync a snapshot to React state for rendering
       setRenderPositions(
