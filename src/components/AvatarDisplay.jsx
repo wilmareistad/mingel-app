@@ -1,32 +1,43 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import AvatarSVG from "../assets/avatar.svg";
 import styles from "../styles/AvatarDisplay.module.css";
 
-// Global cache for parsed SVG DOM - fetched and parsed once, cloned for each avatar
-let parsedSVGCache = null;
-let svgCachePromise = null;
+// Global cache: { Bases: [svgPathString, ...], Hairs: [...], ... }
+// Each string is the outerHTML of one layer variant - ready to use, no parsing needed
+let layerCache = null;
+let cachePromise = null;
 
-// Function to get parsed SVG DOM (cached after first fetch/parse)
-function getParsedSVG() {
-  if (parsedSVGCache) {
-    // Already parsed - return immediately
-    return Promise.resolve(parsedSVGCache);
-  }
-
-  if (!svgCachePromise) {
-    // First request - fetch, parse once, and cache the DOM
-    svgCachePromise = fetch(AvatarSVG)
+function getLayerCache() {
+  if (layerCache) return Promise.resolve(layerCache);
+  
+  if (!cachePromise) {
+    cachePromise = fetch(AvatarSVG)
       .then((res) => res.text())
       .then((svgText) => {
         const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
-        parsedSVGCache = svgDoc.documentElement;
-        return parsedSVGCache;
+        const doc = parser.parseFromString(svgText, "image/svg+xml");
+
+        const groups = ["Bases", "Hairs", "Eyes", "Noses", "Mouths", "Clothes"];
+        layerCache = {};
+
+        groups.forEach((groupId) => {
+          const group = doc.getElementById(groupId);
+          if (!group) {
+            layerCache[groupId] = [];
+            return;
+          }
+          // Serialize only the outerHTML of each child — just the paths/shapes
+          layerCache[groupId] = Array.from(group.children).map((child) => {
+            child.style.display = ""; // clear any hidden styles
+            return child.outerHTML;
+          });
+        });
+
+        return layerCache;
       });
   }
-
-  // Return the same promise to all concurrent requests
-  return svgCachePromise;
+  
+  return cachePromise;
 }
 
 export default function AvatarDisplay({
@@ -37,91 +48,36 @@ export default function AvatarDisplay({
   mouthIndex = 0,
   clothesIndex = 0,
 }) {
-  const svgContainerRef = useRef(null);
+  const [svgContent, setSvgContent] = useState("");
 
-  // Load and update SVG visibility whenever indices change
   useEffect(() => {
-    if (!svgContainerRef.current) return;
+    getLayerCache().then((layers) => {
+      const bgColor = getComputedStyle(document.documentElement)
+        .getPropertyValue("--avatar-background-color")
+        .trim() || "#980c50";
 
-    // Get parsed SVG from cache (or fetch+parse once if not cached)
-    getParsedSVG()
-      .then((parsedSVG) => {
-        // Guard against ref becoming null
-        if (!svgContainerRef.current) return;
-
-        // Clone the cached SVG - fast operation
-        const svgElement = parsedSVG.cloneNode(true);
-
-        // Get background color from CSS variable
-        const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--avatar-background-color').trim() || "#980c50";
-        
-        // Find the Avatar group and insert background inside it
-        const avatarGroup = svgElement.getElementById("Avatar");
-        if (avatarGroup) {
-          // Create background group
-          const backgroundGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-          backgroundGroup.setAttribute("id", "Background");
-          
-          // Create background rectangle
-          const backgroundRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-          backgroundRect.setAttribute("width", "100%");
-          backgroundRect.setAttribute("height", "100%");
-          backgroundRect.setAttribute("fill", bgColor);
-          
-          backgroundGroup.appendChild(backgroundRect);
-          avatarGroup.insertBefore(backgroundGroup, avatarGroup.firstChild);
-        }
-
-        // Update visibility for each layer type
-        const updates = [
-          { groupId: "Bases", index: baseIndex },
-          { groupId: "Hairs", index: hairIndex },
-          { groupId: "Eyes", index: eyeIndex },
-          { groupId: "Noses", index: noseIndex },
-          { groupId: "Mouths", index: mouthIndex },
-          { groupId: "Clothes", index: clothesIndex },
-        ];
-
-        updates.forEach(({ groupId, index }) => {
-          const group = svgElement.getElementById(groupId);
-          if (!group) return;
-
-          const children = Array.from(group.children);
-          children.forEach((child, idx) => {
-            child.style.display = idx === index ? "block" : "none";
-          });
-        });
-
-        // Set width and height to fit container
-        svgElement.setAttribute("width", "100%");
-        svgElement.setAttribute("height", "100%");
-        svgElement.setAttribute(
-          "class",
-          styles.avatarSvg
-        );
-
-        // Clear previous SVG but preserve container classes
-        if (svgContainerRef.current) {
-          while (svgContainerRef.current.firstChild) {
-            svgContainerRef.current.removeChild(svgContainerRef.current.firstChild);
-          }
-          svgContainerRef.current.appendChild(svgElement);
-        }
-      });
+      // String concatenation is super fast - just assembling the HTML we need
+      const content = `
+        <rect width="100%" height="100%" fill="${bgColor}"/>
+        ${layers.Bases?.[baseIndex] || ""}
+        ${layers.Hairs?.[hairIndex] || ""}
+        ${layers.Eyes?.[eyeIndex] || ""}
+        ${layers.Noses?.[noseIndex] || ""}
+        ${layers.Mouths?.[mouthIndex] || ""}
+        ${layers.Clothes?.[clothesIndex] || ""}
+      `;
+      setSvgContent(content);
+    });
   }, [baseIndex, hairIndex, eyeIndex, noseIndex, mouthIndex, clothesIndex]);
 
+  // Get viewBox from avatar.svg
   return (
-    <div
-      ref={svgContainerRef}
-      className={styles.avatarContainer}
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        overflow: "hidden",
-      }}
+    <svg
+      viewBox="0 0 1024 1024"
+      width="100%"
+      height="100%"
+      className={styles.avatarSvg}
+      dangerouslySetInnerHTML={{ __html: svgContent }}
     />
   );
 }
