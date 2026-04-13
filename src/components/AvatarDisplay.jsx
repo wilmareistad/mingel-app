@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { getLayerCache } from "./AvatarDefs";
+import { getLayerCache, defsReady } from "./AvatarDefs";
 import styles from "../styles/AvatarDisplay.module.css";
 
 const AvatarDisplay = memo(function AvatarDisplay({
@@ -14,7 +14,8 @@ const AvatarDisplay = memo(function AvatarDisplay({
   const [viewBox, setViewBox] = useState("0 0 1024 1024");
 
   useEffect(() => {
-    getLayerCache().then(layers => {
+    // Wait for defs to be in the DOM before rendering avatar layers
+    Promise.all([getLayerCache(), defsReady]).then(([layers]) => {
       const bgColor = getComputedStyle(document.documentElement)
         .getPropertyValue("--avatar-background-color").trim() || "#980c50";
 
