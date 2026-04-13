@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AvatarSVG from "../assets/avatar.svg";
 import styles from "../styles/AvatarDisplay.module.css";
 
-// Global cache: { Bases: [svgPathString, ...], Hairs: [...], ... }
-// Each string is the outerHTML of one layer variant - ready to use, no parsing needed
-let layerCache = null;
+// Global cache for parsed SVG - fetched and parsed once
+let parsedSVGCache = null;
 let cachePromise = null;
 
-function getLayerCache() {
-  if (layerCache) return Promise.resolve(layerCache);
+function getParsedSVG() {
+  if (parsedSVGCache) return Promise.resolve(parsedSVGCache);
   
   if (!cachePromise) {
     cachePromise = fetch(AvatarSVG)
@@ -16,24 +15,8 @@ function getLayerCache() {
       .then((svgText) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(svgText, "image/svg+xml");
-
-        const groups = ["Bases", "Hairs", "Eyes", "Noses", "Mouths", "Clothes"];
-        layerCache = {};
-
-        groups.forEach((groupId) => {
-          const group = doc.getElementById(groupId);
-          if (!group) {
-            layerCache[groupId] = [];
-            return;
-          }
-          // Serialize only the outerHTML of each child — just the paths/shapes
-          layerCache[groupId] = Array.from(group.children).map((child) => {
-            child.style.display = ""; // clear any hidden styles
-            return child.outerHTML;
-          });
-        });
-
-        return layerCache;
+        parsedSVGCache = doc.documentElement;
+        return parsedSVGCache;
       });
   }
   
@@ -48,36 +31,72 @@ export default function AvatarDisplay({
   mouthIndex = 0,
   clothesIndex = 0,
 }) {
-  const [svgContent, setSvgContent] = useState("");
+  const svgContainerRef = useRef(null);
 
   useEffect(() => {
-    getLayerCache().then((layers) => {
+    if (!svgContainerRef.current) return;
+
+    getParsedSVG().then((originalSVG) => {
+      if (!svgContainerRef.current) return;
+
+      // Clone the entire SVG (includes all defs, patterns, clip-paths)
+      const svgElement = originalSVG.cloneNode(true);
+
+      // Get background color from CSS variable
       const bgColor = getComputedStyle(document.documentElement)
         .getPropertyValue("--avatar-background-color")
         .trim() || "#980c50";
 
-      // String concatenation is super fast - just assembling the HTML we need
-      const content = `
-        <rect width="100%" height="100%" fill="${bgColor}"/>
-        ${layers.Bases?.[baseIndex] || ""}
-        ${layers.Hairs?.[hairIndex] || ""}
-        ${layers.Eyes?.[eyeIndex] || ""}
-        ${layers.Noses?.[noseIndex] || ""}
-        ${layers.Mouths?.[mouthIndex] || ""}
-        ${layers.Clothes?.[clothesIndex] || ""}
-      `;
-      setSvgContent(content);
+      // Update the background rect
+      const backgroundRect = svgElement.querySelector("rect");
+      if (backgroundRect) {
+        backgroundRect.setAttribute("fill", bgColor);
+      }
+
+      // Hide all layer variants except the selected ones
+      const updates = [
+        { groupId: "Bases", index: baseIndex },
+        { groupId: "Hairs", index: hairIndex },
+        { groupId: "Eyes", index: eyeIndex },
+        { groupId: "Noses", index: noseIndex },
+        { groupId: "Mouths", index: mouthIndex },
+        { groupId: "Clothes", index: clothesIndex },
+      ];
+
+      updates.forEach(({ groupId, index }) => {
+        const group = svgElement.getElementById(groupId);
+        if (!group) return;
+
+        Array.from(group.children).forEach((child, idx) => {
+          child.style.display = idx === index ? "block" : "none";
+        });
+      });
+
+      // Add CSS class for styling
+      svgElement.setAttribute("class", styles.avatarSvg);
+
+      // Clear and append to container
+      if (svgContainerRef.current) {
+        while (svgContainerRef.current.firstChild) {
+          svgContainerRef.current.removeChild(svgContainerRef.current.firstChild);
+        }
+        svgContainerRef.current.appendChild(svgElement);
+      }
     });
   }, [baseIndex, hairIndex, eyeIndex, noseIndex, mouthIndex, clothesIndex]);
 
-  // Get viewBox from avatar.svg
   return (
-    <svg
-      viewBox="0 0 1024 1024"
-      width="100%"
-      height="100%"
-      className={styles.avatarSvg}
-      dangerouslySetInnerHTML={{ __html: svgContent }}
+    <div
+      ref={svgContainerRef}
+      className={styles.avatarContainer}
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden",
+      }}
     />
   );
 }
