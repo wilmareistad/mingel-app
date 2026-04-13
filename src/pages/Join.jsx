@@ -233,7 +233,7 @@ export default function Join() {
         type="text"
         placeholder="Event code"
         value={code}
-        onChange={(e) => setCode(e.target.value)}
+        onChange={(e) => setCode(e.target.value.toUpperCase())}
       />
 
       <input
