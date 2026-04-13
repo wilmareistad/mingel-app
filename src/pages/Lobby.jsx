@@ -64,7 +64,8 @@ export default function Lobby() {
       }
     };
 
-    // Add a longer grace period (3.5 seconds) before first check to allow participant to be created in Firestore
+    // Add a longer grace period (5 seconds) before first check to allow participant to be created in Firestore
+    // First person joining needs more time due to database initialization
     const initialCheckTimeout = setTimeout(() => {
       if (isMounted) {
         checkKicked();
@@ -76,7 +77,7 @@ export default function Lobby() {
         
         return () => clearInterval(interval);
       }
-    }, 3500);
+    }, 5000);
     
     return () => {
       isMounted = false;
