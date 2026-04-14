@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import UsersLobby from "./UsersLobby";
-import styles from "./Lobby.module.css";
+import EventQRCodeDisplay from "../components/QRCodeDisplay";
 
 const FIRST_NAMES = [
   "John", "Rickard", "Benita", "Robin", "Emma", "Olof", "Vanessa", "Ida",
@@ -29,10 +29,8 @@ const ROLES = [
   "Coach", "Mentor", "Facilitator", "Daydreamer", "Planner", "Investor"
 ];
 
-export default function LobbyTest() {
-  const [participantCount, setParticipantCount] = useState(10);
-
-  // Generate fake users
+// Test wrapper component that provides fake event data to AdminLobby
+function AdminLobbyTest({ participantCount, onParticipantCountChange }) {
   const fakeUsers = useMemo(() => {
     const users = [];
     const usedNames = new Set();
@@ -73,68 +71,63 @@ export default function LobbyTest() {
   }, [participantCount]);
 
   return (
-    <div>
+    <>
       <h1>Lobby Test</h1>
-
-      <div style={{ marginBottom: "2rem", textAlign: "center" }}>
-        <p>Test the lobby layout with different participant counts:</p>
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <button
-            onClick={() => setParticipantCount(10)}
-            style={{
-              padding: "0.75rem 1.5rem",
-              backgroundColor: participantCount === 10 ? "#001A52" : "#ccc",
-              color: participantCount === 10 ? "white" : "black",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: "600"
-            }}
-          >
-            10 People
-          </button>
-          <button
-            onClick={() => setParticipantCount(50)}
-            style={{
-              padding: "0.75rem 1.5rem",
-              backgroundColor: participantCount === 50 ? "#001A52" : "#ccc",
-              color: participantCount === 50 ? "white" : "black",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: "600"
-            }}
-          >
-            50 People
-          </button>
-          <button
-            onClick={() => setParticipantCount(100)}
-            style={{
-              padding: "0.75rem 1.5rem",
-              backgroundColor: participantCount === 100 ? "#001A52" : "#ccc",
-              color: participantCount === 100 ? "white" : "black",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: "600"
-            }}
-          >
-            100 People
-          </button>
-        </div>
-      </div>
-
-      <p><strong>Room Name:</strong> Test Event</p>
-      <p><strong>Room Code:</strong> TEST123</p>
-      <p><strong>Status:</strong> lobby</p>
-      <p style={{ marginTop: "1rem", color: "#666" }}>
-        Showing {fakeUsers.length} participants ({fakeUsers.filter(u => u.role).length} with roles)
-      </p>
-
+      <EventQRCodeDisplay eventCode="TEST1" />
       <UsersLobby users={fakeUsers} />
-    </div>
+      <div style={{ display: "flex", flexDirection: "row", gap: "0.5rem", marginTop: "1.5rem", justifyContent: "center", width: "100%" }}>
+        <button
+          onClick={() => onParticipantCountChange(10)}
+          style={{
+            padding: "0.4rem 0.8rem",
+            backgroundColor: participantCount === 10 ? "#001A52" : "#ccc",
+            color: participantCount === 10 ? "white" : "black",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "0.85rem",
+            fontWeight: "600"
+          }}
+        >
+          10 People
+        </button>
+        <button
+          onClick={() => onParticipantCountChange(50)}
+          style={{
+            padding: "0.4rem 0.8rem",
+            backgroundColor: participantCount === 50 ? "#001A52" : "#ccc",
+            color: participantCount === 50 ? "white" : "black",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "0.85rem",
+            fontWeight: "600"
+          }}
+        >
+          50 People
+        </button>
+        <button
+          onClick={() => onParticipantCountChange(100)}
+          style={{
+            padding: "0.4rem 0.8rem",
+            backgroundColor: participantCount === 100 ? "#001A52" : "#ccc",
+            color: participantCount === 100 ? "white" : "black",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "0.85rem",
+            fontWeight: "600"
+          }}
+        >
+          100 People
+        </button>
+      </div>
+    </>
   );
+}
+
+export default function LobbyTest() {
+  const [participantCount, setParticipantCount] = useState(10);
+
+  return <AdminLobbyTest participantCount={participantCount} onParticipantCountChange={setParticipantCount} />;
 }
