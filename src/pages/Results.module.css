@@ -5,7 +5,6 @@
   justify-content: flex-start;
   min-height: 100vh;
   padding: 40px 20px;
-  gap: 20px;
 }
 
 .resultsHeader {
@@ -181,7 +180,6 @@
 @media (min-width: 769px) {
   .resultsContainer {
     padding: 40px 20px;
-    gap: 40px;
   }
 
   .resultsHeader h1 {
