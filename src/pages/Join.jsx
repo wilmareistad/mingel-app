@@ -254,7 +254,7 @@ window.location.href = `/lobby/${eventId}`;
         />
       </div>
 
-      <button onClick={handleJoin}>Join</button>
+      <button onClick={handleJoin} className={styles.joinBtn}>Join</button>
 
       {message && <p>{message}</p>}
     </div>
