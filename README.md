@@ -260,9 +260,8 @@ Final Results Page
 - Duration: configurable (10s - 5min)
 
 ### Results State
-- Correct answer highlighted
 - Participant responses shown
-- Points awarded displayed
+- Votes awarded displayed
 - Countdown to next question
 - Admin can manually advance
 - Duration: configurable (5s - 5min)
