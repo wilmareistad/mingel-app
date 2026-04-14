@@ -9,12 +9,23 @@ import UsersLobby from "./UsersLobby";
 import EventQRCodeDisplay from "../components/QRCodeDisplay";
 import styles from "./Lobby.module.css";
 
-export default function AdminLobby() {
+export default function AdminLobby({ testMode }) {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [players, setPlayers] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(null);
+
+  // If in test mode, use fake data
+  if (testMode) {
+    return (
+      <div>
+        <h1>Lobby Test</h1>
+        <EventQRCodeDisplay eventCode="TEST1" />
+        <UsersLobby users={testMode.users.map(p => ({ userId: p.userId, name: p.name, avatar: p.avatar }))} />
+      </div>
+    );
+  }
 
   // Fetch event data
   useEffect(() => {
