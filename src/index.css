@@ -31,7 +31,6 @@ body {
 
 main {
   width: 100%;
-  max-width: 1200px;
   padding: 0 20px;
   box-sizing: border-box;
   display: flex;
@@ -51,7 +50,6 @@ main > div {
 
 #root > :not(.animated-bg) {
   width: 100%;
-  max-width: 1200px;
   padding: 0 20px;
   box-sizing: border-box;
 }

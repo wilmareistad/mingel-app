@@ -331,8 +331,6 @@ export default function Lobby() {
             </div>
           )}
 
-          <EventQRCodeDisplay eventCode={event.code} />
-
           <UsersLobby users={players.map(p => ({ userId: p.id, name: p.username, avatar: p.avatar, role: p.role }))} />
           
           <button onClick={handleLeave}>Leave Game</button>
