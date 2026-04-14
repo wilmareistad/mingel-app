@@ -49,7 +49,7 @@ Pulse is a real-time, interactive multiplayer quiz application built with React 
 ### 📱 Avatar System
 - Customizable player avatars with 5 parts:
   - Hair, Eyes, Nose, Mouth, Skin Tone
-- 30+ options per feature
+- Multiple options per feature
 - Visual representation in lobby
 
 ### 🔐 Smart Player Lifecycle
