@@ -1,27 +1,27 @@
 .qrCodeContainer {
   position: fixed;
-  bottom: 2%;
-  left: 2%;
+  top: 3%;
+  right: 2%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 12px;
+  /* padding: 12px; */
   border-radius: 12px;
   z-index: 10;
   width: auto;
 }
 
 .qrCode {
-  padding: 8px;
+  /* padding: 8px; */
   background: white;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 160px;
-  height: 160px;
-  transform-origin: bottom left;
+  width: 130px;
+  height: 130px;
+  transform-origin: top right;
   transition: transform 0.3s ease;
 }
 
@@ -53,11 +53,11 @@
   font-family: 'Courier New', monospace;
   font-weight: 700;
   letter-spacing: 3px;
-  font-size: 60px;
-  padding: 10px 0px 10px 40px;
+  font-size: 50px;
+  /* padding-right: 30px; */
   border-radius: 4px;
   text-align: center;
-  margin-bottom: 1.9rem;
+  /* margin-bottom: 1.9rem; */
 }
 
 .qrCodeContainer h2 {
@@ -70,13 +70,6 @@
 @media (min-width: 3200px) {
   .qrCode {
     transform: scale(5);
-  }
-
-  .qrCodeContainer {
-    bottom: 40px;
-    left: 40px;
-    gap: 16px;
-    padding: 20px;
   }
 
   .codeDisplay {
@@ -111,9 +104,25 @@
 }
 
 /* Medium to large screens */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .qrCode {
+    transform: scale(1.05);
+  }
+
+  .codeDisplay {
+    font-size: 13px;
+    gap: 7px;
+  }
+
+  .qrCodeContainer h2 {
+    font-size: 14px;
+  }
+}
+
+/* Large screens */
 @media (min-width: 1440px) and (max-width: 2559px) {
   .qrCode {
-    transform: scale(1.25);
+    transform: scale(1.15);
   }
 
   .codeDisplay {
@@ -121,14 +130,13 @@
     gap: 7px;
   }
 
-
   .qrCodeContainer h2 {
     font-size: 16px;
   }
 }
 
 /* Standard desktop */
-@media (min-width: 1025px) and (max-width: 1439px) {
+@media (min-width: 1025px) and (max-width: 1199px) {
   .qrCode {
     transform: scale(1);
   }
@@ -136,7 +144,6 @@
   .codeDisplay {
     font-size: 12px;
   }
-
 
   .qrCodeContainer h2 {
     font-size: 14px;
