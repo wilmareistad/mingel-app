@@ -24,7 +24,7 @@ Pulse is a real-time, interactive multiplayer quiz application built with React 
 
 ### 🎮 Real-Time Multiplayer
 - Live participant synchronization via Firestore listeners
-- Instant score updates and leaderboard
+- Instant vote updates
 - Multi-device support (phones, tablets, desktops)
 - Mobile optimized for on-the-go participation
 
