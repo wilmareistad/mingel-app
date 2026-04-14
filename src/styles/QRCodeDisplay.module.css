@@ -72,13 +72,6 @@
     transform: scale(5);
   }
 
-  .qrCodeContainer {
-    bottom: 40px;
-    left: 40px;
-    gap: 16px;
-    /* padding: 20px; */
-  }
-
   .codeDisplay {
     font-size: 20px;
     gap: 10px;
