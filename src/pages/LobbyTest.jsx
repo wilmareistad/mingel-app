@@ -3,30 +3,30 @@ import UsersLobby from "./UsersLobby";
 import styles from "./Lobby.module.css";
 
 const FIRST_NAMES = [
-  "Alex", "Jordan", "Sam", "Casey", "Morgan", "Riley", "Taylor", "Quinn",
-  "Jamie", "Avery", "Blake", "Drew", "Cameron", "Parker", "Skyler", "River",
-  "Sage", "Dakota", "Hunter", "Finley", "Rowan", "Reese", "Emerson", "Bellamy",
-  "Bailey", "Harley", "Peyton", "Rory", "Tatum", "Sloan", "London", "Phoenix",
-  "Sydney", "Harper", "Devon", "Marley", "Cassidy", "Shea", "Haven", "Sutton",
-  "Vaughn", "Zephyr", "Storm", "Ocean", "Sky", "Moon", "Star", "Aurora",
-  "Nova", "Iris", "Sage", "Willow"
+  "John", "Rickard", "Benita", "Robin", "Emma", "Olof", "Vanessa", "Ida",
+  "Alexandru", "Anton", "Tim", "Patricia", "Marie", "Elsa", "Eddie", "Hanna",
+  "Laura", "Malin", "Wilma", "Nathalie", "Daniella", "Emelie", "Maria", "Olivia",
+  "Hans", "Rune", "Ishmael", "Leopold", "K", "Brutus", "PistolWhip", "Ringo",
+  "Notorious", "Sylvia", "Coco", "Mynta", "Cixin", "Aureliano", "Knugen", "Godzilla",
+  "Conny med K", "Pläd", "Livsnjutarn", "Linux", "Legolas", "Billie", "Bulle", "Lilla Bommen",
+  "Kenny", "Smaug", "Wanda", "R2", "Crazy Frog"
 ];
 
 const LAST_NAMES = [
-  "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
-  "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson",
-  "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson",
-  "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Young",
-  "Diaz", "Allen", "King", "Wright", "Scott", "Torres", "Peterson", "Phillips",
-  "Campbell", "Parker", "Edwards", "Collins", "Reeves", "Morris", "Rogers", "Morgan",
-  "Peterson", "Cooper", "Reed", "Cook"
+  "Karenina", "Johnson", "Ahlenhed", "Almroth", "Backman", "Andersson", "Börnfelt", "Finnsisjön", "Hårdisksson",
+  "Steinbeck", "Holiday", "Sin Carne", "Buendía", "Olsson", "Alm", "Giraldo",
+  "Johansson", "Persson", "Moore", "Rosie", "Reistad", "Rosenkvist", "Saadon", "Tedeman",
+  "Töreland", "", "Vrethammar", "LaBeouf", "Snusson", "Guryan", "Simone", "Aronofsky", "Panda",
+  "Bergman", "McCalla", "Pastrami", "Taco", "D2", "de Ripper", "Filibuster", "Tolstoj",
+  "Hyvönen", "Hurula", "Waits", "Lamar", "Swayze", "Crumb", "McDermot", "Carmichael",
+  "Sagan", "Cooper", "Bovary", "Ingmarsson", "", "", "", "", "", "", "", "", ""
 ];
 
 const ROLES = [
-  "Manager", "Developer", "Designer", "Product Owner", "Analyst", "Engineer",
-  "Coordinator", "Specialist", "Consultant", "Director", "Lead", "Architect",
-  "Strategist", "Supervisor", "Administrator", "Executive", "Officer", "Chief",
-  "Coach", "Mentor", "Facilitator", "Organizer", "Planner", "Investor"
+  "Manager", "Developer", "Student", "Product Owner", "Analyst", "Engineer",
+  "Coordinator", "Student", "Consultant", "Director", "Lead", "Homeless",
+  "Strategist", "Supervisor", "Administrator", "Executive", "Officer", "Chef",
+  "Coach", "Mentor", "Facilitator", "Daydreamer", "Planner", "Investor"
 ];
 
 export default function LobbyTest() {
@@ -53,11 +53,11 @@ export default function LobbyTest() {
         userId: `user-${i}`,
         name: name,
         avatar: {
-          baseIndex: Math.floor(Math.random() * 5),
-          hairIndex: Math.floor(Math.random() * 10),
-          eyeIndex: Math.floor(Math.random() * 8),
-          noseIndex: Math.floor(Math.random() * 6),
-          mouthIndex: Math.floor(Math.random() * 7),
+          baseIndex: Math.floor(Math.random() * 13),
+          hairIndex: Math.floor(Math.random() * 26),
+          eyeIndex: Math.floor(Math.random() * 16),
+          noseIndex: Math.floor(Math.random() * 11),
+          mouthIndex: Math.floor(Math.random() * 19),
           clothesIndex: 0,
         },
         // 50% of users have a role

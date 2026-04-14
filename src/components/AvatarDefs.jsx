@@ -3,6 +3,12 @@ import AvatarSVG from "../assets/avatar.svg";
 
 let defsCache = null;
 let defsPromise = null;
+let defsReadyResolve = null;
+
+// This promise resolves only after defs are injected into the DOM
+export const defsReady = new Promise(resolve => {
+  defsReadyResolve = resolve;
+});
 
 export function getLayerCache() {
   if (defsCache) return Promise.resolve(defsCache);
@@ -34,8 +40,6 @@ export function getLayerCache() {
   return defsPromise;
 }
 
-// Render this ONCE at the top level of your app (e.g. in App.jsx or Layout.jsx)
-// It injects a single hidden SVG with all defs — all avatars share them
 export default function AvatarDefs() {
   const [defs, setDefs] = useState("");
 
@@ -44,6 +48,14 @@ export default function AvatarDefs() {
       setDefs(layers.__defs__);
     });
   }, []);
+
+  // Signal that defs are now in the DOM
+  useEffect(() => {
+    if (defs && defsReadyResolve) {
+      defsReadyResolve();
+      defsReadyResolve = null;
+    }
+  }, [defs]);
 
   if (!defs) return null;
 

@@ -182,7 +182,7 @@ export default function Join() {
       sessionStorage.setItem("avatar", JSON.stringify(avatarConfig));
 
       // Navigate to lobby - participant should now exist in Firestore
-      navigate(`/lobby/${eventId}`);
+window.location.href = `/lobby/${eventId}`;
     } catch (error) {
       console.error(error);
       setMessage("Something went wrong");
