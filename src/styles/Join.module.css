@@ -78,8 +78,8 @@
 
 .joinBtn {
   padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: #FFFFFF;
-  color: #000000;
+  background-color: var(--btn-primary-bg);
+  color: #FFFFFF;
   border: none;
   border-radius: var(--border-radius);
   font-size: var(--font-size-md);
@@ -90,8 +90,7 @@
 }
 
 .joinBtn:hover {
-  background-color: #f0f0f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--btn-primary-hover);
 }
 
 .joinBtn:active {
