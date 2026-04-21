@@ -14,7 +14,7 @@ import AdminDebug from "./pages/AdminDebug";
 import Game from "./pages/Game";
 import Results from "./pages/Results";
 import NotFound from "./pages/NotFound";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Header from './components/Header';
 import AvatarDefs from './components/AvatarDefs';
@@ -87,8 +87,22 @@ function App() {
   const [firebaseLoaded, setFirebaseLoaded] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, () => {
-      setFirebaseLoaded(true);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        // User is signed in (either anonymously or with email/password)
+        setFirebaseLoaded(true);
+      } else {
+        // No user, sign in anonymously
+        signInAnonymously(auth)
+          .then(() => {
+            console.log("✅ Signed in anonymously");
+            setFirebaseLoaded(true);
+          })
+          .catch((error) => {
+            console.error("❌ Anonymous sign-in failed:", error);
+            setFirebaseLoaded(true); // Still load the app even if anonymous sign-in fails
+          });
+      }
     });
     return () => unsubscribe();
   }, []);
