@@ -1,6 +1,11 @@
 # Pulse - Real-Time Multiplayer Quiz Application
 
-Pulse is a real-time, interactive multiplayer quiz application built with React and Firebase. Admins create events with curated questions and manage the game flow in real-time, while participants join via QR code or event code and answer questions synchronously with live scoring.
+<img width="534" height="249" alt="Frame 13" src="https://github.com/user-attachments/assets/a652c044-e482-4dd1-9ad1-641ba30fb187" />
+
+
+
+Pulse is a real-time, interactive multiplayer quiz application built with React and Firebase. Admins create events with curated questions and manage the game flow in real-time, while participants join via QR code or event code and 
+answer questions synchronously with live scoring.
 
 [Visit the deployed site](https://pulse-rho-five.vercel.app/)
 
